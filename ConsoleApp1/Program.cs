@@ -49,9 +49,6 @@ class Program
                 File.WriteAllLines($"C:\\Users\\Owner\\Desktop\\{name}.obj", Contents);
             }
         }
-        //List<string> objContents = GenerateBoxGeometry(n);
-        //File.WriteAllText("C:\\Users\\Owner\\Desktop\\SavedLists.obj", String.Empty);
-        //File.WriteAllLines("C:\\Users\\Owner\\Desktop\\SavedLists.obj", objContents);
     }
     public static List<string> GenerateBoxGeometry(List<BoxData> inputData)
     {
@@ -121,7 +118,6 @@ class Program
                 entry.back_3 = dataItem[index+6].ToObject<List<double>>();
                 entry.back_4 = dataItem[index+7].ToObject<List<double>>();
                 geometryFromPair.Add(entry);
-
             }
             if (geometryFromPair.Count != 0)
             {
