@@ -96,7 +96,7 @@ class Program
                 {
                     if (gross[0].ToString() == "front_1")
                     {
-                        List<string> pairingData = new List<string>(){ item.Path.Split('.')[1], i.ToString()};
+                        List<string> pairingData = new List<string>(){item.Path.Split('.')[1], i.ToString()};
                         boxTypes.Add(pairingData);
                     }
                     i++;
