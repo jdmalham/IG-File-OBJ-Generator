@@ -13,27 +13,31 @@ struct MuonChamberData
 {
     public string name;
     public int detid;
-    public List<double> front_1;
-    public List<double> front_2;
-    public List<double> front_3;
-    public List<double> front_4;
-    public List<double> back_1;
-    public List<double> back_2;
-    public List<double> back_3;
-    public List<double> back_4;
+    public double[] front_1;
+    public double[] front_2;
+    public double[] front_3;
+    public double[] front_4;
+    public double[] back_1;
+    public double[] back_2;
+    public double[] back_3;
+    public double[] back_4;
 };
-struct CalorimetryBoxData
+struct CalorimetryData
 {
     public string name;
     public double energy;
-    public List<double> front_1;
-    public List<double> front_2;
-    public List<double> front_3;
-    public List<double> front_4;
-    public List<double> back_1;
-    public List<double> back_2;
-    public List<double> back_3;
-    public List<double> back_4;
+    public double eta;
+    public double phi;
+    public double time;
+    public int detid;
+    public double[] front_1;
+    public double[] front_2;
+    public double[] front_3;
+    public double[] front_4;
+    public double[] back_1;
+    public double[] back_2;
+    public double[] back_3;
+    public double[] back_4;
 }
 struct METData
 {
@@ -62,7 +66,7 @@ struct PhotonData
     public double phi;
     public List<double> position;
 }
-namespace LineHandlers
+namespace IGtoOBJGen
 {
     internal class IGPhotons
     {
@@ -110,10 +114,10 @@ namespace LineHandlers
             List<double> pt1 = new List<double>() { x0, y0, z0 };
             List<double> pt2 = new List<double>() { x0 + px * t, y0 + py * t, z0 + pz * t };
             string Contents;
-            Contents = ($"v {x0} {y0} {z0}\nv {x0+0.001} {y0+0.001} {z0 + 0.001}\nv {x0 + px * t} {y0 + py * t} {z0 + pz * t}\nv {x0 + px * t + 0.001} {y0 + py * t + 0.001} {z0 + pz * t + 0.001}");
+            Contents = $"v {x0} {y0} {z0}\nv {x0+0.001} {y0+0.001} {z0 + 0.001}\nv {x0 + px * t} {y0 + py * t} {z0 + pz * t}\nv {x0 + px * t + 0.001} {y0 + py * t + 0.001} {z0 + pz * t + 0.001}";
             return Contents;
         }
-        public static void generatePhotonModelsData(List<PhotonData> dataList)
+        public static void generatePhotonModels(List<PhotonData> dataList)
         {
             List<string> dataStrings = new List<string>();
             int counter = 1;
