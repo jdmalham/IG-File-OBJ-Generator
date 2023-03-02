@@ -2,9 +2,12 @@
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.Numerics;
+/*
+ "Lines are cool 😎" - Pythagoras
+ */
 namespace IGtoOBJGen
 {
-    internal class IGPhotons
+    internal class IGTracks
     {
         public static List<PhotonData> photonParse(JObject data)
         {
@@ -26,8 +29,10 @@ namespace IGtoOBJGen
             }
             return dataList;
         }
-        public static string makePhoton(PhotonData data)//string filePath)
+        public static string makePhoton(PhotonData data)
         {
+            //Calculate path of the photons within the detector
+
             double lEB = 3.0; //half-length of ECAL barrel in meters
             double rEB = 1.24; //radius of ECAL barrel in meters
             double eta = data.eta;
@@ -53,21 +58,21 @@ namespace IGtoOBJGen
                 t = (-b + Math.Sqrt(b * b - 4 * a * c)) / (2 * a);
             }
             
-            List<double> pt1 = new List<double>() { x0, y0, z0 };
-            List<double> pt2 = new List<double>() { x0 + px * t, y0 + py * t, z0 + pz * t };
-            
             string Contents;
             Contents = $"v {x0} {y0} {z0}\nv {x0+0.001} {y0+0.001} {z0 + 0.001}\nv {x0 + px * t} {y0 + py * t} {z0 + pz * t}\nv {x0 + px * t + 0.001} {y0 + py * t + 0.001} {z0 + pz * t + 0.001}";
+            //Output a string of obj vectors that define the photon path
             return Contents;
         }
         public static void generatePhotonModels(List<PhotonData> dataList)
         {
+            //Write obj files for the photons
             List<string> dataStrings = new List<string>();
             int counter = 1;
 
             foreach (var igPhotonData in dataList)
             {
                 string objData = makePhoton(igPhotonData);
+                //Hey! That's the function from above!
                 dataStrings.Add(objData);
                 dataStrings.Add($"f {counter} {counter+1} {counter + 3} {counter + 2}");
                 counter += 4;
@@ -77,22 +82,25 @@ namespace IGtoOBJGen
             File.WriteAllLines("C:\\Users\\Owner\\source\\repos\\ConsoleApp1\\ConsoleApp1\\objModels\\Photons_V1.obj", dataStrings);
         }
         public static void trackCubicBezierCurve(List<TrackExtrasData> data, int numVerts) {
+            //Calculate the bezier path of the tracks based on the four pos control vectors defined in the TrackExtrasData struct
             List<string> dataList = new List<string>();
             List<int> exclusion_indeces = new List<int>();
             int n = 0;
 
             foreach (var item in data) {
-                //Console.Write('h');
+                
                 string track = "";
                 for (int i = 0; i <= numVerts; i++) {
                     float t = (float)(i) / (float)(numVerts);
 
+                    // Check out the wikipedia page for bezier curves if you want to understand the math. That's where I learned it!
                     Vector3 term1 = Vector3.Multiply(item.pos1, (float)Math.Pow(1 - t, 3));
                     Vector3 term2 = Vector3.Multiply(item.pos3, (float)(3 * t * (float)Math.Pow(1 - t, 2)));
                     Vector3 term3 = Vector3.Multiply(item.pos4, (float)(3 * t * t * (1 - t)));
                     Vector3 term4 = Vector3.Multiply(item.pos2, (float)Math.Pow(t, 3));
                     Vector3 point = term1 + term2 + term3 + term4;
 
+                    //these vectors are only offset because this is gonna be used later for a untiy project, and it doesn't like obj lines. Instead, we define them as ribbons.
                     string poin_t = $"v {point.X} {point.Y} {point.Z}\nv {point.X+0.1f} {point.Y+0.01f} {point.Z +0.01f}\n";
 
                     track += poin_t;
@@ -104,11 +112,12 @@ namespace IGtoOBJGen
             
             for (int r = 1; r <= n - 2; r += 2) {
                 if (exclusion_indeces.Contains(r+1)) {
+                    //Make sure the tracks don't loop back on each other
                     continue;
                 }
+                // Define faces
                 string faces = $"f {r} {r+1} {r+3} {r+2}\nf {r+2} {r+3} {r+1} {r}";
                 dataList.Add(faces);
-                //Console.Write(faces);
             }
             File.WriteAllText("C:\\Users\\Owner\\Desktop\\tracks.obj", String.Empty);
             File.WriteAllLines("C:\\Users\\Owner\\Desktop\\tracks.obj", dataList);
