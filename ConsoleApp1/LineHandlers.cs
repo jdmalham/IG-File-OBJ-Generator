@@ -74,6 +74,7 @@ namespace IGtoOBJGen
                 string objData = makePhoton(igPhotonData);
                 //Hey! That's the function from above!
                 dataStrings.Add(objData);
+                // Declare the faces
                 dataStrings.Add($"f {counter} {counter+1} {counter + 3} {counter + 2}");
                 counter += 4;
             }
@@ -100,7 +101,9 @@ namespace IGtoOBJGen
                     Vector3 term4 = Vector3.Multiply(item.pos2, (float)Math.Pow(t, 3));
                     Vector3 point = term1 + term2 + term3 + term4;
 
-                    //these vectors are only offset because this is gonna be used later for a untiy project, and it doesn't like obj lines. Instead, we define them as ribbons.
+                    //These vectors are only offset because this is gonna be used later for a untiy project, and it doesn't like obj lines. 
+                    //Instead, we define them as ribbons. Also the offset should be 0.001 but it's 0.1 for testing purposes.
+                 
                     string poin_t = $"v {point.X} {point.Y} {point.Z}\nv {point.X+0.1f} {point.Y+0.01f} {point.Z +0.01f}\n";
 
                     track += poin_t;
