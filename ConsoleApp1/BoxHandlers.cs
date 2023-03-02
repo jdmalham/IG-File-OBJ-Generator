@@ -14,10 +14,12 @@ namespace IGtoOBJGen
         public static List<MuonChamberData> muonChamberParse(JObject data)
         {
             var dataList = new List<MuonChamberData>();
+            
             foreach (var igChamberData in data["Collections"]["MuonChambers_V1"])
             {
                 MuonChamberData muonChamberData = new MuonChamberData();
                 var children = igChamberData.Children().Values<double>().ToList();
+                
                 muonChamberData.name = "MuonChambers_V1";
                 muonChamberData.detid = (int)children[0];
                 muonChamberData.front_1 = new double[] {children[1],children[2],children[3]};
@@ -28,6 +30,7 @@ namespace IGtoOBJGen
                 muonChamberData.back_2 = new double[] {children[16],children[17],children[18]};
                 muonChamberData.back_3 = new double[] {children[19],children[20],children[21]};
                 muonChamberData.back_4 = new double[] {children[22],children[23],children[24]};
+                
                 dataList.Add(muonChamberData);
             }
             return dataList;
@@ -37,9 +40,11 @@ namespace IGtoOBJGen
             List<string> dataStrings = new List<string>();
             int counter = 1;
             string name = data[0].name;
+            
             foreach (var chamber in data)
             {
                 dataStrings.Add($"o {name}");
+                
                 dataStrings.Add($"v {String.Join(' ',chamber.front_1)}");
                 dataStrings.Add($"v {String.Join(' ',chamber.front_2)}");
                 dataStrings.Add($"v {String.Join(' ',chamber.front_3)}");
@@ -48,6 +53,7 @@ namespace IGtoOBJGen
                 dataStrings.Add($"v {String.Join(' ',chamber.back_2)}");
                 dataStrings.Add($"v {String.Join(' ',chamber.back_3)}");
                 dataStrings.Add($"v {String.Join(' ',chamber.back_4)}");
+                
                 dataStrings.Add($"f {counter} {counter + 1} {counter + 2} {counter + 3}");
                 dataStrings.Add($"f {counter + 3} {counter + 2} {counter + 1} {counter}");
                 dataStrings.Add($"f {counter + 4} {counter + 5} {counter + 6} {counter + 7}");
@@ -62,16 +68,19 @@ namespace IGtoOBJGen
                 dataStrings.Add($"f {counter + 5} {counter + 4} {counter} {counter + 1}");
                 counter += 8;
             }
+            
             File.WriteAllText($"C:\\Users\\Owner\\Desktop\\{name}.obj", String.Empty);
             File.WriteAllLines($"C:\\Users\\Owner\\Desktop\\{name}.obj", dataStrings);
         }
         public static List<List<CalorimetryData>> calorimetryParse(JObject data, string name, List<List<CalorimetryData>> dataList)
         {
             var mediatingList = new List<CalorimetryData>();
+            
             foreach (var item in data["Collections"][name])
             {
                 CalorimetryData ebHitsData = new CalorimetryData();
                 var children = item.Children().Values<double>().ToList();
+                
                 ebHitsData.name = name;
                 ebHitsData.energy = children[0];
                 ebHitsData.eta = children[1];
@@ -88,6 +97,7 @@ namespace IGtoOBJGen
                 ebHitsData.back_4 = new double[] { children[26], children[27], children[28] };
                 mediatingList.Add(ebHitsData);
             }
+            
             dataList.Add(mediatingList);
             return dataList;
         }
@@ -96,6 +106,7 @@ namespace IGtoOBJGen
             List<string> geometryData = new List<string>();
             List<string> faceDeclarations = new List<string>();
             int counter = 1;
+            
             foreach (CalorimetryData box in inputData)
             {
                 geometryData.Add($"o {box.name}");
@@ -107,6 +118,7 @@ namespace IGtoOBJGen
                 geometryData.Add($"v {box.back_2[0] * box.energy} {box.back_2[1] * box.energy} {box.back_2[2] * box.energy}");
                 geometryData.Add($"v {box.back_3[0] * box.energy} {box.back_3[1] * box.energy} {box.back_3[2] * box.energy}");
                 geometryData.Add($"v {box.back_4[0] * box.energy} {box.back_4[1] * box.energy} {box.back_4[2] * box.energy}");
+                
                 faceDeclarations.Add($"f {counter} {counter + 1} {counter + 2} {counter + 3}");
                 faceDeclarations.Add($"f {counter + 3} {counter + 2} {counter + 1} {counter}");
                 faceDeclarations.Add($"f {counter + 4} {counter + 5} {counter + 6} {counter + 7}");
@@ -119,6 +131,7 @@ namespace IGtoOBJGen
                 faceDeclarations.Add($"f {counter + 7} {counter + 6} {counter + 2} {counter + 3}");
                 faceDeclarations.Add($"f {counter + 1} {counter} {counter + 4} {counter + 5}");
                 faceDeclarations.Add($"f {counter + 5} {counter + 4} {counter} {counter + 1}");
+                
                 counter += 8;
             }
             foreach (var item in faceDeclarations)

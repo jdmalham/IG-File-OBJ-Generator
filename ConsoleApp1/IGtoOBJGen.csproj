@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -8,7 +8,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ScrapCode.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="IGdata\Event_1096322990" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="ScrapCode.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="IGdata\Event_1096322990" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
