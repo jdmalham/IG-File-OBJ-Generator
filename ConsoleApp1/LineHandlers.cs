@@ -100,8 +100,10 @@ namespace IGtoOBJGen
                     Vector3 term4 = Vector3.Multiply(item.pos2, (float)Math.Pow(t, 3));
                     Vector3 point = term1 + term2 + term3 + term4;
 
-                    //these vectors are only offset because this is gonna be used later for a untiy project, and it doesn't like obj lines. Instead, we define them as ribbons.
-                    string poin_t = $"v {point.X} {point.Y} {point.Z}\nv {point.X+0.1f} {point.Y+0.01f} {point.Z +0.01f}\n";
+                    //if (point.Length()>10) { Console.Write('h'); }
+
+                    //these vectors are only offset because this is gonna be used later for a untiy project, and it doesn't like obj lines. Instead, we define them as ribbons.                                                             
+                    string poin_t = $"v {(double)point.X} {(double)point.Y} {(double)point.Z}\nv {(double)point.X} {(double)point.Y+0.01f} {(double)point.Z}\n";
 
                     track += poin_t;
                     n += 2;
@@ -119,14 +121,17 @@ namespace IGtoOBJGen
                 string faces = $"f {r} {r+1} {r+3} {r+2}\nf {r+2} {r+3} {r+1} {r}";
                 dataList.Add(faces);
             }
+            File.WriteAllText("C:\\Users\\Owner\\Desktop\\datashit\\IGshit\\tracks.obj", String.Empty);
+            File.WriteAllLines("C:\\Users\\Owner\\Desktop\\datashit\\IGshit\\tracks.obj", dataList);
             File.WriteAllText("C:\\Users\\Owner\\Desktop\\tracks.obj", String.Empty);
             File.WriteAllLines("C:\\Users\\Owner\\Desktop\\tracks.obj", dataList);
         }
 
         public static List<TrackExtrasData> trackExtrasParse(JObject data) {
             List<TrackExtrasData> dataList = new List<TrackExtrasData>();
-
+            int i = 1;
             foreach (var igTrackExtra in data["Collections"]["Extras_V1"]) {
+                Console.WriteLine(i);
                 TrackExtrasData currentItem = new TrackExtrasData();
 
                 var children = igTrackExtra.Children().Values<float>().ToList();
@@ -143,6 +148,7 @@ namespace IGtoOBJGen
                 currentItem.pos4 = new Vector3(children[6] - scale * children[9], children[7] - scale * children[10], children[8] - scale * children[11]);
 
                 dataList.Add(currentItem);
+                i++;
             }
             return dataList;
         }

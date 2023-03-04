@@ -109,6 +109,7 @@ namespace IGtoOBJGen
             
             foreach (CalorimetryData box in inputData)
             {
+                //Don't you just love giant blocks of nearly identical code?
                 geometryData.Add($"o {box.name}");
                 geometryData.Add($"v {box.front_1[0] * box.energy} {box.front_1[1] * box.energy} {box.front_1[2] * box.energy}");
                 geometryData.Add($"v {box.front_2[0] * box.energy} {box.front_2[1] * box.energy} {box.front_2[2] * box.energy}");
