@@ -52,10 +52,10 @@ struct PhotonData {
     public Vector3 position;
 }
 struct TrackExtrasData {
-    public Vector3 pos1;
-    public Vector3 dir1;
-    public Vector3 pos2;
-    public Vector3 dir2;
-    public Vector3 pos3;
-    public Vector3 pos4;
+    public double[] pos1;
+    public double[] dir1;
+    public double[] pos2;
+    public double[] dir2;
+    public double[] pos3;
+    public double[] pos4;
 }

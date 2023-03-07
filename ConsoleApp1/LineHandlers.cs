@@ -9,6 +9,7 @@ namespace IGtoOBJGen
 {
     internal class IGTracks
     {
+        private static string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
         public static List<PhotonData> photonParse(JObject data)
         {
             List<PhotonData> dataList = new List<PhotonData>();
@@ -78,36 +79,46 @@ namespace IGtoOBJGen
                 counter += 4;
             }
 
-            File.WriteAllText("C:\\Users\\Owner\\source\\repos\\ConsoleApp1\\ConsoleApp1\\objModels\\Photons_V1.obj", String.Empty);
-            File.WriteAllLines("C:\\Users\\Owner\\source\\repos\\ConsoleApp1\\ConsoleApp1\\objModels\\Photons_V1.obj", dataStrings);
+            File.WriteAllText($"{desktopPath}\\test_obj\\Photons_V1.obj", String.Empty);
+            File.WriteAllLines($"{desktopPath}\\test_obj\\Photons_V1.obj", dataStrings);
         }
         public static void trackCubicBezierCurve(List<TrackExtrasData> data, int numVerts) {
             //Calculate the bezier path of the tracks based on the four pos control vectors defined in the TrackExtrasData struct
             List<string> dataList = new List<string>();
             List<int> exclusion_indeces = new List<int>();
             int n = 0;
-
+            bool p = false;
+            
             foreach (var item in data) {
                 
                 string track = "";
-                for (int i = 0; i <= numVerts; i++) {
-                    float t = (float)(i) / (float)(numVerts);
+                for (double i = 0; i <= numVerts; i++) {
+                    double t = (double)(i) / (double)(numVerts);
+                    double tdiff3 = Math.Pow(1.0 - t, 3);
+                    double threetimesTtdiff2 = 3 * t * Math.Pow(1.0 - t, 2);
+                    double threetimesT2tdiff = 3 * t * t * (1.0 - t);
+                    double t3 = Math.Pow(t, 3);
 
                     // Check out the wikipedia page for bezier curves if you want to understand the math. That's where I learned it!
-                    Vector3 term1 = Vector3.Multiply(item.pos1, (float)Math.Pow(1 - t, 3));
-                    Vector3 term2 = Vector3.Multiply(item.pos3, (float)(3 * t * (float)Math.Pow(1 - t, 2)));
-                    Vector3 term3 = Vector3.Multiply(item.pos4, (float)(3 * t * t * (1 - t)));
-                    Vector3 term4 = Vector3.Multiply(item.pos2, (float)Math.Pow(t, 3));
-                    Vector3 point = term1 + term2 + term3 + term4;
-
-                    //if (point.Length()>10) { Console.Write('h'); }
+                    double[] term1 = { tdiff3*item.pos1[0], tdiff3 * item.pos1[1], tdiff3 * item.pos1[2] };
+                    double[] term2 = { threetimesTtdiff2 * item.pos3[0], threetimesTtdiff2 * item.pos3[1], threetimesTtdiff2 * item.pos3[2] };
+                    double[] term3 = { threetimesT2tdiff * item.pos4[0], threetimesT2tdiff * item.pos4[1], threetimesT2tdiff * item.pos4[2] };
+                    double[] term4 = { t3 * item.pos2[0], t3 * item.pos2[1], t3 * item.pos2[2] };
+                    double[] point = { term1[0] + term2[0] + term3[0] + term4[0], term1[1] + term2[1] + term3[1] + term4[1], term1[2] + term2[2] + term3[2] + term4[2] };
 
                     //these vectors are only offset because this is gonna be used later for a untiy project, and it doesn't like obj lines. Instead, we define them as ribbons.                                                             
-                    string poin_t = $"v {(double)point.X} {(double)point.Y} {(double)point.Z}\nv {(double)point.X} {(double)point.Y+0.01f} {(double)point.Z}\n";
+                    string poin_t = $"v {point[0]} {point[1]} {point[2]}\nv {point[0]} {point[1] +0.001} {point[2]}\n";
 
                     track += poin_t;
                     n += 2;
+                    if (i==0 && p==false) {
+                        Array.ForEach(item.pos1, Console.WriteLine);
+                        Array.ForEach(item.pos3, Console.WriteLine);
+                        Array.ForEach(item.pos4, Console.WriteLine);
+                        Array.ForEach(item.pos2, Console.WriteLine);
+                    }
                 }
+                p = true;
                 dataList.Add(track);
                 exclusion_indeces.Add(n);
             }
@@ -121,34 +132,51 @@ namespace IGtoOBJGen
                 string faces = $"f {r} {r+1} {r+3} {r+2}\nf {r+2} {r+3} {r+1} {r}";
                 dataList.Add(faces);
             }
-            File.WriteAllText("C:\\Users\\Owner\\Desktop\\datashit\\IGshit\\tracks.obj", String.Empty);
-            File.WriteAllLines("C:\\Users\\Owner\\Desktop\\datashit\\IGshit\\tracks.obj", dataList);
-            File.WriteAllText("C:\\Users\\Owner\\Desktop\\tracks.obj", String.Empty);
-            File.WriteAllLines("C:\\Users\\Owner\\Desktop\\tracks.obj", dataList);
+            
+            File.WriteAllText($"{desktopPath}\\test_obj\\tracks.obj", String.Empty);
+            File.WriteAllLines($"{desktopPath}\\test_obj\\tracks.obj", dataList);
+            File.WriteAllText($"{desktopPath}\\test_obj\\tracks.obj", String.Empty);
+            File.WriteAllLines($"{desktopPath}\\test_obj\\tracks.obj", dataList);
         }
 
         public static List<TrackExtrasData> trackExtrasParse(JObject data) {
             List<TrackExtrasData> dataList = new List<TrackExtrasData>();
-            int i = 1;
+
             foreach (var igTrackExtra in data["Collections"]["Extras_V1"]) {
-                Console.WriteLine(i);
+
                 TrackExtrasData currentItem = new TrackExtrasData();
 
-                var children = igTrackExtra.Children().Values<float>().ToList();
+                var children = igTrackExtra.Children().Values<double>().ToList();
+                
+                currentItem.pos1 = new double[3] { children[0], children[1], children[2] };
+                double dir1mag = Math.Sqrt(
+                    (Math.Pow(children[3], 2) +
+                    Math.Pow(children[4], 2) +
+                    Math.Pow(children[5], 2))
+                    );
+                currentItem.dir1 = new double[3] { children[3]/dir1mag, children[4]/dir1mag, children[5]/dir1mag };
+                
+                currentItem.pos2 = new double[3] { children[6], children[7], children[8] };
+                double dir2mag = Math.Sqrt(
+                    (Math.Pow(children[6], 2) +
+                    Math.Pow(children[7], 2) +
+                    Math.Pow(children[8], 2))
+                    );
+                currentItem.dir2 = new double[3] { children[9]/dir2mag, children[10]/dir2mag, children[11]/dir2mag };
 
-                currentItem.pos1 = new Vector3(children[0], children[1], children[2]);
-                currentItem.dir1 = new Vector3(children[3], children[4], children[5]);
-                currentItem.pos2 = new Vector3(children[6], children[7], children[8]);
-                currentItem.dir2 = new Vector3(children[9], children[10], children[11]);
+                double distance = Math.Sqrt(
+                    Math.Pow((currentItem.pos1[0] - currentItem.pos2[0]),2) +
+                    Math.Pow(currentItem.pos1[1] - currentItem.pos2[1],2) +
+                    Math.Pow(currentItem.pos1[2] - currentItem.pos2[2],2)
+                     );
+                //Console.WriteLine(distance);
+                double scale = distance * 0.25;
 
-                float distance = Vector3.Distance(currentItem.pos1,currentItem.pos2);
-                float scale = distance * 0.25f;
-
-                currentItem.pos3 = new Vector3(children[0] + scale * children[3], children[1] + scale * children[4], children[2] + scale * children[5]);
-                currentItem.pos4 = new Vector3(children[6] - scale * children[9], children[7] - scale * children[10], children[8] - scale * children[11]);
+                currentItem.pos3 = new double[3] { children[0] + scale * currentItem.dir1[0], children[1] + scale * currentItem.dir1[1], children[2] + scale * currentItem.dir1[2] };
+                currentItem.pos4 = new double[3] { children[6] - scale * currentItem.dir2[0], children[7] - scale * currentItem.dir2[1], children[8] - scale * currentItem.dir2[2] };
 
                 dataList.Add(currentItem);
-                i++;
+
             }
             return dataList;
         }

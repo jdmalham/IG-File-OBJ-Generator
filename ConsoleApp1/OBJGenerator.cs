@@ -2,6 +2,9 @@
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using IGtoOBJGen;
+using System.Net.Mail;
+using System.Reflection.Emit;
+using System.Xml.Linq;
 
 /*
 
@@ -15,8 +18,13 @@ class OBJGenerator
         var watch = new Stopwatch();watch.Start();
 
         //Read in IG file as JSON Object. Thanks Newtonsoft
-        StreamReader file = File.OpenText("C:\\Users\\Owner\\source\\repos\\ConsoleApp1\\ConsoleApp1\\IGdata\\Event_1096322990");
+        string user = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        StreamReader file = File.OpenText($"C:\\Users\\uclav\\Source\\Repos\\jdmalham\\IG-File-OBJ-Generator\\ConsoleApp1\\IGdata\\Event_1096322990");
         JsonTextReader reader = new JsonTextReader(file);JObject o2 = (JObject)JToken.ReadFrom(reader);
+        string strPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+
+        
+
 
         // Types of calorimetry data we will get from the IG file
         string[] calorimetryItems = { "EBRecHits_V2", "EERecHits_V2", "ESRecHits_V2", "HBRecHits_V2" };
@@ -33,8 +41,8 @@ class OBJGenerator
         {
                 string name = thing[0].name;
                 List<string> Contents = IGBoxes.generateCalorimetryModels(thing);
-                File.WriteAllText($"C:\\Users\\Owner\\Desktop\\{name}.obj",String.Empty);
-                File.WriteAllLines($"C:\\Users\\Owner\\Desktop\\{name}.obj",Contents);
+                File.WriteAllText($"{strPath}\\{name}.obj",String.Empty);
+                File.WriteAllLines($"{strPath}\\{name}.obj",Contents);
         }
 
         //Get the data that is needed to generate track objects from the IG file (look at definition for explanation of the name)

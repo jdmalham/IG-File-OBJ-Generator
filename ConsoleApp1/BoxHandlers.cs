@@ -11,6 +11,7 @@ namespace IGtoOBJGen
 {
     internal class IGBoxes
     {
+        private static string path = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
         public static List<MuonChamberData> muonChamberParse(JObject data)
         {
             var dataList = new List<MuonChamberData>();
@@ -69,8 +70,8 @@ namespace IGtoOBJGen
                 counter += 8;
             }
             
-            File.WriteAllText($"C:\\Users\\Owner\\Desktop\\{name}.obj", String.Empty);
-            File.WriteAllLines($"C:\\Users\\Owner\\Desktop\\{name}.obj", dataStrings);
+            File.WriteAllText($"{path}\\test_obj\\{name}.obj", String.Empty);
+            File.WriteAllLines($"{path}\\test_obj\\{name}.obj", dataStrings);
         }
         public static List<List<CalorimetryData>> calorimetryParse(JObject data, string name, List<List<CalorimetryData>> dataList)
         {
