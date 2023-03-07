@@ -87,7 +87,6 @@ namespace IGtoOBJGen
             List<string> dataList = new List<string>();
             List<int> exclusion_indeces = new List<int>();
             int n = 0;
-            bool p = false;
             
             foreach (var item in data) {
                 
@@ -100,6 +99,8 @@ namespace IGtoOBJGen
                     double t3 = Math.Pow(t, 3);
 
                     // Check out the wikipedia page for bezier curves if you want to understand the math. That's where I learned it!
+                    //also we're using double arrays because i dont like Vector3 and floats. I'm the one who has to go through the headaches of working with double arrays
+                    //instead of Vector3 so i get to make that call
                     double[] term1 = { tdiff3*item.pos1[0], tdiff3 * item.pos1[1], tdiff3 * item.pos1[2] };
                     double[] term2 = { threetimesTtdiff2 * item.pos3[0], threetimesTtdiff2 * item.pos3[1], threetimesTtdiff2 * item.pos3[2] };
                     double[] term3 = { threetimesT2tdiff * item.pos4[0], threetimesT2tdiff * item.pos4[1], threetimesT2tdiff * item.pos4[2] };
@@ -111,14 +112,8 @@ namespace IGtoOBJGen
 
                     track += poin_t;
                     n += 2;
-                    if (i==0 && p==false) {
-                        Array.ForEach(item.pos1, Console.WriteLine);
-                        Array.ForEach(item.pos3, Console.WriteLine);
-                        Array.ForEach(item.pos4, Console.WriteLine);
-                        Array.ForEach(item.pos2, Console.WriteLine);
-                    }
+                   
                 }
-                p = true;
                 dataList.Add(track);
                 exclusion_indeces.Add(n);
             }
@@ -135,8 +130,6 @@ namespace IGtoOBJGen
             
             File.WriteAllText($"{desktopPath}\\test_obj\\tracks.obj", String.Empty);
             File.WriteAllLines($"{desktopPath}\\test_obj\\tracks.obj", dataList);
-            File.WriteAllText($"{desktopPath}\\test_obj\\tracks.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\test_obj\\tracks.obj", dataList);
         }
 
         public static List<TrackExtrasData> trackExtrasParse(JObject data) {
@@ -149,7 +142,8 @@ namespace IGtoOBJGen
                 var children = igTrackExtra.Children().Values<double>().ToList();
                 
                 currentItem.pos1 = new double[3] { children[0], children[1], children[2] };
-                double dir1mag = Math.Sqrt(
+                
+                double dir1mag = Math.Sqrt(  //dir1mag and dir2mag are for making sure the direction vectors are normalized
                     (Math.Pow(children[3], 2) +
                     Math.Pow(children[4], 2) +
                     Math.Pow(children[5], 2))
@@ -157,6 +151,7 @@ namespace IGtoOBJGen
                 currentItem.dir1 = new double[3] { children[3]/dir1mag, children[4]/dir1mag, children[5]/dir1mag };
                 
                 currentItem.pos2 = new double[3] { children[6], children[7], children[8] };
+                
                 double dir2mag = Math.Sqrt(
                     (Math.Pow(children[6], 2) +
                     Math.Pow(children[7], 2) +
@@ -169,14 +164,12 @@ namespace IGtoOBJGen
                     Math.Pow(currentItem.pos1[1] - currentItem.pos2[1],2) +
                     Math.Pow(currentItem.pos1[2] - currentItem.pos2[2],2)
                      );
-                //Console.WriteLine(distance);
                 double scale = distance * 0.25;
 
                 currentItem.pos3 = new double[3] { children[0] + scale * currentItem.dir1[0], children[1] + scale * currentItem.dir1[1], children[2] + scale * currentItem.dir1[2] };
                 currentItem.pos4 = new double[3] { children[6] - scale * currentItem.dir2[0], children[7] - scale * currentItem.dir2[1], children[8] - scale * currentItem.dir2[2] };
 
                 dataList.Add(currentItem);
-
             }
             return dataList;
         }
