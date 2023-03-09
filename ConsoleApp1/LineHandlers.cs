@@ -9,7 +9,7 @@ namespace IGtoOBJGen
 {
     internal class IGTracks
     {
-        private static string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+        protected static string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
         public static List<PhotonData> photonParse(JObject data)
         {
             List<PhotonData> dataList = new List<PhotonData>();
@@ -30,7 +30,7 @@ namespace IGtoOBJGen
             }
             return dataList;
         }
-        public static string makePhoton(PhotonData data)
+        protected static string makePhoton(PhotonData data)
         {
             //Calculate path of the photons within the detector
 
@@ -108,7 +108,7 @@ namespace IGtoOBJGen
                     double[] point = { term1[0] + term2[0] + term3[0] + term4[0], term1[1] + term2[1] + term3[1] + term4[1], term1[2] + term2[2] + term3[2] + term4[2] };
 
                     //these vectors are only offset because this is gonna be used later for a untiy project, and it doesn't like obj lines. Instead, we define them as ribbons.                                                             
-                    string poin_t = $"v {point[0]} {point[1]} {point[2]}\nv {point[0]} {point[1] +0.001} {point[2]}\n";
+                    string poin_t = $"v {point[0]} {point[1]} {point[2]} \n v {point[0]} {point[1] + 0.001} {point[2]} \n ";
 
                     track += poin_t;
                     n += 2;
@@ -143,7 +143,7 @@ namespace IGtoOBJGen
                 
                 currentItem.pos1 = new double[3] { children[0], children[1], children[2] };
                 
-                double dir1mag = Math.Sqrt(  //dir1mag and dir2mag are for making sure the direction vectors are normalized
+                float dir1mag = (float)Math.Sqrt(  //dir1mag and dir2mag are for making sure the direction vectors are normalized
                     (Math.Pow(children[3], 2) +
                     Math.Pow(children[4], 2) +
                     Math.Pow(children[5], 2))
