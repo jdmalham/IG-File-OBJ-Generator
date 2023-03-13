@@ -13,11 +13,10 @@ namespace IGtoOBJGen
         public static List<PhotonData> photonParse(JObject data)
         {
             List<PhotonData> dataList = new List<PhotonData>();
-            
             foreach (var igPhotonData in data["Collections"]["Photons_V1"])
             {
                 PhotonData currentPhotonItem = new PhotonData();
-                
+
                 var children = igPhotonData.Children().Values<double>().ToList();
 
                 currentPhotonItem.energy = children[0];
@@ -45,7 +44,7 @@ namespace IGtoOBJGen
             double x0 = data.position.X;
             double y0 = data.position.Y;
             double z0 = data.position.Z;
-            double t = 0.0;
+            double t;
             
             if (Math.Abs(eta) > 1.48)
             {
@@ -64,7 +63,7 @@ namespace IGtoOBJGen
             //Output a string of obj vectors that define the photon path
             return Contents;
         }
-        public static void generatePhotonModels(List<PhotonData> dataList)
+        public static void generatePhotonModels(List<PhotonData> dataList,string eventName)
         {
             //Write obj files for the photons
             List<string> dataStrings = new List<string>();
@@ -79,20 +78,19 @@ namespace IGtoOBJGen
                 counter += 4;
             }
 
-            File.WriteAllText($"{desktopPath}\\test_obj\\Photons_V1.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\test_obj\\Photons_V1.obj", dataStrings);
+            File.WriteAllText($"{desktopPath}\\{eventName}\\Photons_V1.obj", String.Empty);
+            File.WriteAllLines($"{desktopPath}\\{eventName}\\Photons_V1.obj", dataStrings);
         }
-        public static void trackCubicBezierCurve(List<TrackExtrasData> data, int numVerts) {
+        public static void trackCubicBezierCurve(List<TrackExtrasData> data, int numVerts,string eventName) {
             //Calculate the bezier path of the tracks based on the four pos control vectors defined in the TrackExtrasData struct
             List<string> dataList = new List<string>();
             List<int> exclusion_indeces = new List<int>();
             int n = 0;
-            
             foreach (var item in data) {
-                
-                string track = "";
-                for (double i = 0; i <= numVerts; i++) {
+
+                for (double i = 0.0; i <= numVerts; i++) {
                     double t = (double)(i) / (double)(numVerts);
+                    
                     double tdiff3 = Math.Pow(1.0 - t, 3);
                     double threetimesTtdiff2 = 3 * t * Math.Pow(1.0 - t, 2);
                     double threetimesT2tdiff = 3 * t * t * (1.0 - t);
@@ -108,13 +106,14 @@ namespace IGtoOBJGen
                     double[] point = { term1[0] + term2[0] + term3[0] + term4[0], term1[1] + term2[1] + term3[1] + term4[1], term1[2] + term2[2] + term3[2] + term4[2] };
 
                     //these vectors are only offset because this is gonna be used later for a untiy project, and it doesn't like obj lines. Instead, we define them as ribbons.                                                             
-                    string poin_t = $"v {point[0]} {point[1]} {point[2]} \n v {point[0]} {point[1] + 0.001} {point[2]} \n ";
+                    string poin_t = $"v {point[0]} {point[1]} {point[2]}";
+                    string point_t2 = $"v {point[0]} {point[1] + 0.001} {point[2]}";
 
-                    track += poin_t;
+                    dataList.Add(poin_t); dataList.Add(point_t2);
                     n += 2;
                    
                 }
-                dataList.Add(track);
+
                 exclusion_indeces.Add(n);
             }
             
@@ -124,17 +123,17 @@ namespace IGtoOBJGen
                     continue;
                 }
                 // Define faces
-                string faces = $"f {r} {r+1} {r+3} {r+2}\nf {r+2} {r+3} {r+1} {r}";
-                dataList.Add(faces);
+                string faces1 = $"f {r} {r + 1} {r + 3} {r + 2}";
+                string faces2 = $"f {r+2} {r+3} {r+1} {r}";
+                dataList.Add(faces1);
+                dataList.Add(faces2);
             }
             
-            File.WriteAllText($"{desktopPath}\\test_obj\\tracks.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\test_obj\\tracks.obj", dataList);
+            File.WriteAllText($"{desktopPath}\\{eventName}\\tracks.obj", String.Empty);
+            File.WriteAllLines($"{desktopPath}\\{eventName}\\tracks.obj", dataList);
         }
-
         public static List<TrackExtrasData> trackExtrasParse(JObject data) {
             List<TrackExtrasData> dataList = new List<TrackExtrasData>();
-
             foreach (var igTrackExtra in data["Collections"]["Extras_V1"]) {
 
                 TrackExtrasData currentItem = new TrackExtrasData();
@@ -143,7 +142,7 @@ namespace IGtoOBJGen
                 
                 currentItem.pos1 = new double[3] { children[0], children[1], children[2] };
                 
-                float dir1mag = (float)Math.Sqrt(  //dir1mag and dir2mag are for making sure the direction vectors are normalized
+                double dir1mag = Math.Sqrt(  //dir1mag and dir2mag are for making sure the direction vectors are normalized
                     (Math.Pow(children[3], 2) +
                     Math.Pow(children[4], 2) +
                     Math.Pow(children[5], 2))
@@ -164,6 +163,7 @@ namespace IGtoOBJGen
                     Math.Pow(currentItem.pos1[1] - currentItem.pos2[1],2) +
                     Math.Pow(currentItem.pos1[2] - currentItem.pos2[2],2)
                      );
+                
                 double scale = distance * 0.25;
 
                 currentItem.pos3 = new double[3] { children[0] + scale * currentItem.dir1[0], children[1] + scale * currentItem.dir1[1], children[2] + scale * currentItem.dir1[2] };
