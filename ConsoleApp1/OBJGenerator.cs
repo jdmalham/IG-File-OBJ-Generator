@@ -19,33 +19,34 @@ class OBJGenerator
         StreamReader file;
         string eventName;
         string strPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-        var watch = new Stopwatch(); watch.Start();
+        var watch = new Stopwatch(); 
+        watch.Start();
 
-
-        if (args.Length == 0)
-        {
+        if (args.Length == 0){
             file = File.OpenText($"C:\\Users\\uclav\\Source\\Repos\\jdmalham\\IG-File-OBJ-Generator\\ConsoleApp1\\IGdata\\Event_1096322990");
             eventName = "Event_1096322990";
-            Console.WriteLine("Args failed");
-        } else
-        {
-            //Right so what's all this? We get the name of the event and then
-            //find and replace all occurrences of nan that are in the original file
-            //with null so that the JSON library can properly parse it. Store it in a temp file that
-            //is deleted at the end of the program's execution
+        } else {
+            /*  Right so what's all this? We get the name of the event and then
+            find and replace all occurrences of nan that are in the original file
+            with null so that the JSON library can properly parse it. Store the revisions in a temp file that
+            is deleted at the end of the program's execution so that the original file goes unchanged and can 
+            still be used with iSpy  */
+
             string[] split = args[0].Split('\\');
             eventName = split.Last();
+            
             string text = File.ReadAllText($"{args[0]}");
             string newText = text.Replace("nan,","null,");
+            
             File.WriteAllText($"{args[0]}.tmp",newText );
             file = File.OpenText($"{args[0]}.tmp");
-            Console.WriteLine("Args succeeded");
         }
 
         //Read in IG file as JSON Object. Thanks Newtonsoft
         string user = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         
-        JsonTextReader reader = new JsonTextReader(file);JObject o2 = (JObject)JToken.ReadFrom(reader);
+        JsonTextReader reader = new JsonTextReader(file);
+        JObject o2 = (JObject)JToken.ReadFrom(reader);
         
         // Types of calorimetry data we will get from the IG file
         string[] calorimetryItems = { "EBRecHits_V2", "EERecHits_V2", "ESRecHits_V2", "HBRecHits_V2" };
@@ -60,6 +61,7 @@ class OBJGenerator
         //Now make all the box shaped models from the box objects
         foreach (var thing in boxObjectsGesamt)
         {
+            if (thing.Count() == 0) continue;
             string name = thing[0].name;
             List<string> Contents = IGBoxes.generateCalorimetryModels(thing);
             try
