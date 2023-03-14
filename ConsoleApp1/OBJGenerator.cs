@@ -51,7 +51,7 @@ class OBJGenerator
         // Types of calorimetry data we will get from the IG file
         string[] calorimetryItems = { "EBRecHits_V2", "EERecHits_V2", "ESRecHits_V2", "HBRecHits_V2" };
         
-        List<List<CalorimetryData>> boxObjectsGesamt = new List<List<CalorimetryData>>(); // "The box objects have been gathered" Very loose translation of the German
+        List<List<CalorimetryData>> boxObjectsGesamt = new List<List<CalorimetryData>>(); 
         
         // Right here we are getting our calorimetry data from the IG file and adding them into boxObjectsGesamt
         foreach (string name in calorimetryItems)
