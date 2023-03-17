@@ -9,8 +9,14 @@ namespace IGtoOBJGen
 {
     internal class IGTracks
     {
-        protected static string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-        public static List<PhotonData> photonParse(JObject data)
+        protected string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+        public List<string> filePaths { get; set; }
+        
+        public IGTracks()
+        {
+            filePaths = new List<string>();
+        }
+        public List<PhotonData> photonParse(JObject data)
         {
             List<PhotonData> dataList = new List<PhotonData>();
             foreach (var igPhotonData in data["Collections"]["Photons_V1"])
@@ -29,7 +35,7 @@ namespace IGtoOBJGen
             }
             return dataList;
         }
-        protected static string makePhoton(PhotonData data)
+        protected string makePhoton(PhotonData data)
         {
             //Calculate path of the photons within the detector
 
@@ -63,7 +69,7 @@ namespace IGtoOBJGen
             //Output a string of obj vectors that define the photon path
             return Contents;
         }
-        public static void generatePhotonModels(List<PhotonData> dataList,string eventName)
+        public void generatePhotonModels(List<PhotonData> dataList,string eventName)
         {
             //Write obj files for the photons
             List<string> dataStrings = new List<string>();
@@ -80,8 +86,10 @@ namespace IGtoOBJGen
 
             File.WriteAllText($"{desktopPath}\\{eventName}\\Photons_V1.obj", String.Empty);
             File.WriteAllLines($"{desktopPath}\\{eventName}\\Photons_V1.obj", dataStrings);
+            filePaths.Add($"{desktopPath}\\{eventName}\\Photons_V1.obj");
+            
         }
-        public static void trackCubicBezierCurve(List<TrackExtrasData> data, int numVerts,string eventName) {
+        public void trackCubicBezierCurve(List<TrackExtrasData> data, int numVerts,string eventName) {
             //Calculate the bezier path of the tracks based on the four pos control vectors defined in the TrackExtrasData struct
             List<string> dataList = new List<string>();
             List<int> exclusion_indeces = new List<int>();
@@ -131,8 +139,9 @@ namespace IGtoOBJGen
             
             File.WriteAllText($"{desktopPath}\\{eventName}\\tracks.obj", String.Empty);
             File.WriteAllLines($"{desktopPath}\\{eventName}\\tracks.obj", dataList);
+            filePaths.Add($"{desktopPath}\\{eventName}\\tracks.obj");
         }
-        public static List<TrackExtrasData> trackExtrasParse(JObject data) {
+        public List<TrackExtrasData> trackExtrasParse(JObject data) {
             List<TrackExtrasData> dataList = new List<TrackExtrasData>();
             foreach (var igTrackExtra in data["Collections"]["Extras_V1"]) {
 
