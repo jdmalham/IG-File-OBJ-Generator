@@ -97,6 +97,7 @@ namespace IGtoOBJGen
             foreach (var item in data) {
 
                 for (double i = 0.0; i <= numVerts; i++) {
+                    
                     double t = (double)(i) / (double)(numVerts);
                     
                     double tdiff3 = Math.Pow(1.0 - t, 3);
@@ -141,6 +142,7 @@ namespace IGtoOBJGen
             File.WriteAllLines($"{desktopPath}\\{eventName}\\tracks.obj", dataList);
             filePaths.Add($"{desktopPath}\\{eventName}\\tracks.obj");
         }
+        
         public List<TrackExtrasData> trackExtrasParse(JObject data) {
             List<TrackExtrasData> dataList = new List<TrackExtrasData>();
             foreach (var igTrackExtra in data["Collections"]["Extras_V1"]) {
@@ -152,18 +154,18 @@ namespace IGtoOBJGen
                 currentItem.pos1 = new double[3] { children[0], children[1], children[2] };
                 
                 double dir1mag = Math.Sqrt(  //dir1mag and dir2mag are for making sure the direction vectors are normalized
-                    (Math.Pow(children[3], 2) +
+                    Math.Pow(children[3], 2) +
                     Math.Pow(children[4], 2) +
-                    Math.Pow(children[5], 2))
-                    );
+                    Math.Pow(children[5], 2)
+                );
                 currentItem.dir1 = new double[3] { children[3]/dir1mag, children[4]/dir1mag, children[5]/dir1mag };
                 
                 currentItem.pos2 = new double[3] { children[6], children[7], children[8] };
                 
                 double dir2mag = Math.Sqrt(
-                    (Math.Pow(children[6], 2) +
-                    Math.Pow(children[7], 2) +
-                    Math.Pow(children[8], 2))
+                    Math.Pow(children[9], 2) +
+                    Math.Pow(children[10], 2) +
+                    Math.Pow(children[11], 2)
                     );
                 currentItem.dir2 = new double[3] { children[9]/dir2mag, children[10]/dir2mag, children[11]/dir2mag };
 
@@ -177,7 +179,7 @@ namespace IGtoOBJGen
 
                 currentItem.pos3 = new double[3] { children[0] + scale * currentItem.dir1[0], children[1] + scale * currentItem.dir1[1], children[2] + scale * currentItem.dir1[2] };
                 currentItem.pos4 = new double[3] { children[6] - scale * currentItem.dir2[0], children[7] - scale * currentItem.dir2[1], children[8] - scale * currentItem.dir2[2] };
-
+                
                 dataList.Add(currentItem);
             }
             return dataList;

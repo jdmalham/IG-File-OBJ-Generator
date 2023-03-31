@@ -1,11 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace IGtoOBJGen
 {
@@ -145,6 +138,44 @@ namespace IGtoOBJGen
                 geometryData.Add(item);
             }
             return geometryData;
+        }
+        public static List<JetData> jetParse(JObject data)
+        {
+            List<JetData> datalist = new List<JetData> ();
+            foreach (var item in data["Collections"]["PFJets_V1"])
+            {
+                JetData currentJet = new JetData ();
+                List<double> children = item.Children().Values<double>().ToList();
+
+                currentJet.et = children[0];
+                currentJet.eta = children[1];
+                currentJet.theta = children[2];
+                currentJet.phi = children[3];
+
+                datalist.Add(currentJet);
+            }
+            return datalist;
+        }
+        public static void generateJetModels(List<JetData> data)
+        {
+            List<string> objData = new List<string> ();
+            double maxZ = 2.25;
+            double maxR = 1.10;
+            double radius = 0.3 * (1.0 / (1 + 0.001));
+            
+            foreach (var item in data)
+            {
+                double ct = Math.Cos (item.theta);
+                double st = Math.Sin (item.theta);
+                double cp = Math.Cos (item.phi);
+                double sp = Math.Sin (item.phi);
+
+                double length1 = (ct != 0.0) ? maxZ / Math.Abs(ct) : maxZ;
+                double length2 = (st != 0.0) ? maxR / Math.Abs(st) :  maxR;
+                double length = length1<length2 ? length1 : length2;
+                
+                
+            }
         }
     }
 }

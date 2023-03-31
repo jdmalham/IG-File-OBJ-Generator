@@ -2,12 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using IGtoOBJGen;
-using SharpAdbClient;
-using System.Net.Mail;
-using System.Reflection.Emit;
-using System.Xml.Linq;
-using System.Text.RegularExpressions;
-using System.Net.Http.Headers;
+
 
 /*
 
@@ -24,15 +19,6 @@ class OBJGenerator
         var watch = new Stopwatch();
         watch.Start();
         
-        /*
-        AdbServer server = new AdbServer();
-        var result = server.StartServer(@"C:\Users\uclav\AppData\Local\Android\Sdk\platform-tools\adb.exe", restartServerIfNewer: false);
-        AdbClient client = new AdbClient();
-        var devices = client.GetDevices();
-        foreach (var device in devices)
-        {
-            Console.WriteLine(device.Model);
-        }*/
 
         IGTracks trackHandler = new IGTracks(); 
         IGBoxes boxHandler = new IGBoxes();
@@ -62,7 +48,12 @@ class OBJGenerator
         //Read in IG file as JSON Object. Thanks Newtonsoft
         JsonTextReader reader = new JsonTextReader(file);
         JObject o2 = (JObject)JToken.ReadFrom(reader);
-        
+        file.Close();
+        if (args.Length > 0)
+        {
+            File.Delete($"{args[0]}.tmp");
+        }
+
         // Types of calorimetry data we will get from the IG file
         string[] calorimetryItems = { "EBRecHits_V2", "EERecHits_V2", "ESRecHits_V2", "HBRecHits_V2" };
         
@@ -104,16 +95,14 @@ class OBJGenerator
             List<MuonChamberData> list = IGBoxes.muonChamberParse(o2); // Get muon chamber data
             IGBoxes.generateMuonChamberModels(list); // Generate muon chamber obj files
         }
-        file.Close();
         
-        if (args.Length > 0)
-        {
-            File.Delete($"{args[0]}.tmp");
-        }
+        List<JetData> jetList = IGBoxes.jetParse(o2);
+        
 
-        Communicate bridge = new Communicate(@"C:\Users\uclav\AppData\Local\Android\Sdk\platform-tools\adb.exe");
-        bridge.DownloadFiles("tracks.obj");
-        bridge.UploadFiles(trackHandler.filePaths);        
+
+        /*Communicate bridge = new Communicate(@"C:\Users\uclav\AppData\Local\Android\Sdk\platform-tools\adb.exe");
+        bridge.DownloadFiles("Photons_V1.obj");
+        bridge.UploadFiles(trackHandler.filePaths);       */ 
         Console.WriteLine($"Total Execution Time: {watch.ElapsedMilliseconds} ms"); // See how fast code runs. Code goes brrrrrrr on fancy office pc. It makes me happy. :)
     }
 }

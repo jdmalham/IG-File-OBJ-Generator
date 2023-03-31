@@ -34,6 +34,13 @@ struct METData {
     public double py;
     public double pz;
 }
+struct JetData
+{
+    public double et;
+    public double eta;
+    public double theta;
+    public double phi;
+}
 struct MuonData {
     public string name;
     public double pt;
