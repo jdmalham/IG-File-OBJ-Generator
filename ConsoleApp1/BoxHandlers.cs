@@ -205,11 +205,12 @@ namespace IGtoOBJGen
             for (double i = 1.0; i <= sections; i++)
             {
                 double radian = (2.0 * i * Math.PI) / (double)sections;
+
                 string bottompoint = "v 0 0 0\n";
                 bottomsection.Add(bottompoint);
 
-                double[] tempo = {radius*Math.Cos(radian), radius*Math.Sin(radian),length};
-                MathNet.Numerics.LinearAlgebra.Vector<double> temptop = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfArray(tempo);
+                double[] feederArray = {radius*Math.Cos(radian), radius*Math.Sin(radian),length};
+                MathNet.Numerics.LinearAlgebra.Vector<double> temptop = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfArray(feederArray);
                 
                 var rotation = rx*rz;
                 var top = rotation * temptop;
@@ -217,13 +218,16 @@ namespace IGtoOBJGen
                 string toppoint = $"v {top[0]} {top[1]} {top[2]}\n";
                 topsection.Add(toppoint);
             }
+
             int n = 0;
+
             while (n < sections)
             {
                 string face = $"f {n} {n + sections} {n + 1 + sections} {n + 1}\n";
                 faces.Add(face);
                 n++;
             }
+
             faces.Add($"f {sections} {2 * sections} {sections + 1} 1\n");
 
             bottomsection.AddRange(topsection);
