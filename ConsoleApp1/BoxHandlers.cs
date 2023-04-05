@@ -1,4 +1,10 @@
 ﻿using Newtonsoft.Json.Linq;
+using System.Numerics;
+
+using MathNet.Numerics;
+using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Complex;
+using System.Xml.Linq;
 
 namespace IGtoOBJGen
 {
@@ -8,7 +14,7 @@ namespace IGtoOBJGen
         public static List<MuonChamberData> muonChamberParse(JObject data)
         {
             var dataList = new List<MuonChamberData>();
-            if (data["Collections"]["MuonChambers_V1"]  != null)
+            if (data["Collections"]["MuonChambers_V1"] != null)
             {
                 foreach (var igChamberData in data["Collections"]["MuonChambers_V1"])
                 {
@@ -34,24 +40,24 @@ namespace IGtoOBJGen
         public static void generateMuonChamberModels(List<MuonChamberData> data)
         {
             if (data.Count() == 0) { return; }
-            
+
             List<string> dataStrings = new List<string>();
             int counter = 1;
             string name = data[0].name;
-            
+
             foreach (var chamber in data)
             {
                 dataStrings.Add($"o {name}");
-                
-                dataStrings.Add($"v {String.Join(' ',chamber.front_1)}");
-                dataStrings.Add($"v {String.Join(' ',chamber.front_2)}");
-                dataStrings.Add($"v {String.Join(' ',chamber.front_3)}");
-                dataStrings.Add($"v {String.Join(' ',chamber.front_4)}");
-                dataStrings.Add($"v {String.Join(' ',chamber.back_1)}");
-                dataStrings.Add($"v {String.Join(' ',chamber.back_2)}");
-                dataStrings.Add($"v {String.Join(' ',chamber.back_3)}");
-                dataStrings.Add($"v {String.Join(' ',chamber.back_4)}");
-                
+
+                dataStrings.Add($"v {String.Join(' ', chamber.front_1)}");
+                dataStrings.Add($"v {String.Join(' ', chamber.front_2)}");
+                dataStrings.Add($"v {String.Join(' ', chamber.front_3)}");
+                dataStrings.Add($"v {String.Join(' ', chamber.front_4)}");
+                dataStrings.Add($"v {String.Join(' ', chamber.back_1)}");
+                dataStrings.Add($"v {String.Join(' ', chamber.back_2)}");
+                dataStrings.Add($"v {String.Join(' ', chamber.back_3)}");
+                dataStrings.Add($"v {String.Join(' ', chamber.back_4)}");
+
                 dataStrings.Add($"f {counter} {counter + 1} {counter + 2} {counter + 3}");
                 dataStrings.Add($"f {counter + 3} {counter + 2} {counter + 1} {counter}");
                 dataStrings.Add($"f {counter + 4} {counter + 5} {counter + 6} {counter + 7}");
@@ -66,19 +72,19 @@ namespace IGtoOBJGen
                 dataStrings.Add($"f {counter + 5} {counter + 4} {counter} {counter + 1}");
                 counter += 8;
             }
-            
+
             File.WriteAllText($"{path}\\test_obj\\{name}.obj", String.Empty);
             File.WriteAllLines($"{path}\\test_obj\\{name}.obj", dataStrings);
         }
         public static List<List<CalorimetryData>> calorimetryParse(JObject data, string name, List<List<CalorimetryData>> dataList)
         {
             var mediatingList = new List<CalorimetryData>();
-            
+
             foreach (var item in data["Collections"][name])
             {
                 CalorimetryData ebHitsData = new CalorimetryData();
                 var children = item.Children().Values<double>().ToList();
-                
+
                 ebHitsData.name = name;
                 ebHitsData.energy = children[0];
                 ebHitsData.eta = children[1];
@@ -95,7 +101,7 @@ namespace IGtoOBJGen
                 ebHitsData.back_4 = new double[] { children[26], children[27], children[28] };
                 mediatingList.Add(ebHitsData);
             }
-            
+
             dataList.Add(mediatingList);
             return dataList;
         }
@@ -104,7 +110,7 @@ namespace IGtoOBJGen
             List<string> geometryData = new List<string>();
             List<string> faceDeclarations = new List<string>();
             int counter = 1;
-            
+
             foreach (CalorimetryData box in inputData)
             {
                 //Don't you just love giant blocks of nearly identical code?
@@ -117,7 +123,7 @@ namespace IGtoOBJGen
                 geometryData.Add($"v {box.back_2[0] * box.energy} {box.back_2[1] * box.energy} {box.back_2[2] * box.energy}");
                 geometryData.Add($"v {box.back_3[0] * box.energy} {box.back_3[1] * box.energy} {box.back_3[2] * box.energy}");
                 geometryData.Add($"v {box.back_4[0] * box.energy} {box.back_4[1] * box.energy} {box.back_4[2] * box.energy}");
-                
+
                 faceDeclarations.Add($"f {counter} {counter + 1} {counter + 2} {counter + 3}");
                 faceDeclarations.Add($"f {counter + 3} {counter + 2} {counter + 1} {counter}");
                 faceDeclarations.Add($"f {counter + 4} {counter + 5} {counter + 6} {counter + 7}");
@@ -130,7 +136,7 @@ namespace IGtoOBJGen
                 faceDeclarations.Add($"f {counter + 7} {counter + 6} {counter + 2} {counter + 3}");
                 faceDeclarations.Add($"f {counter + 1} {counter} {counter + 4} {counter + 5}");
                 faceDeclarations.Add($"f {counter + 5} {counter + 4} {counter} {counter + 1}");
-                
+
                 counter += 8;
             }
             foreach (var item in faceDeclarations)
@@ -141,10 +147,10 @@ namespace IGtoOBJGen
         }
         public static List<JetData> jetParse(JObject data)
         {
-            List<JetData> datalist = new List<JetData> ();
+            List<JetData> datalist = new List<JetData>();
             foreach (var item in data["Collections"]["PFJets_V1"])
             {
-                JetData currentJet = new JetData ();
+                JetData currentJet = new JetData();
                 List<double> children = item.Children().Values<double>().ToList();
 
                 currentJet.et = children[0];
@@ -158,24 +164,72 @@ namespace IGtoOBJGen
         }
         public static void generateJetModels(List<JetData> data)
         {
-            List<string> objData = new List<string> ();
+            List<string> objData = new List<string>();
             double maxZ = 2.25;
             double maxR = 1.10;
             double radius = 0.3 * (1.0 / (1 + 0.001));
-            
+
             foreach (var item in data)
             {
-                double ct = Math.Cos (item.theta);
-                double st = Math.Sin (item.theta);
-                double cp = Math.Cos (item.phi);
-                double sp = Math.Sin (item.phi);
+                double ct = Math.Cos(item.theta);
+                double st = Math.Sin(item.theta);
+                double cp = Math.Cos(item.phi);
+                double sp = Math.Sin(item.phi);
 
                 double length1 = (ct != 0.0) ? maxZ / Math.Abs(ct) : maxZ;
-                double length2 = (st != 0.0) ? maxR / Math.Abs(st) :  maxR;
-                double length = length1<length2 ? length1 : length2;
-                
-                
+                double length2 = (st != 0.0) ? maxR / Math.Abs(st) : maxR;
+                double length = length1 < length2 ? length1 : length2;
+
+                var geometryData = jetGeometry(item,radius,length,32);
+                objData.AddRange(geometryData);
+                Console.WriteLine('0');
             }
+            File.WriteAllText($"{path}\\test_obj\\jets.obj", String.Empty);
+            File.WriteAllLines($"{path}\\test_obj\\jets.obj", objData);
+        }
+        public static List<string> jetGeometry(JetData item, double radius, double length, int sections)
+        {
+            List<string> bottomsection = new List<string>();
+            List<string> topsection = new List<string>();
+            List<string> faces = new List<string>();
+
+            var M = Matrix<double>.Build;
+
+            double[,] x = { { 1, 0, 0 }, { 0, Math.Cos(item.theta), -1.0 * Math.Sin(item.theta) }, { 0, Math.Sin(item.theta), Math.Cos(item.theta) } };
+            double[,] z = { { Math.Cos(item.phi), -1.0 * Math.Sin(item.phi), 0 }, { Math.Sin(item.phi), Math.Cos(item.phi), 0 }, { 0, 0, 1 } };
+            double[,] y = { { Math.Cos(item.phi), 0, Math.Sin(item.phi) },{ 0, 1, 0 }, { -1.0 * Math.Sin(item.phi), 0, Math.Cos(item.phi) } };
+            
+            var rx = M.DenseOfArray(x);
+            var rz = M.DenseOfArray(z);
+
+            for (double i = 1.0; i <= sections; i++)
+            {
+                double radian = (2.0 * i * Math.PI) / (double)sections;
+                string bottompoint = "v 0 0 0\n";
+                bottomsection.Add(bottompoint);
+
+                double[] tempo = {radius*Math.Cos(radian), radius*Math.Sin(radian),length};
+                MathNet.Numerics.LinearAlgebra.Vector<double> temptop = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfArray(tempo);
+                
+                var rotation = rx*rz;
+                var top = rotation * temptop;
+                
+                string toppoint = $"v {top[0]} {top[1]} {top[2]}\n";
+                topsection.Add(toppoint);
+            }
+            int n = 0;
+            while (n < sections)
+            {
+                string face = $"f {n} {n + sections} {n + 1 + sections} {n + 1}\n";
+                faces.Add(face);
+                n++;
+            }
+            faces.Add($"f {sections} {2 * sections} {sections + 1} 1\n");
+
+            bottomsection.AddRange(topsection);
+            bottomsection.AddRange(faces);
+
+            return bottomsection;
         }
     }
 }

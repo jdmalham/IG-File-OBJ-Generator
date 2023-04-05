@@ -18,13 +18,10 @@ class OBJGenerator
         string strPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
         var watch = new Stopwatch();
         watch.Start();
-        
 
         IGTracks trackHandler = new IGTracks(); 
-        IGBoxes boxHandler = new IGBoxes();
-
         if (args.Length == 0){
-            file = File.OpenText($"C:\\Users\\uclav\\Source\\Repos\\jdmalham\\IG-File-OBJ-Generator\\ConsoleApp1\\IGdata\\Event_1096322990");
+            file = File.OpenText("C:\\Users\\uclav\\Source\\Repos\\jdmalham\\IG-File-OBJ-Generator\\ConsoleApp1\\IGdata\\Event_1096322990");
             eventName = "Event_1096322990";
         } else {
             /*  Right so what's all this? We get the name of the event and then
@@ -97,12 +94,12 @@ class OBJGenerator
         }
         
         List<JetData> jetList = IGBoxes.jetParse(o2);
-        
+        IGBoxes.generateJetModels(jetList);
 
 
         /*Communicate bridge = new Communicate(@"C:\Users\uclav\AppData\Local\Android\Sdk\platform-tools\adb.exe");
         bridge.DownloadFiles("Photons_V1.obj");
-        bridge.UploadFiles(trackHandler.filePaths);       */ 
+        bridge.UploadFiles(trackHandler.filePaths);*/ 
         Console.WriteLine($"Total Execution Time: {watch.ElapsedMilliseconds} ms"); // See how fast code runs. Code goes brrrrrrr on fancy office pc. It makes me happy. :)
     }
 }
