@@ -1,10 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
-using System.Numerics;
-
-using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.LinearAlgebra.Complex;
-using System.Xml.Linq;
 
 namespace IGtoOBJGen
 {
@@ -168,7 +163,7 @@ namespace IGtoOBJGen
             double maxZ = 2.25;
             double maxR = 1.10;
             double radius = 0.3 * (1.0 / (1 + 0.001));
-
+            Console.WriteLine(data[0].phi);
             foreach (var item in data)
             {
                 double ct = Math.Cos(item.theta);
@@ -182,7 +177,6 @@ namespace IGtoOBJGen
 
                 var geometryData = jetGeometry(item,radius,length,32);
                 objData.AddRange(geometryData);
-                Console.WriteLine('0');
             }
             File.WriteAllText($"{path}\\test_obj\\jets.obj", String.Empty);
             File.WriteAllLines($"{path}\\test_obj\\jets.obj", objData);
@@ -195,24 +189,39 @@ namespace IGtoOBJGen
 
             var M = Matrix<double>.Build;
 
-            double[,] x = { { 1, 0, 0 }, { 0, Math.Cos(item.theta), -1.0 * Math.Sin(item.theta) }, { 0, Math.Sin(item.theta), Math.Cos(item.theta) } };
-            double[,] z = { { Math.Cos(item.phi), -1.0 * Math.Sin(item.phi), 0 }, { Math.Sin(item.phi), Math.Cos(item.phi), 0 }, { 0, 0, 1 } };
-            double[,] y = { { Math.Cos(item.phi), 0, Math.Sin(item.phi) },{ 0, 1, 0 }, { -1.0 * Math.Sin(item.phi), 0, Math.Cos(item.phi) } };
+            double[,] x = 
+                { { 1, 0, 0 }, 
+                { 0, Math.Cos(item.theta), -1.0 * Math.Sin(item.theta) }, 
+                { 0, Math.Sin(item.theta), Math.Cos(item.theta) } };
+            
+            double[,] z = 
+                { { Math.Cos(item.phi+Math.PI/2.0), -1.0 * Math.Sin(item.phi+Math.PI/2.0), 0 }, 
+                { Math.Sin(item.phi+Math.PI/2.0), Math.Cos(item.phi+Math.PI/2.0), 0 }, 
+                { 0, 0, 1 } };
+            
+            double[,] y = 
+                { { Math.Cos(-Math.PI/2.0), 0, Math.Sin(-Math.PI/2.0) },
+                { 0, 1, 0 }, 
+                { -1.0 * Math.Sin(-Math.PI/2.0), 0, Math.Cos(-Math.PI/2.0) } };
+
+            double[,] xTranslation = { { 1,0,0,0}, { 0,1,0,Math.PI/2},{ 0,0,1,0},{ 0,0,0,1} };
             
             var rx = M.DenseOfArray(x);
+            var ry = M.DenseOfArray(y);
             var rz = M.DenseOfArray(z);
 
             for (double i = 1.0; i <= sections; i++)
             {
+                
                 double radian = (2.0 * i * Math.PI) / (double)sections;
 
                 string bottompoint = "v 0 0 0\n";
                 bottomsection.Add(bottompoint);
 
                 double[] feederArray = {radius*Math.Cos(radian), radius*Math.Sin(radian),length};
-                MathNet.Numerics.LinearAlgebra.Vector<double> temptop = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfArray(feederArray);
-                
-                var rotation = rx*rz;
+                Vector<double> temptop = Vector<double>.Build.DenseOfArray(feederArray);
+                temptop *= 1.0;
+                var rotation = rz*rx;
                 var top = rotation * temptop;
                 
                 string toppoint = $"v {top[0]} {top[1]} {top[2]}\n";

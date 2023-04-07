@@ -35,6 +35,6 @@
     <Folder Include="objModels\" />
   </ItemGroup>
 
-  <ProjectExtensions><VisualStudio><UserProperties igdata_4event_31096322990__JsonSchema="https://beaujs.com/schema.json" /></VisualStudio></ProjectExtensions>
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
 </Project>
