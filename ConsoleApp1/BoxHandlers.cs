@@ -160,12 +160,17 @@ namespace IGtoOBJGen
         public static void generateJetModels(List<JetData> data)
         {
             List<string> objData = new List<string>();
+            int[] exclusionList = {};
             double maxZ = 2.25;
             double maxR = 1.10;
             double radius = 0.3 * (1.0 / (1 + 0.001));
-            Console.WriteLine(data[0].phi);
+            int numSections = 32;
+            int iterNumber = 0;
+            Console.WriteLine(data.Count);
+
             foreach (var item in data)
             {
+                iterNumber++;
                 double ct = Math.Cos(item.theta);
                 double st = Math.Sin(item.theta);
                 double cp = Math.Cos(item.phi);
@@ -175,9 +180,25 @@ namespace IGtoOBJGen
                 double length2 = (st != 0.0) ? maxR / Math.Abs(st) : maxR;
                 double length = length1 < length2 ? length1 : length2;
 
-                var geometryData = jetGeometry(item,radius,length,32);
+                var geometryData = jetGeometry(item,radius,length,numSections);
                 objData.AddRange(geometryData);
+                exclusionList.Append(numSections * iterNumber);
             }
+            
+            for (int i = 1; i <= 2*numSections*data.Count-numSections-1; i++) 
+            {
+                if (exclusionList.Contains(i))
+                {
+                    string thisface = $"f {i} {2 * i} {i + 1} {i - numSections + 1}";
+                    objData.Add(thisface);
+                    i += numSections;
+                    continue;
+                }
+
+                string face = $"f {i} {i + numSections} {i+1 +numSections} {i + 1}";
+                objData.Add(face);
+            }
+
             File.WriteAllText($"{path}\\test_obj\\jets.obj", String.Empty);
             File.WriteAllLines($"{path}\\test_obj\\jets.obj", objData);
         }
@@ -189,26 +210,20 @@ namespace IGtoOBJGen
 
             var M = Matrix<double>.Build;
 
-            double[,] x = 
+            double[,] xRot = 
                 { { 1, 0, 0 }, 
                 { 0, Math.Cos(item.theta), -1.0 * Math.Sin(item.theta) }, 
                 { 0, Math.Sin(item.theta), Math.Cos(item.theta) } };
             
-            double[,] z = 
+            double[,] zRot = 
                 { { Math.Cos(item.phi+Math.PI/2.0), -1.0 * Math.Sin(item.phi+Math.PI/2.0), 0 }, 
                 { Math.Sin(item.phi+Math.PI/2.0), Math.Cos(item.phi+Math.PI/2.0), 0 }, 
                 { 0, 0, 1 } };
             
-            double[,] y = 
-                { { Math.Cos(-Math.PI/2.0), 0, Math.Sin(-Math.PI/2.0) },
-                { 0, 1, 0 }, 
-                { -1.0 * Math.Sin(-Math.PI/2.0), 0, Math.Cos(-Math.PI/2.0) } };
-
             double[,] xTranslation = { { 1,0,0,0}, { 0,1,0,Math.PI/2},{ 0,0,1,0},{ 0,0,0,1} };
             
-            var rx = M.DenseOfArray(x);
-            var ry = M.DenseOfArray(y);
-            var rz = M.DenseOfArray(z);
+            var rx = M.DenseOfArray(xRot); //Rotation matrices
+            var rz = M.DenseOfArray(zRot);
 
             for (double i = 1.0; i <= sections; i++)
             {
@@ -220,7 +235,7 @@ namespace IGtoOBJGen
 
                 double[] feederArray = {radius*Math.Cos(radian), radius*Math.Sin(radian),length};
                 Vector<double> temptop = Vector<double>.Build.DenseOfArray(feederArray);
-                temptop *= 1.0;
+                
                 var rotation = rz*rx;
                 var top = rotation * temptop;
                 
@@ -228,7 +243,7 @@ namespace IGtoOBJGen
                 topsection.Add(toppoint);
             }
 
-            int n = 0;
+            /*int n = 0;
 
             while (n < sections)
             {
@@ -237,10 +252,10 @@ namespace IGtoOBJGen
                 n++;
             }
 
-            faces.Add($"f {sections} {2 * sections} {sections + 1} 1\n");
+            faces.Add($"f {sections} {2 * sections} {sections + 1} 1\n");*/
 
             bottomsection.AddRange(topsection);
-            bottomsection.AddRange(faces);
+            //bottomsection.AddRange(faces);
 
             return bottomsection;
         }
