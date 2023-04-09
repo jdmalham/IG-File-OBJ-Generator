@@ -206,7 +206,6 @@ namespace IGtoOBJGen
         {
             List<string> bottomsection = new List<string>();
             List<string> topsection = new List<string>();
-            List<string> faces = new List<string>();
 
             var M = Matrix<double>.Build;
 
@@ -243,19 +242,7 @@ namespace IGtoOBJGen
                 topsection.Add(toppoint);
             }
 
-            /*int n = 0;
-
-            while (n < sections)
-            {
-                string face = $"f {n} {n + sections} {n + 1 + sections} {n + 1}\n";
-                faces.Add(face);
-                n++;
-            }
-
-            faces.Add($"f {sections} {2 * sections} {sections + 1} 1\n");*/
-
             bottomsection.AddRange(topsection);
-            //bottomsection.AddRange(faces);
 
             return bottomsection;
         }
