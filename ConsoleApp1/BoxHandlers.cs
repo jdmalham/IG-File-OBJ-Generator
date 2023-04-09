@@ -166,7 +166,6 @@ namespace IGtoOBJGen
             double radius = 0.3 * (1.0 / (1 + 0.001));
             int numSections = 32;
             int iterNumber = 0;
-            Console.WriteLine(data.Count);
 
             foreach (var item in data)
             {
