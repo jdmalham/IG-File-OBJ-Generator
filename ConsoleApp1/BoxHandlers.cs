@@ -6,6 +6,10 @@ namespace IGtoOBJGen
     internal class IGBoxes
     {
         private static string path = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+        private double EERECHITS_SCALE = 0.01;
+        private double ESRECHITS_SCALE = 100.0;
+        private double EBRECHITS_SCALE = 0.1;
+
         public static List<MuonChamberData> muonChamberParse(JObject data)
         {
             var dataList = new List<MuonChamberData>();
@@ -181,12 +185,12 @@ namespace IGtoOBJGen
 
                 var geometryData = jetGeometry(item,radius,length,numSections);
                 objData.AddRange(geometryData);
-                exclusionList.Append(numSections * iterNumber);
+                exclusionList.Append(2*numSections * iterNumber);
             }
-            
+            Console.WriteLine(exclusionList.ToString());
             for (int i = 1; i <= 2*numSections*data.Count-numSections-1; i++) 
             {
-                if (exclusionList.Contains(i))
+                if (exclusionList.Contains(i-1))
                 {
                     string thisface = $"f {i} {2 * i} {i + 1} {i - numSections + 1}";
                     objData.Add(thisface);
@@ -218,7 +222,7 @@ namespace IGtoOBJGen
                 { Math.Sin(item.phi+Math.PI/2.0), Math.Cos(item.phi+Math.PI/2.0), 0 }, 
                 { 0, 0, 1 } };
             
-            double[,] xTranslation = { { 1,0,0,0}, { 0,1,0,Math.PI/2},{ 0,0,1,0},{ 0,0,0,1} };
+            //double[,] xTranslation = { { 1,0,0,0}, { 0,1,0,Math.PI/2},{ 0,0,1,0},{ 0,0,0,1} };
             
             var rx = M.DenseOfArray(xRot); //Rotation matrices
             var rz = M.DenseOfArray(zRot);
