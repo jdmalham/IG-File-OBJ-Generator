@@ -1,14 +1,15 @@
 ﻿using Newtonsoft.Json.Linq;
 using MathNet.Numerics.LinearAlgebra;
+using System.ComponentModel.Design;
 
 namespace IGtoOBJGen
 {
     internal class IGBoxes
     {
         private static string path = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-        private double EERECHITS_SCALE = 0.01;
+        /*private double EERECHITS_SCALE = 0.01;
         private double ESRECHITS_SCALE = 100.0;
-        private double EBRECHITS_SCALE = 0.1;
+        private double EBRECHITS_SCALE = 0.1;*/
 
         public static List<MuonChamberData> muonChamberParse(JObject data)
         {
@@ -83,7 +84,23 @@ namespace IGtoOBJGen
             {
                 CalorimetryData ebHitsData = new CalorimetryData();
                 var children = item.Children().Values<double>().ToList();
-
+                
+                switch (name) 
+                {
+                    case "EERecHits_V2":
+                        ebHitsData.scale = children[0] / 0.01;
+                        break;
+                    case "ESRecHits_V2":
+                        ebHitsData.scale = children[0] / 100.0;
+                        break;
+                    case "EBRecHits_V2":
+                        ebHitsData.scale = children[0] / 0.1;
+                        break;
+                    default:
+                        ebHitsData.scale = 1.0;
+                        break;
+                }
+                
                 ebHitsData.name = name;
                 ebHitsData.energy = children[0];
                 ebHitsData.eta = children[1];
@@ -109,9 +126,35 @@ namespace IGtoOBJGen
             List<string> geometryData = new List<string>();
             List<string> faceDeclarations = new List<string>();
             int counter = 1;
+            //Front vertices
+            double[] v0;
+            double[] v1;
+            double[] v2;
+            double[] v3;
+            //Back vertices
+            double[] v4;
+            double[] v5;
+            double[] v6;
+            double[] v7;
 
             foreach (CalorimetryData box in inputData)
             {
+                v0 = box.front_1;
+                v1 = box.front_2;   
+                v2 = box.front_3;
+                v3 = box.front_4;
+                v4 = box.back_1;
+                v5 = box.back_2;
+                v6 = box.back_3;
+                v7 = box.back_4;
+
+                v0 = new double[] { (v0[0] - v4[0])*box.scale + v4[0], (v0[1] - v4[1]) * box.scale + v4[1], (v0[2] - v4[2]) * box.scale + v4[2] };
+                v1 = new double[] { (v1[0] - v5[0]) * box.scale + v5[0], (v1[1] - v5[1]) * box.scale + v5[1], (v1[2] - v5[2]) * box.scale + v5[2] };
+                v2 = new double[] { (v2[0] - v6[0]) * box.scale + v6[0], (v2[1] - v6[1]) * box.scale + v6[1], (v2[2] - v6[2]) * box.scale + v6[2] };
+                v3 = new double[] { (v3[0] - v7[0]) * box.scale + v7[0], (v3[1] - v7[1]) * box.scale + v7[1], (v3[2] - v7[2]) * box.scale + v7[2] };
+
+               
+
                 //Don't you just love giant blocks of nearly identical code?
                 geometryData.Add($"o {box.name}");
                 geometryData.Add($"v {box.front_1[0] * box.energy} {box.front_1[1] * box.energy} {box.front_1[2] * box.energy}");

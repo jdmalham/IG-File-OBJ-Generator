@@ -26,6 +26,7 @@ struct CalorimetryData {
     public double[] back_2;
     public double[] back_3;
     public double[] back_4;
+    public double scale;
 }
 struct METData {
     public double phi;
