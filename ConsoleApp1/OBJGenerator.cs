@@ -45,7 +45,9 @@ class OBJGenerator
         //Read in IG file as JSON Object. Thanks Newtonsoft
         JsonTextReader reader = new JsonTextReader(file);
         JObject o2 = (JObject)JToken.ReadFrom(reader);
+
         file.Close();
+
         if (args.Length > 0)
         {
             File.Delete($"{args[0]}.tmp");
@@ -98,8 +100,8 @@ class OBJGenerator
 
 
         /*Communicate bridge = new Communicate(@"C:\Users\uclav\AppData\Local\Android\Sdk\platform-tools\adb.exe");
-        bridge.DownloadFiles("Photons_V1.obj");
-        bridge.UploadFiles(trackHandler.filePaths);*/ 
+        bridge.DownloadFiles("Photons_V1.obj");*/
+        //bridge.UploadFiles(trackHandler.filePaths);
         Console.WriteLine($"Total Execution Time: {watch.ElapsedMilliseconds} ms"); // See how fast code runs. Code goes brrrrrrr on fancy office pc. It makes me happy. :)
     }
 }

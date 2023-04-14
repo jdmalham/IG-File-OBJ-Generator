@@ -1,16 +1,13 @@
 ﻿using Newtonsoft.Json.Linq;
 using MathNet.Numerics.LinearAlgebra;
 using System.ComponentModel.Design;
+using System.Diagnostics;
 
 namespace IGtoOBJGen
 {
     internal class IGBoxes
     {
         private static string path = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-        /*private double EERECHITS_SCALE = 0.01;
-        private double ESRECHITS_SCALE = 100.0;
-        private double EBRECHITS_SCALE = 0.1;*/
-
         public static List<MuonChamberData> muonChamberParse(JObject data)
         {
             var dataList = new List<MuonChamberData>();
@@ -88,13 +85,13 @@ namespace IGtoOBJGen
                 switch (name) 
                 {
                     case "EERecHits_V2":
-                        ebHitsData.scale = children[0] / 0.01;
+                        ebHitsData.scale = children[0] * 0.01;
                         break;
                     case "ESRecHits_V2":
-                        ebHitsData.scale = children[0] / 100.0;
+                        ebHitsData.scale = children[0] * 100.0;
                         break;
                     case "EBRecHits_V2":
-                        ebHitsData.scale = children[0] / 0.1;
+                        ebHitsData.scale = children[0] * 0.1;
                         break;
                     default:
                         ebHitsData.scale = 1.0;
@@ -148,23 +145,57 @@ namespace IGtoOBJGen
                 v6 = box.back_3;
                 v7 = box.back_4;
 
-                v0 = new double[] { (v0[0] - v4[0])*box.scale + v4[0], (v0[1] - v4[1]) * box.scale + v4[1], (v0[2] - v4[2]) * box.scale + v4[2] };
-                v1 = new double[] { (v1[0] - v5[0]) * box.scale + v5[0], (v1[1] - v5[1]) * box.scale + v5[1], (v1[2] - v5[2]) * box.scale + v5[2] };
-                v2 = new double[] { (v2[0] - v6[0]) * box.scale + v6[0], (v2[1] - v6[1]) * box.scale + v6[1], (v2[2] - v6[2]) * box.scale + v6[2] };
-                v3 = new double[] { (v3[0] - v7[0]) * box.scale + v7[0], (v3[1] - v7[1]) * box.scale + v7[1], (v3[2] - v7[2]) * box.scale + v7[2] };
-
+                v4 = new double[] { (v4[0] - v0[0]) , (v4[1] - v0[1]) , (v4[2] - v0[2])  };
+                v5 = new double[] { (v5[0] - v1[0]) , (v5[1] - v1[1]) , (v5[2] - v1[2])  };
+                v6 = new double[] { (v6[0] - v2[0]) , (v6[1] - v2[1]) , (v6[2] - v2[2])  };
+                v7 = new double[] { (v7[0] - v3[0]) , (v7[1] - v3[1]) , (v7[2] - v3[2])  };
                
+                double v4mag = Math.Sqrt(
+                    Math.Pow(v4[0], 2) +
+                    Math.Pow(v4[1], 2) +
+                    Math.Pow(v4[2], 2)
+                    );
+                //Console.WriteLine( box.scale );
+                double v5mag = Math.Sqrt(
+                    Math.Pow(v5[0], 2) +
+                    Math.Pow(v5[1], 2) +
+                    Math.Pow(v5[2], 2)
+                    );
+                double v6mag = Math.Sqrt(
+                    Math.Pow(v6[0], 2) +
+                    Math.Pow(v6[1], 2) +
+                    Math.Pow(v6[2], 2)
+                    );
+                double v7mag = Math.Sqrt(
+                    Math.Pow(v7[0], 2) +
+                    Math.Pow(v7[1], 2) +
+                    Math.Pow(v7[2], 2)
+                    );
+
+                v4 = new double[] { (v4[0] / v4mag) * box.scale + v0[0], (v4[1]/v4mag)* box.scale + v0[1], (v4[2]/v4mag) * box.scale + v0[2] };
+                v5 = new double[] { (v5[0] / v5mag) * box.scale + v1[0], (v5[1]/v5mag) * box.scale + v1[1], (v5[2]/v5mag) * box.scale + v1[2] };
+                v6 = new double[] { (v6[0] / v6mag) * box.scale + v2[0], (v6[1]/v6mag) * box.scale + v2[1], (v6[2]/v6mag) * box.scale + v2[2] };
+                v7 = new double[] { (v7[0] / v7mag) * box.scale + v3[0], (v7[1]/v7mag) * box.scale + v3[1], (v7[2]/v7mag) * box.scale + v3[2] };
+                Array.ForEach(v7, Console.WriteLine);
 
                 //Don't you just love giant blocks of nearly identical code?
                 geometryData.Add($"o {box.name}");
-                geometryData.Add($"v {box.front_1[0] * box.energy} {box.front_1[1] * box.energy} {box.front_1[2] * box.energy}");
-                geometryData.Add($"v {box.front_2[0] * box.energy} {box.front_2[1] * box.energy} {box.front_2[2] * box.energy}");
+                geometryData.Add($"v {String.Join(' ', v0)}");
+                geometryData.Add($"v {String.Join(' ', v1)}");
+                geometryData.Add($"v {String.Join(' ', v2)}");
+                geometryData.Add($"v {String.Join(' ', v3)}");
+                geometryData.Add($"v {String.Join(' ', v4)}");
+                geometryData.Add($"v {String.Join(' ', v5)}");
+                geometryData.Add($"v {String.Join(' ', v6)}");
+                geometryData.Add($"v {String.Join(' ', v7)}");
+
+               /* geometryData.Add($"v {box.front_2[0] * box.energy} {box.front_2[1] * box.energy} {box.front_2[2] * box.energy}");
                 geometryData.Add($"v {box.front_3[0] * box.energy} {box.front_3[1] * box.energy} {box.front_3[2] * box.energy}");
                 geometryData.Add($"v {box.front_4[0] * box.energy} {box.front_4[1] * box.energy} {box.front_4[2] * box.energy}");
                 geometryData.Add($"v {box.back_1[0] * box.energy} {box.back_1[1] * box.energy} {box.back_1[2] * box.energy}");
                 geometryData.Add($"v {box.back_2[0] * box.energy} {box.back_2[1] * box.energy} {box.back_2[2] * box.energy}");
                 geometryData.Add($"v {box.back_3[0] * box.energy} {box.back_3[1] * box.energy} {box.back_3[2] * box.energy}");
-                geometryData.Add($"v {box.back_4[0] * box.energy} {box.back_4[1] * box.energy} {box.back_4[2] * box.energy}");
+                geometryData.Add($"v {box.back_4[0] * box.energy} {box.back_4[1] * box.energy} {box.back_4[2] * box.energy}");*/
 
                 faceDeclarations.Add($"f {counter} {counter + 1} {counter + 2} {counter + 3}");
                 faceDeclarations.Add($"f {counter + 3} {counter + 2} {counter + 1} {counter}");
@@ -230,7 +261,7 @@ namespace IGtoOBJGen
                 objData.AddRange(geometryData);
                 exclusionList.Append(2*numSections * iterNumber);
             }
-            Console.WriteLine(exclusionList.ToString());
+            
             for (int i = 1; i <= 2*numSections*data.Count-numSections-1; i++) 
             {
                 if (exclusionList.Contains(i-1))
