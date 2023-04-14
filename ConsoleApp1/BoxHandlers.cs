@@ -118,7 +118,7 @@ namespace IGtoOBJGen
             dataList.Add(mediatingList);
             return dataList;
         }
-        public static List<string> generateCalorimetryModels(List<CalorimetryData> inputData)
+        public static List<string> generateCalorimetryTowers(List<CalorimetryData> inputData)
         {
             List<string> geometryData = new List<string>();
             List<string> faceDeclarations = new List<string>();
@@ -322,6 +322,11 @@ namespace IGtoOBJGen
             bottomsection.AddRange(topsection);
 
             return bottomsection;
+        }
+        public static List<string> generateCalorimetryBoxes(List<CalorimetryData> inputData)
+        {
+            List<string> dataList = new List<string>();
+            return dataList;
         }
     }
 }

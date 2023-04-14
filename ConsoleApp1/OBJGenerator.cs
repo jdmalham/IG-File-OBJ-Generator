@@ -68,7 +68,7 @@ class OBJGenerator
         {
             if (thing.Count() == 0) continue;
             string name = thing[0].name;
-            List<string> Contents = IGBoxes.generateCalorimetryModels(thing);
+            List<string> Contents = IGBoxes.generateCalorimetryTowers(thing);
             try
             {
                 File.WriteAllText($"{strPath}\\{eventName}\\{name}.obj", String.Empty);
