@@ -174,9 +174,7 @@ namespace IGtoOBJGen
                 v5 = new double[] { (v5[0] / v5mag) * box.scale + v1[0], (v5[1]/v5mag) * box.scale + v1[1], (v5[2]/v5mag) * box.scale + v1[2] };
                 v6 = new double[] { (v6[0] / v6mag) * box.scale + v2[0], (v6[1]/v6mag) * box.scale + v2[1], (v6[2]/v6mag) * box.scale + v2[2] };
                 v7 = new double[] { (v7[0] / v7mag) * box.scale + v3[0], (v7[1]/v7mag) * box.scale + v3[1], (v7[2]/v7mag) * box.scale + v3[2] };
-                //Array.ForEach(v7, Console.WriteLine);
 
-                //Don't you just love giant blocks of nearly identical code?
                 geometryData.Add($"o {box.name}");
                 geometryData.Add($"v {String.Join(' ', v0)}");
                 geometryData.Add($"v {String.Join(' ', v1)}");
@@ -285,8 +283,7 @@ namespace IGtoOBJGen
                 { { Math.Cos(item.phi+Math.PI/2.0), -1.0 * Math.Sin(item.phi+Math.PI/2.0), 0 }, 
                 { Math.Sin(item.phi+Math.PI/2.0), Math.Cos(item.phi+Math.PI/2.0), 0 }, 
                 { 0, 0, 1 } };
-            
-            //double[,] xTranslation = { { 1,0,0,0}, { 0,1,0,Math.PI/2},{ 0,0,1,0},{ 0,0,0,1} };
+           
             
             var rx = M.DenseOfArray(xRot); //Rotation matrices
             var rz = M.DenseOfArray(zRot);
