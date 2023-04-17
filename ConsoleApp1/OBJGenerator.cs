@@ -68,6 +68,22 @@ class OBJGenerator
         {
             if (thing.Count() == 0) continue;
             string name = thing[0].name;
+            if (name == "HBRecHits_V2")
+            {
+                var contents = IGBoxes.generateCalorimetryBoxes(thing);
+                try
+                {
+                    File.WriteAllText($"{strPath}\\{eventName}\\{name}.obj", String.Empty);
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    Directory.CreateDirectory($"{strPath}\\{eventName}");
+                    File.WriteAllText($"{strPath}\\{eventName}\\{name}.obj", String.Empty);
+                }
+                File.WriteAllLines($"{strPath}\\{eventName}\\{name}.obj", contents);
+                continue;
+            }
+            
             List<string> Contents = IGBoxes.generateCalorimetryTowers(thing);
             try
             {

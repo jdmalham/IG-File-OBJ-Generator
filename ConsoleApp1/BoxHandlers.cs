@@ -2,6 +2,7 @@
 using MathNet.Numerics.LinearAlgebra;
 using System.ComponentModel.Design;
 using System.Diagnostics;
+using System.ComponentModel;
 
 namespace IGtoOBJGen
 {
@@ -93,6 +94,9 @@ namespace IGtoOBJGen
                     case "EBRecHits_V2":
                         ebHitsData.scale = children[0] * 0.1;
                         break;
+                    case "HBRecHits_V2":
+                        ebHitsData.scale = children[0] * 0.20;
+                        break;
                     default:
                         ebHitsData.scale = 1.0;
                         break;
@@ -176,7 +180,6 @@ namespace IGtoOBJGen
                 v5 = new double[] { (v5[0] / v5mag) * box.scale + v1[0], (v5[1]/v5mag) * box.scale + v1[1], (v5[2]/v5mag) * box.scale + v1[2] };
                 v6 = new double[] { (v6[0] / v6mag) * box.scale + v2[0], (v6[1]/v6mag) * box.scale + v2[1], (v6[2]/v6mag) * box.scale + v2[2] };
                 v7 = new double[] { (v7[0] / v7mag) * box.scale + v3[0], (v7[1]/v7mag) * box.scale + v3[1], (v7[2]/v7mag) * box.scale + v3[2] };
-                Array.ForEach(v7, Console.WriteLine);
 
                 //Don't you just love giant blocks of nearly identical code?
                 geometryData.Add($"o {box.name}");
@@ -188,14 +191,6 @@ namespace IGtoOBJGen
                 geometryData.Add($"v {String.Join(' ', v5)}");
                 geometryData.Add($"v {String.Join(' ', v6)}");
                 geometryData.Add($"v {String.Join(' ', v7)}");
-
-               /* geometryData.Add($"v {box.front_2[0] * box.energy} {box.front_2[1] * box.energy} {box.front_2[2] * box.energy}");
-                geometryData.Add($"v {box.front_3[0] * box.energy} {box.front_3[1] * box.energy} {box.front_3[2] * box.energy}");
-                geometryData.Add($"v {box.front_4[0] * box.energy} {box.front_4[1] * box.energy} {box.front_4[2] * box.energy}");
-                geometryData.Add($"v {box.back_1[0] * box.energy} {box.back_1[1] * box.energy} {box.back_1[2] * box.energy}");
-                geometryData.Add($"v {box.back_2[0] * box.energy} {box.back_2[1] * box.energy} {box.back_2[2] * box.energy}");
-                geometryData.Add($"v {box.back_3[0] * box.energy} {box.back_3[1] * box.energy} {box.back_3[2] * box.energy}");
-                geometryData.Add($"v {box.back_4[0] * box.energy} {box.back_4[1] * box.energy} {box.back_4[2] * box.energy}");*/
 
                 faceDeclarations.Add($"f {counter} {counter + 1} {counter + 2} {counter + 3}");
                 faceDeclarations.Add($"f {counter + 3} {counter + 2} {counter + 1} {counter}");
@@ -325,8 +320,96 @@ namespace IGtoOBJGen
         }
         public static List<string> generateCalorimetryBoxes(List<CalorimetryData> inputData)
         {
-            List<string> dataList = new List<string>();
-            return dataList;
+            List<string> geometryData = new List<string>();
+            List<string> faceDeclarations = new List<string>();
+            int counter = 1;
+
+            var V = Vector<double>.Build;
+
+            foreach (CalorimetryData box in inputData)
+            {
+                double scale = box.scale;
+                var v0 = V.DenseOfArray(box.front_1);
+                var v1 = V.DenseOfArray(box.front_2);
+                var v2 = V.DenseOfArray(box.front_3);
+                var v3 = V.DenseOfArray(box.front_4);
+                var v4 = V.DenseOfArray(box.back_1);
+                var v5 = V.DenseOfArray(box.back_2);
+                var v6 = V.DenseOfArray(box.back_3);
+                var v7 = V.DenseOfArray(box.back_4);
+
+                var center = v0 + v1;
+                center += v2;
+                center += v3;
+                center += v4;
+                center += v5;
+                center += v6;
+                center += v7;
+
+                center.Divide(8.0);
+
+                v0 -= center;
+                v0 *= scale;
+                v0 += center;
+
+                v1 -= center;
+                v1*= scale;
+                v1 += center;
+                
+                v2 -= center;
+                v2 *= scale;
+                v2 += center;
+
+                v3 -= center;
+                v3 *= scale;
+                v3 += center;
+
+                v4 -= center;
+                v4 *= scale;
+                v4 += center;
+
+                v5 -= center;
+                v5 *= scale;
+                v5 += center;
+
+                v6 -= center;
+                v6 *= scale;
+                v6 += center;
+
+                v7 -= center;
+                v7 *= scale;
+                v7 += center;
+
+                geometryData.Add($"o {box.name}");
+                geometryData.Add($"v {String.Join(' ', v0)}");
+                geometryData.Add($"v {String.Join(' ', v1)}");
+                geometryData.Add($"v {String.Join(' ', v2)}");
+                geometryData.Add($"v {String.Join(' ', v3)}");
+                geometryData.Add($"v {String.Join(' ', v4)}");
+                geometryData.Add($"v {String.Join(' ', v5)}");
+                geometryData.Add($"v {String.Join(' ', v6)}");
+                geometryData.Add($"v {String.Join(' ', v7)}");
+
+                faceDeclarations.Add($"f {counter} {counter + 1} {counter + 2} {counter + 3}");
+                faceDeclarations.Add($"f {counter + 3} {counter + 2} {counter + 1} {counter}");
+                faceDeclarations.Add($"f {counter + 4} {counter + 5} {counter + 6} {counter + 7}");
+                faceDeclarations.Add($"f {counter + 7} {counter + 6} {counter + 5} {counter + 4}");
+                faceDeclarations.Add($"f {counter} {counter + 3} {counter + 7} {counter + 4}");
+                faceDeclarations.Add($"f {counter + 4} {counter + 7} {counter + 3} {counter}");
+                faceDeclarations.Add($"f {counter + 1} {counter + 2} {counter + 6} {counter + 5}");
+                faceDeclarations.Add($"f {counter + 5} {counter + 6} {counter + 2} {counter + 1}");
+                faceDeclarations.Add($"f {counter + 3} {counter + 2} {counter + 6} {counter + 7}");
+                faceDeclarations.Add($"f {counter + 7} {counter + 6} {counter + 2} {counter + 3}");
+                faceDeclarations.Add($"f {counter + 1} {counter} {counter + 4} {counter + 5}");
+                faceDeclarations.Add($"f {counter + 5} {counter + 4} {counter} {counter + 1}");
+
+                counter += 8;
+            }
+            foreach (var item in faceDeclarations)
+            {
+                geometryData.Add(item);
+            }
+            return geometryData;
         }
     }
 }
