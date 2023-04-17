@@ -1,7 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
 using MathNet.Numerics.LinearAlgebra;
-using System.ComponentModel.Design;
-using System.Diagnostics;
 
 namespace IGtoOBJGen
 {
@@ -176,7 +174,7 @@ namespace IGtoOBJGen
                 v5 = new double[] { (v5[0] / v5mag) * box.scale + v1[0], (v5[1]/v5mag) * box.scale + v1[1], (v5[2]/v5mag) * box.scale + v1[2] };
                 v6 = new double[] { (v6[0] / v6mag) * box.scale + v2[0], (v6[1]/v6mag) * box.scale + v2[1], (v6[2]/v6mag) * box.scale + v2[2] };
                 v7 = new double[] { (v7[0] / v7mag) * box.scale + v3[0], (v7[1]/v7mag) * box.scale + v3[1], (v7[2]/v7mag) * box.scale + v3[2] };
-                Array.ForEach(v7, Console.WriteLine);
+                //Array.ForEach(v7, Console.WriteLine);
 
                 //Don't you just love giant blocks of nearly identical code?
                 geometryData.Add($"o {box.name}");
@@ -188,14 +186,6 @@ namespace IGtoOBJGen
                 geometryData.Add($"v {String.Join(' ', v5)}");
                 geometryData.Add($"v {String.Join(' ', v6)}");
                 geometryData.Add($"v {String.Join(' ', v7)}");
-
-               /* geometryData.Add($"v {box.front_2[0] * box.energy} {box.front_2[1] * box.energy} {box.front_2[2] * box.energy}");
-                geometryData.Add($"v {box.front_3[0] * box.energy} {box.front_3[1] * box.energy} {box.front_3[2] * box.energy}");
-                geometryData.Add($"v {box.front_4[0] * box.energy} {box.front_4[1] * box.energy} {box.front_4[2] * box.energy}");
-                geometryData.Add($"v {box.back_1[0] * box.energy} {box.back_1[1] * box.energy} {box.back_1[2] * box.energy}");
-                geometryData.Add($"v {box.back_2[0] * box.energy} {box.back_2[1] * box.energy} {box.back_2[2] * box.energy}");
-                geometryData.Add($"v {box.back_3[0] * box.energy} {box.back_3[1] * box.energy} {box.back_3[2] * box.energy}");
-                geometryData.Add($"v {box.back_4[0] * box.energy} {box.back_4[1] * box.energy} {box.back_4[2] * box.energy}");*/
 
                 faceDeclarations.Add($"f {counter} {counter + 1} {counter + 2} {counter + 3}");
                 faceDeclarations.Add($"f {counter + 3} {counter + 2} {counter + 1} {counter}");
