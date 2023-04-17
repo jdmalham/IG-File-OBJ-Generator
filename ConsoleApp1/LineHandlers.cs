@@ -35,13 +35,12 @@ namespace IGtoOBJGen
         }
         protected string makePhoton(PhotonData data)
         {
-            //Calculate path of the photons within the detector
+            
 
             double lEB = 3.0; //half-length of ECAL barrel in meters
             double rEB = 1.24; //radius of ECAL barrel in meters
             double eta = data.eta;
             double phi = data.phi;
-            double energy = data.energy;
             double px = Math.Cos(phi);
             double py = Math.Sin(phi);
             double pz = Math.Sinh(eta);
@@ -140,7 +139,6 @@ namespace IGtoOBJGen
             File.WriteAllLines($"{desktopPath}\\{eventName}\\tracks.obj", dataList);
             filePaths.Add($"{desktopPath}\\{eventName}\\tracks.obj");
         }
-        
         public List<TrackExtrasData> trackExtrasParse(JObject data) {
             List<TrackExtrasData> dataList = new List<TrackExtrasData>();
             foreach (var igTrackExtra in data["Collections"]["Extras_V1"]) {

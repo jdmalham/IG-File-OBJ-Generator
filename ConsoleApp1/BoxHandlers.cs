@@ -1,7 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
 using MathNet.Numerics.LinearAlgebra;
-using System.ComponentModel.Design;
-using System.Diagnostics;
 
 namespace IGtoOBJGen
 {
@@ -94,7 +92,7 @@ namespace IGtoOBJGen
                         ebHitsData.scale = children[0] * 0.1;
                         break;
                     case "HBRecHits_V2":
-                        ebHitsData.scale = children[0] * 0.20;
+                        ebHitsData.scale = children[0] / 8.53659;
                         break;
                     default:
                         ebHitsData.scale = 1.0;
@@ -126,39 +124,30 @@ namespace IGtoOBJGen
             List<string> geometryData = new List<string>();
             List<string> faceDeclarations = new List<string>();
             int counter = 1;
-            //Front vertices
-            double[] v0;
-            double[] v1;
-            double[] v2;
-            double[] v3;
-            //Back vertices
-            double[] v4;
-            double[] v5;
-            double[] v6;
-            double[] v7;
+           
+            var V = Vector<double>.Build;
 
             foreach (CalorimetryData box in inputData)
             {
-                v0 = box.front_1;
-                v1 = box.front_2;   
-                v2 = box.front_3;
-                v3 = box.front_4;
-                v4 = box.back_1;
-                v5 = box.back_2;
-                v6 = box.back_3;
-                v7 = box.back_4;
+                var v0 = V.DenseOfArray(box.front_1);
+                var v1 = V.DenseOfArray(box.front_2);
+                var v2 = V.DenseOfArray(box.front_3);
+                var v3 = V.DenseOfArray(box.front_4);
+                var v4 = V.DenseOfArray(box.back_1);
+                var v5 = V.DenseOfArray(box.back_2);
+                var v6 = V.DenseOfArray(box.back_3);
+                var v7 = V.DenseOfArray(box.back_4);
 
-                v4 = new double[] { (v4[0] - v0[0]) , (v4[1] - v0[1]) , (v4[2] - v0[2])  };
-                v5 = new double[] { (v5[0] - v1[0]) , (v5[1] - v1[1]) , (v5[2] - v1[2])  };
-                v6 = new double[] { (v6[0] - v2[0]) , (v6[1] - v2[1]) , (v6[2] - v2[2])  };
-                v7 = new double[] { (v7[0] - v3[0]) , (v7[1] - v3[1]) , (v7[2] - v3[2])  };
+                v4 -= v0;
+                v5 -= v1;
+                v6 -= v2;
+                v7 -= v3;
                
                 double v4mag = Math.Sqrt(
                     Math.Pow(v4[0], 2) +
                     Math.Pow(v4[1], 2) +
                     Math.Pow(v4[2], 2)
                     );
-                //Console.WriteLine( box.scale );
                 double v5mag = Math.Sqrt(
                     Math.Pow(v5[0], 2) +
                     Math.Pow(v5[1], 2) +
@@ -175,10 +164,20 @@ namespace IGtoOBJGen
                     Math.Pow(v7[2], 2)
                     );
 
-                v4 = new double[] { (v4[0] / v4mag) * box.scale + v0[0], (v4[1]/v4mag)* box.scale + v0[1], (v4[2]/v4mag) * box.scale + v0[2] };
-                v5 = new double[] { (v5[0] / v5mag) * box.scale + v1[0], (v5[1]/v5mag) * box.scale + v1[1], (v5[2]/v5mag) * box.scale + v1[2] };
-                v6 = new double[] { (v6[0] / v6mag) * box.scale + v2[0], (v6[1]/v6mag) * box.scale + v2[1], (v6[2]/v6mag) * box.scale + v2[2] };
-                v7 = new double[] { (v7[0] / v7mag) * box.scale + v3[0], (v7[1]/v7mag) * box.scale + v3[1], (v7[2]/v7mag) * box.scale + v3[2] };
+                v4 /= v4mag;
+                v5 /= v5mag;
+                v6 /= v6mag;
+                v7 /= v7mag;
+
+                v4 *= box.scale;
+                v5 *= box.scale;
+                v6 *= box.scale;
+                v7 *= box.scale;
+
+                v4 += v0;
+                v5 += v1;
+                v6 += v2;
+                v7 += v3;
 
                 geometryData.Add($"o {box.name}");
                 geometryData.Add($"v {String.Join(' ', v0)}");
@@ -307,7 +306,7 @@ namespace IGtoOBJGen
                 var rotation = rz*rx;
                 var top = rotation * temptop;
                 
-                string toppoint = $"v {top[0]} {top[1]} {top[2]}\n";
+                string toppoint = $"v {top[0]} {top[1]} {top[2]}";
                 topsection.Add(toppoint);
             }
 
@@ -343,8 +342,8 @@ namespace IGtoOBJGen
                 center += v6;
                 center += v7;
 
-                center.Divide(8.0);
-
+                center /= 8.0;
+                
                 v0 -= center;
                 v0 *= scale;
                 v0 += center;
@@ -376,7 +375,7 @@ namespace IGtoOBJGen
                 v7 -= center;
                 v7 *= scale;
                 v7 += center;
-
+                
                 geometryData.Add($"o {box.name}");
                 geometryData.Add($"v {String.Join(' ', v0)}");
                 geometryData.Add($"v {String.Join(' ', v1)}");
@@ -387,25 +386,25 @@ namespace IGtoOBJGen
                 geometryData.Add($"v {String.Join(' ', v6)}");
                 geometryData.Add($"v {String.Join(' ', v7)}");
 
-                faceDeclarations.Add($"f {counter} {counter + 1} {counter + 2} {counter + 3}");
-                faceDeclarations.Add($"f {counter + 3} {counter + 2} {counter + 1} {counter}");
-                faceDeclarations.Add($"f {counter + 4} {counter + 5} {counter + 6} {counter + 7}");
-                faceDeclarations.Add($"f {counter + 7} {counter + 6} {counter + 5} {counter + 4}");
-                faceDeclarations.Add($"f {counter} {counter + 3} {counter + 7} {counter + 4}");
-                faceDeclarations.Add($"f {counter + 4} {counter + 7} {counter + 3} {counter}");
-                faceDeclarations.Add($"f {counter + 1} {counter + 2} {counter + 6} {counter + 5}");
-                faceDeclarations.Add($"f {counter + 5} {counter + 6} {counter + 2} {counter + 1}");
-                faceDeclarations.Add($"f {counter + 3} {counter + 2} {counter + 6} {counter + 7}");
-                faceDeclarations.Add($"f {counter + 7} {counter + 6} {counter + 2} {counter + 3}");
-                faceDeclarations.Add($"f {counter + 1} {counter} {counter + 4} {counter + 5}");
-                faceDeclarations.Add($"f {counter + 5} {counter + 4} {counter} {counter + 1}");
+                geometryData.Add($"f {counter} {counter + 1} {counter + 2} {counter + 3}");
+                geometryData.Add($"f {counter + 3} {counter + 2} {counter + 1} {counter}");
+                geometryData.Add($"f {counter + 4} {counter + 5} {counter + 6} {counter + 7}");
+                geometryData.Add($"f {counter + 7} {counter + 6} {counter + 5} {counter + 4}");
+                geometryData.Add($"f {counter} {counter + 3} {counter + 7} {counter + 4}");
+                geometryData.Add($"f {counter + 4} {counter + 7} {counter + 3} {counter}");
+                geometryData.Add($"f {counter + 1} {counter + 2} {counter + 6} {counter + 5}");
+                geometryData.Add($"f {counter + 5} {counter + 6} {counter + 2} {counter + 1}");
+                geometryData.Add($"f {counter + 3} {counter + 2} {counter + 6} {counter + 7}");
+                geometryData.Add($"f {counter + 7} {counter + 6} {counter + 2} {counter + 3}");
+                geometryData.Add($"f {counter + 1} {counter} {counter + 4} {counter + 5}");
+                geometryData.Add($"f {counter + 5} {counter + 4} {counter} {counter + 1}");
 
                 counter += 8;
             }
-            foreach (var item in faceDeclarations)
+            /*foreach (var item in faceDeclarations)
             {
                 geometryData.Add(item);
-            }
+            }*/
             return geometryData;
         }
     }
