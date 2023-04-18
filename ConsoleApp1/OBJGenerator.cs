@@ -2,9 +2,6 @@
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using IGtoOBJGen;
-using MathNet.Numerics;
-
-
 /*
 
 What's going on in this file? It's just the main file. Why is it so messy? Good question. 
@@ -98,17 +95,17 @@ class OBJGenerator
         }
 
         //Get the data that is needed to generate track objects from the IG file (look at definition for explanation of the name)
-        {
-            List<TrackExtrasData> listicle = trackHandler.trackExtrasParse(o2);
+        
+        List<TrackExtrasData> listicle = trackHandler.trackExtrasParse(o2);
 
-            trackHandler.trackCubicBezierCurve(listicle, 32, eventName);  //Create the cubic bezier curve object file based off the track data
+        trackHandler.trackCubicBezierCurve(listicle, 32, eventName);  //Create the cubic bezier curve object file based off the track data
 
-            var n = trackHandler.photonParse(o2); // Get photon data
-            trackHandler.generatePhotonModels(n, eventName); // This one is a mystery. I don't know what it does. I can't figure it out. WHAT DOES GENERATE PHOTON MODELS MEAN?????
+        var n = trackHandler.photonParse(o2); // Get photon data
+        trackHandler.generatePhotonModels(n, eventName); // This one is a mystery. I don't know what it does. I can't figure it out. WHAT DOES GENERATE PHOTON MODELS MEAN?????
 
-            List<MuonChamberData> list = IGBoxes.muonChamberParse(o2); // Get muon chamber data
-            IGBoxes.generateMuonChamberModels(list); // Generate muon chamber obj files
-        }
+        List<MuonChamberData> list = IGBoxes.muonChamberParse(o2); // Get muon chamber data
+        IGBoxes.generateMuonChamberModels(list); // Generate muon chamber obj files
+        
         
         List<JetData> jetList = IGBoxes.jetParse(o2);
         IGBoxes.generateJetModels(jetList);

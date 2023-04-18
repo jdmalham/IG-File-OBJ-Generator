@@ -8,15 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="ScrapCode.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="IGdata\Event_1096322990" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="ScrapCode.cs" />
   </ItemGroup>
 
   <ItemGroup>
