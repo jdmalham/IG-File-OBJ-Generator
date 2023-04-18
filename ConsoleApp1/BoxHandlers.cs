@@ -210,8 +210,7 @@ namespace IGtoOBJGen
                 { { Math.Cos(item.phi+Math.PI/2.0), -1.0 * Math.Sin(item.phi+Math.PI/2.0), 0 }, 
                 { Math.Sin(item.phi+Math.PI/2.0), Math.Cos(item.phi+Math.PI/2.0), 0 }, 
                 { 0, 0, 1 } };
-           
-            
+                       
             var rx = M.DenseOfArray(xRot); //Rotation matrices
             var rz = M.DenseOfArray(zRot);
 

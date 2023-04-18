@@ -2,6 +2,8 @@
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using IGtoOBJGen;
+using MathNet.Numerics.LinearAlgebra;
+using System.Xml.Linq;
 /*
 
 What's going on in this file? It's just the main file. Why is it so messy? Good question. 
@@ -19,7 +21,7 @@ class OBJGenerator
 
         IGTracks trackHandler = new IGTracks(); 
         if (args.Length == 0){
-            file = File.OpenText("C:\\Users\\uclav\\Source\\Repos\\jdmalham\\IG-File-OBJ-Generator\\ConsoleApp1\\IGdata\\Event_1096322990");
+            file = File.OpenText(@"C:\Users\malha\Source\Repos\IG-File-OBJ-Generator\ConsoleApp1\IGdata\Event_1096322990");
             eventName = "Event_1096322990";
         } else {
             /*  Right so what's all this? We get the name of the event and then
@@ -105,7 +107,7 @@ class OBJGenerator
         List<JetData> jetList = IGBoxes.jetParse(o2);
         IGBoxes.generateJetModels(jetList);
 
-        try
+        /*try
         {
             Communicate bridge = new Communicate(@"C:\Users\uclav\AppData\Local\Android\Sdk\platform-tools\adb.exe");
             bridge.DownloadFiles("Photons_V1.obj");
@@ -121,7 +123,7 @@ class OBJGenerator
             }
             Environment.Exit(1);
 
-        }
+        }*/
         //bridge.UploadFiles(trackHandler.filePaths);
         Console.WriteLine($"Total Execution Time: {watch.ElapsedMilliseconds} ms"); // See how fast code runs. Code goes brrrrrrr on fancy office pc. It makes me happy. :)
     }

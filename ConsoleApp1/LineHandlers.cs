@@ -116,9 +116,7 @@ namespace IGtoOBJGen
 
                     dataList.Add(poin_t); dataList.Add(point_t2);
                     n += 2;
-                   
                 }
-
                 exclusion_indeces.Add(n);
             }
             
@@ -143,7 +141,6 @@ namespace IGtoOBJGen
             List<TrackExtrasData> dataList = new List<TrackExtrasData>();
             foreach (var igTrackExtra in data["Collections"]["Extras_V1"]) 
             {
-
                 TrackExtrasData currentItem = new TrackExtrasData();
 
                 var children = igTrackExtra.Children().Values<double>().ToList();
