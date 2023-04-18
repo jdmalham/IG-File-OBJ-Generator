@@ -9,7 +9,6 @@ namespace IGtoOBJGen
     {
         protected string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
         public List<string> filePaths { get; set; }
-        
         public IGTracks()
         {
             filePaths = new List<string>();
@@ -110,8 +109,7 @@ namespace IGtoOBJGen
                     double[] term3 = { threetimesT2tdiff * item.pos4[0], threetimesT2tdiff * item.pos4[1], threetimesT2tdiff * item.pos4[2] };
                     double[] term4 = { t3 * item.pos2[0], t3 * item.pos2[1], t3 * item.pos2[2] };
                     double[] point = { term1[0] + term2[0] + term3[0] + term4[0], term1[1] + term2[1] + term3[1] + term4[1], term1[2] + term2[2] + term3[2] + term4[2] };
-
-                    //these vectors are only offset because this is gonna be used later for a untiy project, and it doesn't like obj lines. Instead, we define them as ribbons.                                                             
+                                                           
                     string poin_t = $"v {point[0]} {point[1]} {point[2]}";
                     string point_t2 = $"v {point[0]} {point[1] + 0.001} {point[2]}";
 
@@ -178,6 +176,53 @@ namespace IGtoOBJGen
                 
                 dataList.Add(currentItem);
             }
+            return dataList;
+        }
+        public List<GlobalMuonData> globalMuonParse(JObject data)
+        {
+            List<GlobalMuonData> dataList = new List<GlobalMuonData> ();
+            int idNumber = 0;
+
+            foreach (var item in data["Collections"]["GlobalMuons_V1"])
+            {
+                GlobalMuonData muonData = new GlobalMuonData();
+                var children = item.Children().Values<double>().ToArray();
+
+                muonData.id = idNumber;
+                muonData.pt = children[0];
+                muonData.charge = (int)children[1];
+                muonData.position = new double[] { children[2], children[3], children[4] };
+                muonData.phi = children[5];
+                muonData.eta = children[6];
+                muonData.caloEnergy = children[7];
+
+                idNumber++;
+                dataList.Add(muonData);
+            }
+            
+            return dataList;
+        }
+        public List<TrackerMuonData> trackerMuonParse(JObject data)
+        {
+            List<TrackerMuonData> dataList = new List<TrackerMuonData>();
+            int idNumber = 0;
+
+            foreach (var item in data["Collections"]["GlobalMuons_V1"])
+            {
+                TrackerMuonData muonData = new TrackerMuonData();
+                var children = item.Children().Values<double>().ToArray();
+
+                muonData.id = idNumber;
+                muonData.pt = children[0];
+                muonData.charge = (int)children[1];
+                muonData.position = new double[] { children[2], children[3], children[4] };
+                muonData.phi = children[5];
+                muonData.eta = children[6];
+                
+                idNumber++;
+                dataList.Add(muonData);
+            }
+
             return dataList;
         }
     }

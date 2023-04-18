@@ -37,19 +37,28 @@ struct METData {
 }
 struct JetData
 {
+    public int id;
     public double et;
     public double eta;
     public double theta;
     public double phi;
 }
-struct MuonData {
-    public string name;
+struct GlobalMuonData {
+    public int id;
     public double pt;
     public int charge;
-    public Vector3 position;
+    public double[] position;
     public double phi;
     public double eta;
     public double caloEnergy;
+}
+struct TrackerMuonData {
+    public int id;
+    public double pt;
+    public int charge;
+    public double[] position;
+    public double phi;
+    public double eta;
 }
 struct PhotonData {
     public string name;
