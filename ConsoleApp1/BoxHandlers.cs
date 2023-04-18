@@ -73,7 +73,10 @@ namespace IGtoOBJGen
         }
         public static List<List<CalorimetryData>> calorimetryParse(JObject data, string name, List<List<CalorimetryData>> dataList)
         {
-            var mediatingList = new List<CalorimetryData>();
+            List<CalorimetryData> mediatingList = new List<CalorimetryData>();
+            List<double> energies = new List<double>();
+            double maxenergy = ((double)data["Collections"][name][0][0]);
+            bool hadronic = name[0] == 'H';
 
             foreach (var item in data["Collections"][name])
             {
@@ -92,7 +95,13 @@ namespace IGtoOBJGen
                         ebHitsData.scale = children[0] * 0.1;
                         break;
                     case "HBRecHits_V2":
-                        ebHitsData.scale = children[0] / 8.53659;
+                        ebHitsData.scale = children[0] / 8.53659; //HADRONIC SCALING FACTOR IS DETERMINED BY THE LARGEST ENERGY VALUE IN THE DATA!!!! I NOW KNOW!
+                        break;
+                    case "HERecHits_V2":
+                        break;
+                    case "HFRecHits_V2":
+                        break;
+                    case "HORecHits_V2":
                         break;
                     default:
                         ebHitsData.scale = 1.0;
@@ -114,80 +123,15 @@ namespace IGtoOBJGen
                 ebHitsData.back_3 = new double[] { children[23], children[24], children[25] };
                 ebHitsData.back_4 = new double[] { children[26], children[27], children[28] };
                 mediatingList.Add(ebHitsData);
+
+                if ((ebHitsData.energy > maxenergy) && (hadronic == true))
+                {
+                    maxenergy = ebHitsData.energy;
+                }
             }
 
             dataList.Add(mediatingList);
             return dataList;
-        }
-        public static List<string> generateCalorimetryTowers(List<CalorimetryData> inputData)
-        {
-            List<string> geometryData = new List<string>();
-            int counter = 1;
-           
-            var V = Vector<double>.Build;
-
-            foreach (CalorimetryData box in inputData)
-            {
-                var v0 = V.DenseOfArray(box.front_1);
-                var v1 = V.DenseOfArray(box.front_2);
-                var v2 = V.DenseOfArray(box.front_3);
-                var v3 = V.DenseOfArray(box.front_4);
-                var v4 = V.DenseOfArray(box.back_1);
-                var v5 = V.DenseOfArray(box.back_2);
-                var v6 = V.DenseOfArray(box.back_3);
-                var v7 = V.DenseOfArray(box.back_4);
-
-                v4 -= v0;
-                v5 -= v1;
-                v6 -= v2;
-                v7 -= v3;
-               
-                double v4mag = v4.L2Norm();
-                double v5mag = v5.L2Norm();
-                double v6mag = v6.L2Norm();
-                double v7mag = v7.L2Norm();
-
-                v4 /= v4mag;
-                v5 /= v5mag;
-                v6 /= v6mag;
-                v7 /= v7mag;
-
-                v4 *= box.scale;
-                v5 *= box.scale;
-                v6 *= box.scale;
-                v7 *= box.scale;
-
-                v4 += v0;
-                v5 += v1;
-                v6 += v2;
-                v7 += v3;
-
-                geometryData.Add($"o {box.name}");
-                geometryData.Add($"v {String.Join(' ', v0)}");
-                geometryData.Add($"v {String.Join(' ', v1)}");
-                geometryData.Add($"v {String.Join(' ', v2)}");
-                geometryData.Add($"v {String.Join(' ', v3)}");
-                geometryData.Add($"v {String.Join(' ', v4)}");
-                geometryData.Add($"v {String.Join(' ', v5)}");
-                geometryData.Add($"v {String.Join(' ', v6)}");
-                geometryData.Add($"v {String.Join(' ', v7)}");
-
-                geometryData.Add($"f {counter} {counter + 1} {counter + 2} {counter + 3}");
-                geometryData.Add($"f {counter + 3} {counter + 2} {counter + 1} {counter}");
-                geometryData.Add($"f {counter + 4} {counter + 5} {counter + 6} {counter + 7}");
-                geometryData.Add($"f {counter + 7} {counter + 6} {counter + 5} {counter + 4}");
-                geometryData.Add($"f {counter} {counter + 3} {counter + 7} {counter + 4}");
-                geometryData.Add($"f {counter + 4} {counter + 7} {counter + 3} {counter}");
-                geometryData.Add($"f {counter + 1} {counter + 2} {counter + 6} {counter + 5}");
-                geometryData.Add($"f {counter + 5} {counter + 6} {counter + 2} {counter + 1}");
-                geometryData.Add($"f {counter + 3} {counter + 2} {counter + 6} {counter + 7}");
-                geometryData.Add($"f {counter + 7} {counter + 6} {counter + 2} {counter + 3}");
-                geometryData.Add($"f {counter + 1} {counter} {counter + 4} {counter + 5}");
-                geometryData.Add($"f {counter + 5} {counter + 4} {counter} {counter + 1}");
-
-                counter += 8;
-            }
-            return geometryData;
         }
         public static List<JetData> jetParse(JObject data)
         {
@@ -276,7 +220,7 @@ namespace IGtoOBJGen
                 
                 double radian = (2.0 * i * Math.PI) / (double)sections;
 
-                string bottompoint = "v 0 0 0\n";
+                string bottompoint = "v 0 0 0";
                 bottomsection.Add(bottompoint);
 
                 double[] feederArray = {radius*Math.Cos(radian), radius*Math.Sin(radian),length};
@@ -303,6 +247,7 @@ namespace IGtoOBJGen
             foreach (CalorimetryData box in inputData)
             {
                 double scale = box.scale;
+                
                 var v0 = V.DenseOfArray(box.front_1);
                 var v1 = V.DenseOfArray(box.front_2);
                 var v2 = V.DenseOfArray(box.front_3);
@@ -319,7 +264,6 @@ namespace IGtoOBJGen
                 center += v5;
                 center += v6;
                 center += v7;
-
                 center /= 8.0;
                 
                 v0 -= center;
@@ -355,6 +299,76 @@ namespace IGtoOBJGen
                 v7 += center;
                 
                 //geometryData.Add($"o {box.name}");
+                geometryData.Add($"v {String.Join(' ', v0)}");
+                geometryData.Add($"v {String.Join(' ', v1)}");
+                geometryData.Add($"v {String.Join(' ', v2)}");
+                geometryData.Add($"v {String.Join(' ', v3)}");
+                geometryData.Add($"v {String.Join(' ', v4)}");
+                geometryData.Add($"v {String.Join(' ', v5)}");
+                geometryData.Add($"v {String.Join(' ', v6)}");
+                geometryData.Add($"v {String.Join(' ', v7)}");
+
+                geometryData.Add($"f {counter} {counter + 1} {counter + 2} {counter + 3}");
+                geometryData.Add($"f {counter + 3} {counter + 2} {counter + 1} {counter}");
+                geometryData.Add($"f {counter + 4} {counter + 5} {counter + 6} {counter + 7}");
+                geometryData.Add($"f {counter + 7} {counter + 6} {counter + 5} {counter + 4}");
+                geometryData.Add($"f {counter} {counter + 3} {counter + 7} {counter + 4}");
+                geometryData.Add($"f {counter + 4} {counter + 7} {counter + 3} {counter}");
+                geometryData.Add($"f {counter + 1} {counter + 2} {counter + 6} {counter + 5}");
+                geometryData.Add($"f {counter + 5} {counter + 6} {counter + 2} {counter + 1}");
+                geometryData.Add($"f {counter + 3} {counter + 2} {counter + 6} {counter + 7}");
+                geometryData.Add($"f {counter + 7} {counter + 6} {counter + 2} {counter + 3}");
+                geometryData.Add($"f {counter + 1} {counter} {counter + 4} {counter + 5}");
+                geometryData.Add($"f {counter + 5} {counter + 4} {counter} {counter + 1}");
+
+                counter += 8;
+            }
+            return geometryData;
+        }
+        public static List<string> generateCalorimetryTowers(List<CalorimetryData> inputData)
+        {
+            List<string> geometryData = new List<string>();
+            int counter = 1;
+
+            var V = Vector<double>.Build;
+
+            foreach (CalorimetryData box in inputData)
+            {
+                var v0 = V.DenseOfArray(box.front_1);
+                var v1 = V.DenseOfArray(box.front_2);
+                var v2 = V.DenseOfArray(box.front_3);
+                var v3 = V.DenseOfArray(box.front_4);
+                var v4 = V.DenseOfArray(box.back_1);
+                var v5 = V.DenseOfArray(box.back_2);
+                var v6 = V.DenseOfArray(box.back_3);
+                var v7 = V.DenseOfArray(box.back_4);
+
+                v4 -= v0;
+                v5 -= v1;
+                v6 -= v2;
+                v7 -= v3;
+
+                double v4mag = v4.L2Norm();
+                double v5mag = v5.L2Norm();
+                double v6mag = v6.L2Norm();
+                double v7mag = v7.L2Norm();
+
+                v4 /= v4mag;
+                v5 /= v5mag;
+                v6 /= v6mag;
+                v7 /= v7mag;
+
+                v4 *= box.scale;
+                v5 *= box.scale;
+                v6 *= box.scale;
+                v7 *= box.scale;
+
+                v4 += v0;
+                v5 += v1;
+                v6 += v2;
+                v7 += v3;
+
+                geometryData.Add($"o {box.name}");
                 geometryData.Add($"v {String.Join(' ', v0)}");
                 geometryData.Add($"v {String.Join(' ', v1)}");
                 geometryData.Add($"v {String.Join(' ', v2)}");

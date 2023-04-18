@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
-struct MuonChamberData {
+struct MuonChamberData 
+{
     public string name;
     public int detid;
     public double[] front_1;
@@ -11,7 +12,8 @@ struct MuonChamberData {
     public double[] back_3;
     public double[] back_4;
 };
-struct CalorimetryData {
+struct CalorimetryData 
+{
     public string name;
     public double energy;
     public double eta;
@@ -28,7 +30,8 @@ struct CalorimetryData {
     public double[] back_4;
     public double scale;
 }
-struct METData {
+struct METData 
+{
     public double phi;
     public double pt;
     public double px;
@@ -43,7 +46,8 @@ struct JetData
     public double theta;
     public double phi;
 }
-struct GlobalMuonData {
+struct GlobalMuonData 
+{
     public int id;
     public double pt;
     public int charge;
@@ -52,7 +56,8 @@ struct GlobalMuonData {
     public double eta;
     public double caloEnergy;
 }
-struct TrackerMuonData {
+struct TrackerMuonData 
+{
     public int id;
     public double pt;
     public int charge;
@@ -60,7 +65,8 @@ struct TrackerMuonData {
     public double phi;
     public double eta;
 }
-struct PhotonData {
+struct PhotonData 
+{
     public string name;
     public double energy;
     public double et;
@@ -68,7 +74,8 @@ struct PhotonData {
     public double phi;
     public Vector3 position;
 }
-struct TrackExtrasData {
+struct TrackExtrasData 
+{
     public double[] pos1;
     public double[] dir1;
     public double[] pos2;

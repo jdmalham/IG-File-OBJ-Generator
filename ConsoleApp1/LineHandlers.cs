@@ -90,7 +90,8 @@ namespace IGtoOBJGen
             List<string> dataList = new List<string>();
             List<int> exclusion_indeces = new List<int>();
             int n = 0;
-            foreach (var item in data) {
+            foreach (var item in data) 
+            {
 
                 for (double i = 0.0; i <= numVerts; i++) {
                     
@@ -122,7 +123,8 @@ namespace IGtoOBJGen
             }
             
             for (int r = 1; r <= n - 2; r += 2) {
-                if (exclusion_indeces.Contains(r+1)) {
+                if (exclusion_indeces.Contains(r+1)) 
+                {
                     //Make sure the tracks don't loop back on each other
                     continue;
                 }
@@ -139,7 +141,8 @@ namespace IGtoOBJGen
         }
         public List<TrackExtrasData> trackExtrasParse(JObject data) {
             List<TrackExtrasData> dataList = new List<TrackExtrasData>();
-            foreach (var igTrackExtra in data["Collections"]["Extras_V1"]) {
+            foreach (var igTrackExtra in data["Collections"]["Extras_V1"]) 
+            {
 
                 TrackExtrasData currentItem = new TrackExtrasData();
 
