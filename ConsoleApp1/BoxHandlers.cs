@@ -122,7 +122,6 @@ namespace IGtoOBJGen
         public static List<string> generateCalorimetryTowers(List<CalorimetryData> inputData)
         {
             List<string> geometryData = new List<string>();
-            List<string> faceDeclarations = new List<string>();
             int counter = 1;
            
             var V = Vector<double>.Build;
@@ -143,26 +142,10 @@ namespace IGtoOBJGen
                 v6 -= v2;
                 v7 -= v3;
                
-                double v4mag = Math.Sqrt(
-                    Math.Pow(v4[0], 2) +
-                    Math.Pow(v4[1], 2) +
-                    Math.Pow(v4[2], 2)
-                    );
-                double v5mag = Math.Sqrt(
-                    Math.Pow(v5[0], 2) +
-                    Math.Pow(v5[1], 2) +
-                    Math.Pow(v5[2], 2)
-                    );
-                double v6mag = Math.Sqrt(
-                    Math.Pow(v6[0], 2) +
-                    Math.Pow(v6[1], 2) +
-                    Math.Pow(v6[2], 2)
-                    );
-                double v7mag = Math.Sqrt(
-                    Math.Pow(v7[0], 2) +
-                    Math.Pow(v7[1], 2) +
-                    Math.Pow(v7[2], 2)
-                    );
+                double v4mag = v4.L2Norm();
+                double v5mag = v5.L2Norm();
+                double v6mag = v6.L2Norm();
+                double v7mag = v7.L2Norm();
 
                 v4 /= v4mag;
                 v5 /= v5mag;
@@ -189,24 +172,20 @@ namespace IGtoOBJGen
                 geometryData.Add($"v {String.Join(' ', v6)}");
                 geometryData.Add($"v {String.Join(' ', v7)}");
 
-                faceDeclarations.Add($"f {counter} {counter + 1} {counter + 2} {counter + 3}");
-                faceDeclarations.Add($"f {counter + 3} {counter + 2} {counter + 1} {counter}");
-                faceDeclarations.Add($"f {counter + 4} {counter + 5} {counter + 6} {counter + 7}");
-                faceDeclarations.Add($"f {counter + 7} {counter + 6} {counter + 5} {counter + 4}");
-                faceDeclarations.Add($"f {counter} {counter + 3} {counter + 7} {counter + 4}");
-                faceDeclarations.Add($"f {counter + 4} {counter + 7} {counter + 3} {counter}");
-                faceDeclarations.Add($"f {counter + 1} {counter + 2} {counter + 6} {counter + 5}");
-                faceDeclarations.Add($"f {counter + 5} {counter + 6} {counter + 2} {counter + 1}");
-                faceDeclarations.Add($"f {counter + 3} {counter + 2} {counter + 6} {counter + 7}");
-                faceDeclarations.Add($"f {counter + 7} {counter + 6} {counter + 2} {counter + 3}");
-                faceDeclarations.Add($"f {counter + 1} {counter} {counter + 4} {counter + 5}");
-                faceDeclarations.Add($"f {counter + 5} {counter + 4} {counter} {counter + 1}");
+                geometryData.Add($"f {counter} {counter + 1} {counter + 2} {counter + 3}");
+                geometryData.Add($"f {counter + 3} {counter + 2} {counter + 1} {counter}");
+                geometryData.Add($"f {counter + 4} {counter + 5} {counter + 6} {counter + 7}");
+                geometryData.Add($"f {counter + 7} {counter + 6} {counter + 5} {counter + 4}");
+                geometryData.Add($"f {counter} {counter + 3} {counter + 7} {counter + 4}");
+                geometryData.Add($"f {counter + 4} {counter + 7} {counter + 3} {counter}");
+                geometryData.Add($"f {counter + 1} {counter + 2} {counter + 6} {counter + 5}");
+                geometryData.Add($"f {counter + 5} {counter + 6} {counter + 2} {counter + 1}");
+                geometryData.Add($"f {counter + 3} {counter + 2} {counter + 6} {counter + 7}");
+                geometryData.Add($"f {counter + 7} {counter + 6} {counter + 2} {counter + 3}");
+                geometryData.Add($"f {counter + 1} {counter} {counter + 4} {counter + 5}");
+                geometryData.Add($"f {counter + 5} {counter + 4} {counter} {counter + 1}");
 
                 counter += 8;
-            }
-            foreach (var item in faceDeclarations)
-            {
-                geometryData.Add(item);
             }
             return geometryData;
         }
@@ -317,7 +296,6 @@ namespace IGtoOBJGen
         public static List<string> generateCalorimetryBoxes(List<CalorimetryData> inputData)
         {
             List<string> geometryData = new List<string>();
-            List<string> faceDeclarations = new List<string>();
             int counter = 1;
 
             var V = Vector<double>.Build;
@@ -376,7 +354,7 @@ namespace IGtoOBJGen
                 v7 *= scale;
                 v7 += center;
                 
-                geometryData.Add($"o {box.name}");
+                //geometryData.Add($"o {box.name}");
                 geometryData.Add($"v {String.Join(' ', v0)}");
                 geometryData.Add($"v {String.Join(' ', v1)}");
                 geometryData.Add($"v {String.Join(' ', v2)}");
@@ -401,10 +379,6 @@ namespace IGtoOBJGen
 
                 counter += 8;
             }
-            /*foreach (var item in faceDeclarations)
-            {
-                geometryData.Add(item);
-            }*/
             return geometryData;
         }
     }

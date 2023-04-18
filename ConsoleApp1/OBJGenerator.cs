@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using IGtoOBJGen;
+using MathNet.Numerics;
 
 
 /*
@@ -39,8 +40,6 @@ class OBJGenerator
             File.WriteAllText($"{args[0]}.tmp",newText );
             file = File.OpenText($"{args[0]}.tmp");
         }
-
-        string user = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
         //Read in IG file as JSON Object. Thanks Newtonsoft
         JsonTextReader reader = new JsonTextReader(file);
@@ -114,9 +113,23 @@ class OBJGenerator
         List<JetData> jetList = IGBoxes.jetParse(o2);
         IGBoxes.generateJetModels(jetList);
 
+        try
+        {
+            Communicate bridge = new Communicate(@"C:\Users\uclav\AppData\Local\Android\Sdk\platform-tools\adb.exe");
+            bridge.DownloadFiles("Photons_V1.obj");
+        } catch (Exception e) {
 
-        /*Communicate bridge = new Communicate(@"C:\Users\uclav\AppData\Local\Android\Sdk\platform-tools\adb.exe");
-        bridge.DownloadFiles("Photons_V1.obj");*/
+            if (e is System.ArgumentOutOfRangeException)
+            {
+                Console.WriteLine("System.ArgumentOutOfRangeException thrown while trying to locate ADB.\nPlease check that ADB is installed and the proper path has been provided. The default path for Windows is C:\\Users\\[user]\\AppData\\Local\\Android\\sdk\\platform-tools\n");
+            }
+            else if (e is SharpAdbClient.Exceptions.AdbException)
+            {
+                Console.WriteLine("An ADB exception has been thrown.\nPlease check that the Oculus is connected to the computer.");
+            }
+            Environment.Exit(1);
+
+        }
         //bridge.UploadFiles(trackHandler.filePaths);
         Console.WriteLine($"Total Execution Time: {watch.ElapsedMilliseconds} ms"); // See how fast code runs. Code goes brrrrrrr on fancy office pc. It makes me happy. :)
     }
