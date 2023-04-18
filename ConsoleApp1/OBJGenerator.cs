@@ -38,7 +38,6 @@ class OBJGenerator
             file = File.OpenText($"{args[0]}.tmp");
         }
 
-        //Read in IG file as JSON Object. Thanks Newtonsoft
         JsonTextReader reader = new JsonTextReader(file);
         JObject o2 = (JObject)JToken.ReadFrom(reader);
 
@@ -49,17 +48,15 @@ class OBJGenerator
             File.Delete($"{args[0]}.tmp");
         }
 
-        // Types of calorimetry data we will get from the IG file
         string[] calorimetryItems = { "EBRecHits_V2", "EERecHits_V2", "ESRecHits_V2", "HBRecHits_V2" };
         
         List<List<CalorimetryData>> boxObjectsGesamt = new List<List<CalorimetryData>>(); 
-        
-        // Right here we are getting our calorimetry data from the IG file and adding them into boxObjectsGesamt
+
         foreach (string name in calorimetryItems)
         {
             boxObjectsGesamt = IGBoxes.calorimetryParse(o2, name, boxObjectsGesamt);
         }
-        //Now make all the box shaped models from the box objects
+
         foreach (var thing in boxObjectsGesamt)
         {
             if (thing.Count() == 0) continue;
@@ -93,18 +90,16 @@ class OBJGenerator
             File.WriteAllLines($"{strPath}\\{eventName}\\{name}.obj",Contents);
 
         }
-
-        //Get the data that is needed to generate track objects from the IG file (look at definition for explanation of the name)
         
         List<TrackExtrasData> listicle = trackHandler.trackExtrasParse(o2);
 
         trackHandler.trackCubicBezierCurve(listicle, 32, eventName);  //Create the cubic bezier curve object file based off the track data
 
-        var n = trackHandler.photonParse(o2); // Get photon data
-        trackHandler.generatePhotonModels(n, eventName); // This one is a mystery. I don't know what it does. I can't figure it out. WHAT DOES GENERATE PHOTON MODELS MEAN?????
+        var n = trackHandler.photonParse(o2); 
+        trackHandler.generatePhotonModels(n, eventName); 
 
-        List<MuonChamberData> list = IGBoxes.muonChamberParse(o2); // Get muon chamber data
-        IGBoxes.generateMuonChamberModels(list); // Generate muon chamber obj files
+        List<MuonChamberData> list = IGBoxes.muonChamberParse(o2); 
+        IGBoxes.generateMuonChamberModels(list); 
         
         
         List<JetData> jetList = IGBoxes.jetParse(o2);
