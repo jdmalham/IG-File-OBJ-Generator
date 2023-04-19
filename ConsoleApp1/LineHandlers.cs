@@ -139,6 +139,7 @@ namespace IGtoOBJGen
         }
         public List<TrackExtrasData> trackExtrasParse(JObject data) {
             List<TrackExtrasData> dataList = new List<TrackExtrasData>();
+
             foreach (var igTrackExtra in data["Collections"]["Extras_V1"]) 
             {
                 TrackExtrasData currentItem = new TrackExtrasData();
@@ -223,6 +224,26 @@ namespace IGtoOBJGen
                 dataList.Add(muonData);
             }
 
+            return dataList;
+        }
+        public List<Track> tracksParse(JObject data)
+        {
+            List<Track> dataList = new List<Track>();
+            foreach (var item in data["Collections"]["Tracks_V3"])
+            {
+                Track track = new Track();
+                var children = item.Children().Values<double>().ToArray();
+
+                track.pos = new double[] { children[0], children[1], children[2] };
+                track.dir = new double[] { children[3], children[4], children[5] };
+                track.pt = children[6];
+                track.phi = children[7];
+                track.eta = children[8];
+                track.charge = (int)children[9];
+                track.chi2 = children[10];
+                track.ndof = children[11];
+                dataList.Add(track);
+            }
             return dataList;
         }
     }

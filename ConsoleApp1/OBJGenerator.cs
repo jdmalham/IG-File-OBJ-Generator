@@ -21,7 +21,7 @@ class OBJGenerator
 
         IGTracks trackHandler = new IGTracks(); 
         if (args.Length == 0){
-            file = File.OpenText(@"C:\Users\malha\Source\Repos\IG-File-OBJ-Generator\ConsoleApp1\IGdata\Event_1096322990");
+            file = File.OpenText(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\IGdata\Event_1096322990");
             eventName = "Event_1096322990";
         } else {
             /*  Right so what's all this? We get the name of the event and then

@@ -83,3 +83,14 @@ struct TrackExtrasData
     public double[] pos3;
     public double[] pos4;
 }
+struct Track
+{
+    public double[] pos;
+    public double[] dir;
+    public double pt;
+    public double phi;
+    public double eta;
+    public int charge;
+    public double chi2;
+    public double ndof;
+}
