@@ -2,8 +2,6 @@
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using IGtoOBJGen;
-using MathNet.Numerics.LinearAlgebra;
-using System.Xml.Linq;
 /*
 
 What's going on in this file? It's just the main file. Why is it so messy? Good question. 

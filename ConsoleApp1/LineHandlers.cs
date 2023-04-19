@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using MathNet.Numerics;
+using Newtonsoft.Json.Linq;
 using System.Numerics;
 /*
  "Lines are cool 😎" - Pythagoras
@@ -8,34 +9,42 @@ namespace IGtoOBJGen
     internal class IGTracks
     {
         protected string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+        private List<TrackExtrasData> trackExtrasData {  get; set; }
+        private List<TrackExtrasData> subTrackExtras { get; set; }//Extras corresponding to "Tracks_V3" data points
+        private List<TrackExtrasData> standaloneMuonExtras { get; set; }
+        private List<TrackExtrasData> globalMuonExtras { get; set; }
+        private List<TrackExtrasData> trackerMuonExtras { get; set; }
+        private List<TrackExtrasData> electronExtras { get; set; }
         public List<string> filePaths { get; set; }
-        public IGTracks()
+        public IGTracks(JObject data)
         {
-            filePaths = new List<string>();
+            trackExtrasData = trackExtrasParse(data);
         }
         public List<PhotonData> photonParse(JObject data)
         {
             List<PhotonData> dataList = new List<PhotonData>();
+            int idNumber = 0;
+
             foreach (var igPhotonData in data["Collections"]["Photons_V1"])
             {
                 PhotonData currentPhotonItem = new PhotonData();
 
                 var children = igPhotonData.Children().Values<double>().ToList();
 
+                currentPhotonItem.id = idNumber;
                 currentPhotonItem.energy = children[0];
                 currentPhotonItem.et = children[1];
                 currentPhotonItem.eta = children[2];
                 currentPhotonItem.phi = children[3];
                 currentPhotonItem.position = new Vector3 ( (float)children[4], (float)children[5], (float)children[6] );
-                
+
+                idNumber++;
                 dataList.Add(currentPhotonItem);
             }
             return dataList;
         }
         protected string makePhoton(PhotonData data)
         {
-            
-
             double lEB = 3.0; //half-length of ECAL barrel in meters
             double rEB = 1.24; //radius of ECAL barrel in meters
             double eta = data.eta;
@@ -103,8 +112,10 @@ namespace IGtoOBJGen
                     double t3 = Math.Pow(t, 3);
 
                     // Check out the wikipedia page for bezier curves if you want to understand the math. That's where I learned it!
-                    //also we're using double arrays because i dont like Vector3 and floats. I'm the one who has to go through the headaches of working with double arrays
-                    //instead of Vector3 so i get to make that call
+                    // also we're using double arrays because i dont like Vector3 and floats. I'm the one who has to go through the headaches of working with double arrays
+                    // instead of Vector3 so i get to make that call. i also wrote this before i realized i couldn't avoid using MathNET and i can't be bothered to 
+                    // change it such that it uses MathNET vectors
+
                     double[] term1 = { tdiff3*item.pos1[0], tdiff3 * item.pos1[1], tdiff3 * item.pos1[2] };
                     double[] term2 = { threetimesTtdiff2 * item.pos3[0], threetimesTtdiff2 * item.pos3[1], threetimesTtdiff2 * item.pos3[2] };
                     double[] term3 = { threetimesT2tdiff * item.pos4[0], threetimesT2tdiff * item.pos4[1], threetimesT2tdiff * item.pos4[2] };
@@ -208,6 +219,13 @@ namespace IGtoOBJGen
             List<TrackerMuonData> dataList = new List<TrackerMuonData>();
             int idNumber = 0;
 
+            if (data["Associations"]["MuonTrackerExtras_V1"] == null)
+            {
+                return dataList;
+            }
+
+            var assocs = data["Associations"]["MuonTrackerExtras_V1"];
+
             foreach (var item in data["Collections"]["GlobalMuons_V1"])
             {
                 TrackerMuonData muonData = new TrackerMuonData();
@@ -219,12 +237,23 @@ namespace IGtoOBJGen
                 muonData.position = new double[] { children[2], children[3], children[4] };
                 muonData.phi = children[5];
                 muonData.eta = children[6];
+                muonData.assoc = assocs[idNumber][1][1].Value<int>();
                 
                 idNumber++;
                 dataList.Add(muonData);
             }
 
             return dataList;
+        }
+        public List<StandaloneMuonData> standaloneMuonParse(JObject data)
+        {
+            List<StandaloneMuonData> dataList = new List<StandaloneMuonData>();
+            /*if (data["Assocations"])
+            {
+
+            }*/
+            return dataList;
+  
         }
         public List<Track> tracksParse(JObject data)
         {
@@ -243,6 +272,37 @@ namespace IGtoOBJGen
                 track.chi2 = children[10];
                 track.ndof = children[11];
                 dataList.Add(track);
+            }
+            return dataList;
+        }
+        public List<GsfElectron> electronParse(JObject data)
+        {
+            List<GsfElectron> dataList = new List<GsfElectron>();
+            int idNumber = 0;
+
+            if (data["Associations"]["GsfElectronExtras_V1"] == null)
+            {
+                return dataList;
+            }
+
+            var assocs = data["Associations"]["GsfElectronExtras_V1"];
+
+            foreach (var item in data["Collections"]["GsfElectrons_V2"])
+            {
+                GsfElectron electron = new GsfElectron();
+                var children = item.Children().Values<double>().ToArray();
+
+                electron.id = idNumber;
+                electron.pt = children[0];
+                electron.eta = children[1];
+                electron.phi = children[2];
+                electron.charge = (int)children[3];
+                electron.pos = new double[] { children[4], children[5], children[6] };
+                electron.dir = new double[] { children[7], children[8], children[9] };
+                electron.assoc = assocs[idNumber][1][1].Value<int>();
+
+                idNumber++;
+                dataList.Add(electron);
             }
             return dataList;
         }

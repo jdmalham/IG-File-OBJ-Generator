@@ -393,6 +393,6 @@ namespace IGtoOBJGen
                 counter += 8;
             }
             return geometryData;
-        }
+        } 
     }
 }
