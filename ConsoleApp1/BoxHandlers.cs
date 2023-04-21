@@ -5,8 +5,25 @@ namespace IGtoOBJGen
 {
     internal class IGBoxes
     {
-        private static string path = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-        public static List<MuonChamberData> muonChamberParse(JObject data)
+        private string path = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+        private JObject data;
+        private double EESCALE = 0.01;
+        private double EBSCALE = 0.1;
+        private double ESSCALE = 100;
+        private double HBSCALE;
+        private double HESCALE;
+        private double HFSCALE;
+        private double HOSCALE;
+        public IGBoxes(JObject dataFile)
+        {
+            HBSCALE = 1.0;
+            HESCALE = 1.0;
+            HFSCALE = 1.0;
+            HOSCALE = 1.0;
+            data = dataFile;
+            setScales();
+        }
+        public List<MuonChamberData> muonChamberParse()
         {
             var dataList = new List<MuonChamberData>();
             if (data["Collections"]["MuonChambers_V1"] != null)
@@ -32,7 +49,7 @@ namespace IGtoOBJGen
             }
             return dataList;
         }
-        public static void generateMuonChamberModels(List<MuonChamberData> data)
+        public void generateMuonChamberModels(List<MuonChamberData> data)
         {
             if (data.Count() == 0) { return; }
 
@@ -71,13 +88,9 @@ namespace IGtoOBJGen
             File.WriteAllText($"{path}\\test_obj\\{name}.obj", String.Empty);
             File.WriteAllLines($"{path}\\test_obj\\{name}.obj", dataStrings);
         }
-        public static List<List<CalorimetryData>> calorimetryParse(JObject data, string name, List<List<CalorimetryData>> dataList)
+        public List<List<CalorimetryData>> calorimetryParse( string name, List<List<CalorimetryData>> dataList)
         {
             List<CalorimetryData> mediatingList = new List<CalorimetryData>();
-            List<double> energies = new List<double>();
-            double maxenergy = ((double)data["Collections"][name][0][0]);
-            bool hadronic = name[0] == 'H';
-
             foreach (var item in data["Collections"][name])
             {
                 CalorimetryData ebHitsData = new CalorimetryData();
@@ -86,22 +99,25 @@ namespace IGtoOBJGen
                 switch (name) 
                 {
                     case "EERecHits_V2":
-                        ebHitsData.scale = children[0] * 0.01;
+                        ebHitsData.scale = children[0] * EESCALE;
                         break;
                     case "ESRecHits_V2":
-                        ebHitsData.scale = children[0] * 100.0;
+                        ebHitsData.scale = children[0] * ESSCALE;
                         break;
                     case "EBRecHits_V2":
-                        ebHitsData.scale = children[0] * 0.1;
+                        ebHitsData.scale = children[0] * EBSCALE;
                         break;
                     case "HBRecHits_V2":
-                        ebHitsData.scale = children[0] / 8.53659; //HADRONIC SCALING FACTOR IS DETERMINED BY THE LARGEST ENERGY VALUE IN THE DATA!!!! I NOW KNOW!
+                        ebHitsData.scale = children[0] / HBSCALE;
                         break;
                     case "HERecHits_V2":
+                        ebHitsData.scale = children[0] / HESCALE;
                         break;
                     case "HFRecHits_V2":
+                        ebHitsData.scale = children[0] / HFSCALE;
                         break;
                     case "HORecHits_V2":
+                        ebHitsData.scale = children[0] / HOSCALE;
                         break;
                     default:
                         ebHitsData.scale = 1.0;
@@ -123,17 +139,12 @@ namespace IGtoOBJGen
                 ebHitsData.back_3 = new double[] { children[23], children[24], children[25] };
                 ebHitsData.back_4 = new double[] { children[26], children[27], children[28] };
                 mediatingList.Add(ebHitsData);
-
-                if ((ebHitsData.energy > maxenergy) && (hadronic == true))
-                {
-                    maxenergy = ebHitsData.energy;
-                }
             }
 
             dataList.Add(mediatingList);
             return dataList;
         }
-        public static List<JetData> jetParse(JObject data)
+        public List<JetData> jetParse()
         {
             List<JetData> datalist = new List<JetData>();
             foreach (var item in data["Collections"]["PFJets_V1"])
@@ -150,7 +161,7 @@ namespace IGtoOBJGen
             }
             return datalist;
         }
-        public static void generateJetModels(List<JetData> data)
+        public void generateJetModels(List<JetData> data)
         {
             List<string> objData = new List<string>();
             int[] exclusionList = {};
@@ -194,7 +205,7 @@ namespace IGtoOBJGen
             File.WriteAllText($"{path}\\test_obj\\jets.obj", String.Empty);
             File.WriteAllLines($"{path}\\test_obj\\jets.obj", objData);
         }
-        public static List<string> jetGeometry(JetData item, double radius, double length, int sections)
+        public List<string> jetGeometry(JetData item, double radius, double length, int sections)
         {
             List<string> bottomsection = new List<string>();
             List<string> topsection = new List<string>();
@@ -236,7 +247,7 @@ namespace IGtoOBJGen
 
             return bottomsection;
         }
-        public static List<string> generateCalorimetryBoxes(List<CalorimetryData> inputData)
+        public List<string> generateCalorimetryBoxes(List<CalorimetryData> inputData)
         {
             List<string> geometryData = new List<string>();
             int counter = 1;
@@ -324,7 +335,7 @@ namespace IGtoOBJGen
             }
             return geometryData;
         }
-        public static List<string> generateCalorimetryTowers(List<CalorimetryData> inputData)
+        public List<string> generateCalorimetryTowers(List<CalorimetryData> inputData)
         {
             List<string> geometryData = new List<string>();
             int counter = 1;
@@ -394,5 +405,49 @@ namespace IGtoOBJGen
             }
             return geometryData;
         } 
+        public void setScales()
+        {
+            List<string> HCALSETS = new List<string>() { "HERecHits_V2","HBRecHits_V2","HFRecHits_V2","HORecHits_V2" };
+            foreach (string HCALSET in HCALSETS)
+            {
+                var collection = data["Collections"][HCALSET];
+                
+                if ( collection.HasValues == false)
+                {
+                    continue;
+                }
+                
+                List<double> energies_ = new List<double>();
+
+                foreach (var item in collection)
+                {
+                    //Console.WriteLine((double)item[0].Value<double>());
+                    energies_.Add((double)item[0].Value<double>());
+                }
+
+                double [] energies = energies_.ToArray();
+                double scaleEnergy = energies.Max();
+                
+                switch(HCALSET)
+                {
+                    case "HERecHits_V2":
+                        HESCALE = scaleEnergy; 
+                        Console.WriteLine($"HESCALE: {HESCALE}");
+                        break;
+                    case "HBRecHits_V2":
+                        HBSCALE = scaleEnergy;
+                        Console.WriteLine($"HBSCALE: {HBSCALE}");
+                        break;
+                    case "HFRecHits_V2":
+                        HFSCALE = scaleEnergy;
+                        Console.WriteLine($"HFSCALE: {HFSCALE}");
+                        break;
+                    case "HORecHits_V2":
+                        HOSCALE = scaleEnergy;
+                        Console.WriteLine($"HOSCALE: {HOSCALE}");
+                        break;
+                }
+            }
+        }
     }
 }

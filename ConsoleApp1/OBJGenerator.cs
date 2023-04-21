@@ -17,7 +17,6 @@ class OBJGenerator
         var watch = new Stopwatch();
         watch.Start();
 
-        IGTracks trackHandler = new IGTracks(); 
         if (args.Length == 0){
             file = File.OpenText(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\IGdata\Event_1096322990");
             eventName = "Event_1096322990";
@@ -43,6 +42,13 @@ class OBJGenerator
 
         file.Close();
 
+        IGTracks trackHandler = new IGTracks(o2,eventName);
+        IGBoxes boxHandler = new IGBoxes(o2);
+
+
+        
+        trackHandler.makeElectrons();
+
         if (args.Length > 0)
         {
             File.Delete($"{args[0]}.tmp");
@@ -54,7 +60,7 @@ class OBJGenerator
 
         foreach (string name in calorimetryItems)
         {
-            boxObjectsGesamt = IGBoxes.calorimetryParse(o2, name, boxObjectsGesamt);
+            boxObjectsGesamt = boxHandler.calorimetryParse( name, boxObjectsGesamt);
         }
 
         foreach (var thing in boxObjectsGesamt)
@@ -63,7 +69,7 @@ class OBJGenerator
             string name = thing[0].name;
             if (name == "HBRecHits_V2")
             {
-                var contents = IGBoxes.generateCalorimetryBoxes(thing);
+                var contents = boxHandler.generateCalorimetryBoxes(thing);
                 try
                 {
                     File.WriteAllText($"{strPath}\\{eventName}\\{name}.obj", String.Empty);
@@ -77,7 +83,7 @@ class OBJGenerator
                 continue;
             }
             
-            List<string> Contents = IGBoxes.generateCalorimetryTowers(thing);
+            List<string> Contents = boxHandler.generateCalorimetryTowers(thing);
             try
             {
                 File.WriteAllText($"{strPath}\\{eventName}\\{name}.obj", String.Empty);
@@ -93,17 +99,17 @@ class OBJGenerator
         
         List<TrackExtrasData> listicle = trackHandler.trackExtrasParse(o2);
 
-        trackHandler.trackCubicBezierCurve(listicle, 32, eventName);  //Create the cubic bezier curve object file based off the track data
+       // trackHandler.trackCubicBezierCurve(listicle, 32, eventName);  //Create the cubic bezier curve object file based off the track data
 
         var n = trackHandler.photonParse(o2); 
         trackHandler.generatePhotonModels(n, eventName); 
 
-        List<MuonChamberData> list = IGBoxes.muonChamberParse(o2); 
-        IGBoxes.generateMuonChamberModels(list); 
+        List<MuonChamberData> list = boxHandler.muonChamberParse(); 
+        boxHandler.generateMuonChamberModels(list); 
         
         
-        List<JetData> jetList = IGBoxes.jetParse(o2);
-        IGBoxes.generateJetModels(jetList);
+        List<JetData> jetList = boxHandler.jetParse();
+        boxHandler.generateJetModels(jetList);
 
         /*try
         {
