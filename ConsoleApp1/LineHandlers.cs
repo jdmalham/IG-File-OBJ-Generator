@@ -42,7 +42,7 @@ namespace IGtoOBJGen
             {
                 PhotonData currentPhotonItem = new PhotonData();
 
-                var children = igPhotonData.Children().Values<double>().ToList();
+                var children = igPhotonData.Children().Values<double>().ToArray();
 
                 currentPhotonItem.id = idNumber;
                 currentPhotonItem.energy = children[0];
@@ -168,7 +168,7 @@ namespace IGtoOBJGen
             {
                 TrackExtrasData currentItem = new TrackExtrasData();
 
-                var children = igTrackExtra.Children().Values<double>().ToList();
+                var children = igTrackExtra.Children().Values<double>().ToArray();
                 
                 currentItem.pos1 = new double[3] { children[0], children[1], children[2] };
                 

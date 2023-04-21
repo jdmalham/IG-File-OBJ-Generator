@@ -31,7 +31,7 @@ namespace IGtoOBJGen
                 foreach (var igChamberData in data["Collections"]["MuonChambers_V1"])
                 {
                     MuonChamberData muonChamberData = new MuonChamberData();
-                    var children = igChamberData.Children().Values<double>().ToList();
+                    var children = igChamberData.Children().Values<double>().ToArray();
 
                     muonChamberData.name = "MuonChambers_V1";
                     muonChamberData.detid = (int)children[0];
@@ -94,7 +94,7 @@ namespace IGtoOBJGen
             foreach (var item in data["Collections"][name])
             {
                 CalorimetryData ebHitsData = new CalorimetryData();
-                var children = item.Children().Values<double>().ToList();
+                var children = item.Children().Values<double>().ToArray();
                 
                 switch (name) 
                 {
@@ -150,7 +150,7 @@ namespace IGtoOBJGen
             foreach (var item in data["Collections"]["PFJets_V1"])
             {
                 JetData currentJet = new JetData();
-                List<double> children = item.Children().Values<double>().ToList();
+                var children = item.Children().Values<double>().ToArray();
 
                 currentJet.et = children[0];
                 currentJet.eta = children[1];
