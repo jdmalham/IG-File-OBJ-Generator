@@ -1,15 +1,14 @@
 ﻿using Newtonsoft.Json.Linq;
 using MathNet.Numerics.LinearAlgebra;
-
 namespace IGtoOBJGen
 {
     internal class IGBoxes
     {
         private string path = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
         private JObject data;
-        private double EESCALE = 0.01;
-        private double EBSCALE = 0.1;
-        private double ESSCALE = 100;
+        private readonly double EESCALE = 0.01;
+        private readonly double EBSCALE = 0.1;
+        private readonly double ESSCALE = 100;
         private double HBSCALE;
         private double HESCALE;
         private double HFSCALE;
@@ -418,10 +417,8 @@ namespace IGtoOBJGen
                 }
                 
                 List<double> energies_ = new List<double>();
-
                 foreach (var item in collection)
                 {
-                    //Console.WriteLine((double)item[0].Value<double>());
                     energies_.Add((double)item[0].Value<double>());
                 }
 

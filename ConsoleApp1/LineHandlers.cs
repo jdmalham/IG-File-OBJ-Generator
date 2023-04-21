@@ -12,6 +12,7 @@ namespace IGtoOBJGen
         //Properties
         protected string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
         protected string eventTitle { get; set; }
+        protected JObject data { get; set; }
         private List<TrackExtrasData> trackExtrasData {  get; set; }
         private List<TrackExtrasData> subTrackExtras { get; set; }//Extras corresponding to "Tracks_V3" data points
         private List<TrackExtrasData> standaloneMuonExtras { get; set; }
@@ -23,6 +24,7 @@ namespace IGtoOBJGen
         //Constructor
         public IGTracks(JObject data, string name)
         {
+            this.data = data;
 
             trackExtrasData = trackExtrasParse(data);
             eventTitle = name;
@@ -107,6 +109,7 @@ namespace IGtoOBJGen
             //filePaths.Add($"{desktopPath}\\{eventName}\\Photons_V1.obj");
             
         }
+
         public List<string> trackCubicBezierCurve(List<TrackExtrasData> data) {
             //Calculate the bezier path of the tracks based on the four pos control vectors defined in the TrackExtrasData struct
             List<string> dataList = new List<string>();
@@ -315,7 +318,7 @@ namespace IGtoOBJGen
             File.WriteAllText($"{desktopPath}\\{eventTitle}\\Tracks.obj", String.Empty);
             File.WriteAllLines($"{desktopPath}\\{eventTitle}\\Tracks.obj", dataList);
         }
-        public List<GsfElectron> electronParse(JObject data)
+        public List<GsfElectron> electronParse()
         {
             List<GsfElectron> dataList = new List<GsfElectron>();
             int idNumber = 0;

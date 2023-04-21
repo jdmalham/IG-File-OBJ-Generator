@@ -46,7 +46,7 @@ class OBJGenerator
         IGBoxes boxHandler = new IGBoxes(o2);
 
 
-        
+        trackHandler.electronParse();
         trackHandler.makeElectrons();
 
         if (args.Length > 0)
