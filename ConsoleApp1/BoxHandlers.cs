@@ -4,7 +4,8 @@ namespace IGtoOBJGen
 {
     internal class IGBoxes
     {
-        private string path = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+        private readonly string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+        private string eventTitle;
         private JObject data;
         private readonly double EESCALE = 0.01;
         private readonly double EBSCALE = 0.1;
@@ -13,13 +14,14 @@ namespace IGtoOBJGen
         private double HESCALE;
         private double HFSCALE;
         private double HOSCALE;
-        public IGBoxes(JObject dataFile)
+        public IGBoxes(JObject dataFile,string name)
         {
             HBSCALE = 1.0;
             HESCALE = 1.0;
             HFSCALE = 1.0;
             HOSCALE = 1.0;
             data = dataFile;
+            eventTitle = name;
             setScales();
         }
         public List<MuonChamberData> muonChamberParse()
@@ -58,8 +60,6 @@ namespace IGtoOBJGen
 
             foreach (var chamber in data)
             {
-                dataStrings.Add($"o {name}");
-
                 dataStrings.Add($"v {String.Join(' ', chamber.front_1)}");
                 dataStrings.Add($"v {String.Join(' ', chamber.front_2)}");
                 dataStrings.Add($"v {String.Join(' ', chamber.front_3)}");
@@ -84,8 +84,8 @@ namespace IGtoOBJGen
                 counter += 8;
             }
 
-            File.WriteAllText($"{path}\\test_obj\\{name}.obj", String.Empty);
-            File.WriteAllLines($"{path}\\test_obj\\{name}.obj", dataStrings);
+            File.WriteAllText($"{desktopPath}\\test_obj\\{name}.obj", String.Empty);
+            File.WriteAllLines($"{desktopPath}\\test_obj\\{name}.obj", dataStrings);
         }
         public List<List<CalorimetryData>> calorimetryParse( string name, List<List<CalorimetryData>> dataList)
         {
@@ -201,8 +201,8 @@ namespace IGtoOBJGen
                 objData.Add(face);
             }
 
-            File.WriteAllText($"{path}\\test_obj\\jets.obj", String.Empty);
-            File.WriteAllLines($"{path}\\test_obj\\jets.obj", objData);
+            File.WriteAllText($"{desktopPath}\\test_obj\\jets.obj", String.Empty);
+            File.WriteAllLines($"{desktopPath}\\test_obj\\jets.obj", objData);
         }
         public List<string> jetGeometry(JetData item, double radius, double length, int sections)
         {

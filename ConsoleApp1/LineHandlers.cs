@@ -22,20 +22,44 @@ namespace IGtoOBJGen
         public List<string> filePaths { get; set; }
 
         //Constructor
-        public IGTracks(JObject data, string name)
+        public IGTracks(JObject inputData, string name)
         {
-            this.data = data;
+            data = inputData;
 
-            trackExtrasData = trackExtrasParse(data);
             eventTitle = name;
 
             if (!Directory.Exists($"{desktopPath}\\{eventTitle}")) { 
                 Directory.CreateDirectory($"{desktopPath}\\{eventTitle}");
             }
+
+            Execute();
+        }
+
+        //Main Class Method
+        public void Execute()
+        {
+            var photonlist = photonParse();
+            generatePhotonModels(photonlist, eventTitle);
+
+            trackExtrasData = trackExtrasParse();
+            var globallist = globalMuonParse();
+            makeGlobalMuons();
+
+            var trackerlist = trackerMuonParse();   
+            makeTrackerMuons();
+            
+            var standalone = standaloneMuonParse();
+            makeStandaloneMuons();
+
+            var tracklist = tracksParse();
+            makeTracks();
+
+            var electronlist = electronParse();
+            makeElectrons();
         }
 
         //Methods
-        public List<PhotonData> photonParse(JObject data)
+        public List<PhotonData> photonParse()
         {
             List<PhotonData> dataList = new List<PhotonData>();
             int idNumber = 0;
@@ -58,18 +82,18 @@ namespace IGtoOBJGen
             }
             return dataList;
         }
-        public string makePhoton(PhotonData data)
+        private string makePhoton(PhotonData inputData)
         {
             double lEB = 3.0; //half-length of ECAL barrel in meters
             double rEB = 1.24; //radius of ECAL barrel in meters
-            double eta = data.eta;
-            double phi = data.phi;
+            double eta = inputData.eta;
+            double phi = inputData.phi;
             double px = Math.Cos(phi);
             double py = Math.Sin(phi);
             double pz = Math.Sinh(eta);
-            double x0 = data.position.X;
-            double y0 = data.position.Y;
-            double z0 = data.position.Z;
+            double x0 = inputData.position.X;
+            double y0 = inputData.position.Y;
+            double z0 = inputData.position.Z;
             double t;
             
             if (Math.Abs(eta) > 1.48)
@@ -106,17 +130,14 @@ namespace IGtoOBJGen
 
             File.WriteAllText($"{desktopPath}\\{eventName}\\Photons_V1.obj", String.Empty);
             File.WriteAllLines($"{desktopPath}\\{eventName}\\Photons_V1.obj", dataStrings);
-            //filePaths.Add($"{desktopPath}\\{eventName}\\Photons_V1.obj");
-            
         }
-
-        public List<string> trackCubicBezierCurve(List<TrackExtrasData> data) {
+        public List<string> trackCubicBezierCurve(List<TrackExtrasData> inputData) {
             //Calculate the bezier path of the tracks based on the four pos control vectors defined in the TrackExtrasData struct
             List<string> dataList = new List<string>();
             List<int> exclusion_indeces = new List<int>();
             int numVerts = 32;
             int n = 0;
-            foreach (var item in data) 
+            foreach (var item in inputData) 
             {
 
                 for (double i = 0.0; i <= numVerts; i++) {
@@ -164,7 +185,7 @@ namespace IGtoOBJGen
             return dataList;
             //filePaths.Add($"{desktopPath}\\{eventName}\\tracks.obj");
         }
-        public List<TrackExtrasData> trackExtrasParse(JObject data) {
+        public List<TrackExtrasData> trackExtrasParse() {
             List<TrackExtrasData> dataList = new List<TrackExtrasData>();
 
             foreach (var igTrackExtra in data["Collections"]["Extras_V1"]) 
@@ -206,10 +227,18 @@ namespace IGtoOBJGen
             }
             return dataList;
         }
-        public List<GlobalMuonData> globalMuonParse(JObject data)
+        public List<GlobalMuonData> globalMuonParse()
         {
             List<GlobalMuonData> dataList = new List<GlobalMuonData> ();
             int idNumber = 0;
+
+            var assocs = data["Associations"]["MuonGlobalPoints_V1"];
+
+            if (assocs == null||assocs.HasValues == false)
+            {
+                Console.WriteLine("No Global Muons!");
+                return dataList;
+            }
 
             foreach (var item in data["Collections"]["GlobalMuons_V1"])
             {
@@ -227,26 +256,30 @@ namespace IGtoOBJGen
                 idNumber++;
                 dataList.Add(muonData);
             }
-            
+            int firstassoc = assocs[0][1][1].Value<int>();
+            globalMuonExtras = trackExtrasData.GetRange(firstassoc, assocs.Last()[1][1].Value<int>() - firstassoc + 1);
+
             return dataList;
         }
         public void makeGlobalMuons() 
         {
+            if (globalMuonExtras == null) { return; }
             List<string> dataList = trackCubicBezierCurve(globalMuonExtras);
             File.WriteAllText($"{desktopPath}\\{eventTitle}\\globalMuons.obj", String.Empty);
             File.WriteAllLines($"{desktopPath}\\{eventTitle}\\globalMuons.obj", dataList);
         }
-        public List<TrackerMuonData> trackerMuonParse(JObject data)
+        public List<TrackerMuonData> trackerMuonParse()
         {
             List<TrackerMuonData> dataList = new List<TrackerMuonData>();
             int idNumber = 0;
 
-            if (data["Associations"]["MuonTrackerExtras_V1"] == null)
+            var assocs = data["Associations"]["MuonTrackerExtras_V1"];
+
+            if (assocs == null || assocs.HasValues == false)
             {
+                Console.WriteLine("No Tracker Muons!");
                 return dataList;
             }
-
-            var assocs = data["Associations"]["MuonTrackerExtras_V1"];
 
             foreach (var item in data["Collections"]["GlobalMuons_V1"])
             {
@@ -259,39 +292,64 @@ namespace IGtoOBJGen
                 muonData.position = new double[] { children[2], children[3], children[4] };
                 muonData.phi = children[5];
                 muonData.eta = children[6];
-                muonData.assoc = assocs[idNumber][1][1].Value<int>();
                 
                 idNumber++;
                 dataList.Add(muonData);
             }
-
-            trackerMuonExtras = trackExtrasData.GetRange(dataList[0].assoc, dataList[dataList.Count - 1].assoc - dataList[0].assoc + 1);
+            int firstassoc = assocs[0][1][1].Value<int>();
+            trackerMuonExtras = trackExtrasData.GetRange(firstassoc, assocs.Last()[1][1].Value<int>() - firstassoc + 1);
 
             return dataList;
         }
         public void makeTrackerMuons() 
         {
+            if (trackerMuonExtras == null) { return; }
             List<string> dataList = trackCubicBezierCurve(trackerMuonExtras);
             File.WriteAllText($"{desktopPath}\\{eventTitle}\\trackerMuons.obj", String.Empty);
             File.WriteAllLines($"{desktopPath}\\{eventTitle}\\trackerMuons.obj", dataList);
         }
-        public List<StandaloneMuonData> standaloneMuonParse(JObject data)
+        public List<StandaloneMuonData> standaloneMuonParse()
         {
             List<StandaloneMuonData> dataList = new List<StandaloneMuonData>();
-            
+            int idNumber = 0;
+            var assocs = data["Associations"]["MuonTrackExtras_V1"];
+            if (assocs == null || assocs.HasValues == false)
+            {
+                Console.WriteLine("No Standalone Muons!");
+                return dataList;
+            }
+            foreach (var item in data["Collections"]["Tracks_V3"])
+            {
+                StandaloneMuonData muon = new StandaloneMuonData();
+                var children = item.Children().Values<double>().ToArray();
+                muon.id = idNumber;
+                muon.pt = children[0];
+                muon.charge = (int)children[1];
+                muon.position = new double[] { children[2], children[3], children[4] };
+                muon.phi = children[5];
+                muon.eta = children[6];
+                muon.caloEnergy = children[7];
+
+                idNumber++;
+                dataList.Add(muon);
+            }
+            int firstassoc = assocs[0][1][1].Value<int>();
+            standaloneMuonExtras = trackExtrasData.GetRange(firstassoc, assocs.Last()[1][1].Value<int>() - firstassoc + 1);
             return dataList;
-  
         }
         public void makeStandaloneMuons() 
         {
+            if (standaloneMuonExtras == null) { return; }
             List<string> dataList = trackCubicBezierCurve(standaloneMuonExtras);
             File.WriteAllText($"{desktopPath}\\{eventTitle}\\standaloneMuons.obj", String.Empty);
             File.WriteAllLines($"{desktopPath}\\{eventTitle}\\standaloneMuons.obj", dataList);
         }
-        public List<Track> tracksParse(JObject data)
+        public List<Track> tracksParse()
         {
             List<Track> dataList = new List<Track>();
-            if (data["Associations"]["TrackExtras_V1"] == null)
+            var assocs = data["Associations"]["TrackExtras_V1"];
+
+            if (assocs == null || assocs.HasValues == false)
             {
                 return dataList;
             }
@@ -310,10 +368,13 @@ namespace IGtoOBJGen
                 track.ndof = children[11];
                 dataList.Add(track);
             }
+            int firstassoc = assocs[0][1][1].Value<int>();
+            subTrackExtras = trackExtrasData.GetRange(firstassoc, assocs.Last()[1][1].Value<int>() - firstassoc + 1);
             return dataList;
         }
         public void makeTracks() 
         {
+            if (subTrackExtras == null) { return; }
             List<string> dataList = trackCubicBezierCurve(subTrackExtras);
             File.WriteAllText($"{desktopPath}\\{eventTitle}\\Tracks.obj", String.Empty);
             File.WriteAllLines($"{desktopPath}\\{eventTitle}\\Tracks.obj", dataList);
@@ -323,12 +384,12 @@ namespace IGtoOBJGen
             List<GsfElectron> dataList = new List<GsfElectron>();
             int idNumber = 0;
 
-            if (data["Associations"]["GsfElectronExtras_V1"] == null)
+            var assocs = data["Associations"]["GsfElectronExtras_V1"];
+
+            if (assocs == null || assocs.HasValues == false)
             {
                 return dataList;
             }
-
-            var assocs = data["Associations"]["GsfElectronExtras_V1"];
 
             foreach (var item in data["Collections"]["GsfElectrons_V2"])
             {
@@ -342,17 +403,18 @@ namespace IGtoOBJGen
                 electron.charge = (int)children[3];
                 electron.pos = new double[] { children[4], children[5], children[6] };
                 electron.dir = new double[] { children[7], children[8], children[9] };
-                electron.assoc = assocs[idNumber][1][1].Value<int>();
-
+                
                 idNumber++;
                 dataList.Add(electron);
             }
-
-            electronExtras = trackExtrasData.GetRange(dataList[0].assoc, dataList[dataList.Count - 1].assoc- dataList[0].assoc+1);
+            int firstassoc = assocs[0][1][1].Value<int>();
+            electronExtras = trackExtrasData.GetRange(firstassoc, assocs.Last()[1][1].Value<int>()- firstassoc + 1);
+                        
             return dataList;
         }
         public void makeElectrons() 
         {
+            if (electronExtras == null) { return; }
             List<string> dataList = trackCubicBezierCurve(electronExtras);
             File.WriteAllText($"{desktopPath}\\{eventTitle}\\gsfElectrons.obj", String.Empty);
             File.WriteAllLines($"{desktopPath}\\{eventTitle}\\gsfElectrons.obj", dataList);

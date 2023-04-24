@@ -11,13 +11,15 @@ class OBJGenerator
 {
      static void Main(string[] args)
     {
+        Unzip zipper = new Unzip(@"C:\Users\uclav\Desktop\IG\Hto4l_120-130GeV.ig");
         StreamReader file;
         string eventName;
         string strPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
         var watch = new Stopwatch();
         watch.Start();
-
-        if (args.Length == 0){
+        Console.ReadLine();
+        bool inputState = args.Length == 0;
+        if (inputState == true){
             file = File.OpenText(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\IGdata\Event_1096322990");
             eventName = "Event_1096322990";
         } else {
@@ -45,11 +47,7 @@ class OBJGenerator
         IGTracks trackHandler = new IGTracks(o2,eventName);
         IGBoxes boxHandler = new IGBoxes(o2);
 
-
-        trackHandler.electronParse();
-        trackHandler.makeElectrons();
-
-        if (args.Length > 0)
+        if (inputState == false)
         {
             File.Delete($"{args[0]}.tmp");
         }
@@ -96,13 +94,6 @@ class OBJGenerator
             File.WriteAllLines($"{strPath}\\{eventName}\\{name}.obj",Contents);
 
         }
-        
-        List<TrackExtrasData> listicle = trackHandler.trackExtrasParse(o2);
-
-       // trackHandler.trackCubicBezierCurve(listicle, 32, eventName);  //Create the cubic bezier curve object file based off the track data
-
-        var n = trackHandler.photonParse(o2); 
-        trackHandler.generatePhotonModels(n, eventName); 
 
         List<MuonChamberData> list = boxHandler.muonChamberParse(); 
         boxHandler.generateMuonChamberModels(list); 

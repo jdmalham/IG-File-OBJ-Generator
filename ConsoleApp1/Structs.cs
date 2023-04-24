@@ -55,7 +55,6 @@ struct GlobalMuonData
     public double phi;
     public double eta;
     public double caloEnergy;
-    public int assoc;
 }
 struct StandaloneMuonData
 {
@@ -66,7 +65,6 @@ struct StandaloneMuonData
     public double phi;
     public double eta;
     public double caloEnergy;
-    public int assoc;
 }
 struct TrackerMuonData 
 {
@@ -76,7 +74,6 @@ struct TrackerMuonData
     public double[] position;
     public double phi;
     public double eta;
-    public int assoc;
 }
 struct PhotonData 
 {
@@ -108,7 +105,6 @@ struct Track
     public int charge;
     public double chi2;
     public double ndof;
-    public int assoc;
 }
 struct GsfElectron
 {
@@ -119,5 +115,4 @@ struct GsfElectron
     public int charge;
     public double[] pos;
     public double[] dir;
-    public int assoc;
 }
