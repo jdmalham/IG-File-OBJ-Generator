@@ -1,23 +1,25 @@
-﻿using System.IO.Compression;
+﻿using System.IO;
+using System.IO.Compression;
 
 namespace IGtoOBJGen
 {
-    internal class Unzip
+    class Unzip
     {
         private string directoryName { get; set; }
+        public string currentFile;
         public Unzip(string filename)
         {
-            unzipIG(filename);
-        }
-        public  void unzipIG(string path)
-        {
             string extractPath = tempDirectoryPath();
-            ZipFile.ExtractToDirectory(path, extractPath);
+            ZipFile.ExtractToDirectory(filename, extractPath);
             directoryName = extractPath;
-            string runFolder = selectFolderFromFolder(directoryName+"\\Events");
+            string runFolder = selectFolderFromFolder(directoryName + "\\Events");
             string file = selectFileFromFolder(runFolder);
-            
-            Directory.Delete(directoryName);
+            currentFile = file;
+        }
+        public void destroyStorage()
+        {
+            Directory.Delete(directoryName,true);
+            Console.WriteLine("Temp storage cleared!");
         }
         private static string tempDirectoryPath()
         {
@@ -25,14 +27,6 @@ namespace IGtoOBJGen
             File.Delete(tempFolder);
             Directory.CreateDirectory(tempFolder);
             return tempFolder;
-        }
-        public static void getRuns(string path)
-        {
-            var directories = Directory.EnumerateDirectories(path);
-            foreach (var d in directories)
-            {
-                Console.WriteLine(d);
-            }
         }
         public static string selectFolderFromFolder(string path)
         {
@@ -55,7 +49,9 @@ namespace IGtoOBJGen
                 Console.WriteLine($"{index}) {file}");
             }
             Console.WriteLine("Enter ID # of desired event file:");
+
             int selection = int.Parse(Console.ReadLine());
+
             Console.WriteLine(files[selection]);
 
             return files[selection];

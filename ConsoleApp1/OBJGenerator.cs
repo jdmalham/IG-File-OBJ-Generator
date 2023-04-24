@@ -17,7 +17,8 @@ class OBJGenerator
         string strPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
         var watch = new Stopwatch();
         watch.Start();
-        Console.ReadLine();
+
+        
         bool inputState = args.Length == 0;
         if (inputState == true){
             file = File.OpenText(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\IGdata\Event_1096322990");
@@ -28,29 +29,41 @@ class OBJGenerator
             with null so that the JSON library can properly parse it. Store the revisions in a temp file that
             is deleted at the end of the program's execution so that the original file goes unchanged and can 
             still be used with iSpy  */
-
-            string[] split = args[0].Split('\\');
+            string destination = zipper.currentFile;
+            string[] split = destination.Split('\\');
             eventName = split.Last();
+            Console.WriteLine(eventName);
             
-            string text = File.ReadAllText($"{args[0]}");
+            string text = File.ReadAllText($"{destination}");
             string newText = text.Replace("nan,","null,");
             
             File.WriteAllText($"{args[0]}.tmp",newText );
             file = File.OpenText($"{args[0]}.tmp");
         }
-
+ 
         JsonTextReader reader = new JsonTextReader(file);
         JObject o2 = (JObject)JToken.ReadFrom(reader);
 
         file.Close();
 
-        IGTracks trackHandler = new IGTracks(o2,eventName);
-        IGBoxes boxHandler = new IGBoxes(o2);
-
         if (inputState == false)
         {
             File.Delete($"{args[0]}.tmp");
         }
+
+        IGTracks trackHandler = new IGTracks(o2, eventName);
+        IGBoxes boxHandler = new IGBoxes(o2,eventName);
+
+        
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+        /*
+        This code block is QUARANTINED!!! This code must be not touched until the class can be rewritten to achieve the same result in its constructor.
+        Currently, this is a very bodged way of ensuring that all calorimetry objects get parsed and not very conducive to stability.
+        Needs refactoring not only to ensure stability, but also make the main code file much easier to read and understand.
+        Passing a variable into the function that will be defining it almost like some weird recursion is not the move.
+        */
 
         string[] calorimetryItems = { "EBRecHits_V2", "EERecHits_V2", "ESRecHits_V2", "HBRecHits_V2" };
         
@@ -60,6 +73,10 @@ class OBJGenerator
         {
             boxObjectsGesamt = boxHandler.calorimetryParse( name, boxObjectsGesamt);
         }
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
 
         foreach (var thing in boxObjectsGesamt)
         {
@@ -101,6 +118,8 @@ class OBJGenerator
         
         List<JetData> jetList = boxHandler.jetParse();
         boxHandler.generateJetModels(jetList);
+
+        zipper.destroyStorage();
 
         /*try
         {
