@@ -22,6 +22,10 @@ namespace IGtoOBJGen
             HOSCALE = 1.0;
             data = dataFile;
             eventTitle = name;
+            if (!Directory.Exists($"{desktopPath}\\{eventTitle}"))
+            {
+                Directory.CreateDirectory($"{desktopPath}\\{eventTitle}");
+            }
             setScales();
         }
         public List<MuonChamberData> muonChamberParse()
