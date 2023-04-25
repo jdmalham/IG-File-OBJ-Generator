@@ -84,8 +84,8 @@ namespace IGtoOBJGen
                 counter += 8;
             }
 
-            File.WriteAllText($"{desktopPath}\\test_obj\\{name}.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\test_obj\\{name}.obj", dataStrings);
+            File.WriteAllText($"{desktopPath}\\{eventTitle}\\{name}.obj", String.Empty);
+            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\{name}.obj", dataStrings);
         }
         public List<List<CalorimetryData>> calorimetryParse( string name, List<List<CalorimetryData>> dataList)
         {
@@ -186,7 +186,6 @@ namespace IGtoOBJGen
                 objData.AddRange(geometryData);
                 exclusionList.Append(2*numSections * iterNumber);
             }
-            
             for (int i = 1; i <= 2*numSections*data.Count-numSections-1; i++) 
             {
                 if (exclusionList.Contains(i-1))
@@ -201,14 +200,13 @@ namespace IGtoOBJGen
                 objData.Add(face);
             }
 
-            File.WriteAllText($"{desktopPath}\\test_obj\\jets.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\test_obj\\jets.obj", objData);
+            File.WriteAllText($"{desktopPath}\\{eventTitle}\\jets.obj", String.Empty);
+            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\jets.obj", objData);
         }
         public List<string> jetGeometry(JetData item, double radius, double length, int sections)
         {
             List<string> bottomsection = new List<string>();
             List<string> topsection = new List<string>();
-
             var M = Matrix<double>.Build;
 
             double[,] xRot = 
@@ -226,7 +224,6 @@ namespace IGtoOBJGen
 
             for (double i = 1.0; i <= sections; i++)
             {
-                
                 double radian = (2.0 * i * Math.PI) / (double)sections;
 
                 string bottompoint = "v 0 0 0";
@@ -243,7 +240,6 @@ namespace IGtoOBJGen
             }
 
             bottomsection.AddRange(topsection);
-
             return bottomsection;
         }
         public List<string> generateCalorimetryBoxes(List<CalorimetryData> inputData)
@@ -416,15 +412,14 @@ namespace IGtoOBJGen
                     continue;
                 }
                 
-                List<double> energies_ = new List<double>();
+                List<double> energies = new List<double>();
                 foreach (var item in collection)
                 {
-                    energies_.Add((double)item[0].Value<double>());
+                    energies.Add((double)item[0].Value<double>());
                 }
 
-                double [] energies = energies_.ToArray();
-                double scaleEnergy = energies.Max();
-                
+                double scaleEnergy = energies.ToArray().Max();
+
                 switch(HCALSET)
                 {
                     case "HERecHits_V2":
