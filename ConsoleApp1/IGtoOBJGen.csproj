@@ -9,6 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="objModels\**" />
+    <EmbeddedResource Remove="objModels\**" />
+    <None Remove="objModels\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="IGdata\Event_1096322990" />
   </ItemGroup>
 
@@ -22,10 +28,6 @@
     <PackageReference Include="SharpAdbClient" Version="2.3.23" />
     <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="objModels\" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>

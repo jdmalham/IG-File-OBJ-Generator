@@ -1,4 +1,5 @@
 ﻿using SharpAdbClient;
+using System.IO;
 using System.Net;
 
 namespace IGtoOBJGen
@@ -23,16 +24,26 @@ namespace IGtoOBJGen
                 }
             }
         }
-        public void UploadFiles(List<string> filePaths)
+        /*public void UploadFile(string filePath)
         {
-            foreach (var path in filePaths)
+            using (SyncService service = new SyncService(new AdbSocket(new IPEndPoint(IPAddress.Loopback, AdbClient.AdbServerPort)), oculusDevice))
+            {
+                using (Stream stream = File.OpenRead(filePath))
+                {
+                    service.Push(stream, $"/data/local/tmp/{objName}", 444, DateTime.Now, null, CancellationToken.None);
+                }
+            }
+        }*/
+        public void UploadFiles(string binPath)
+        {
+            DirectoryInfo dir = new DirectoryInfo(binPath); 
+            foreach (var path in dir.GetFiles())
             {
                 using (SyncService service = new SyncService(new AdbSocket(new IPEndPoint(IPAddress.Loopback, AdbClient.AdbServerPort)), oculusDevice)) 
                 {                
-                    string objName = path.Split('\\').Last();
-                    using (Stream stream = File.OpenRead(path))
+                    using (Stream stream = File.OpenRead(path.FullName))
                     {
-                        service.Push(stream, $"/data/local/tmp/{objName}", 444, DateTime.Now, null, CancellationToken.None);
+                        service.Push(stream, $"/data/local/tmp/obj/{path.Name}", 444, DateTime.Now, null, CancellationToken.None);
                     }
                 }
             };
