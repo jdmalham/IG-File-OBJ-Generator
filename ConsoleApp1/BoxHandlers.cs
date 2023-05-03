@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using MathNet.Numerics.LinearAlgebra;
+using Newtonsoft.Json;
+
 namespace IGtoOBJGen
 {
     internal class IGBoxes
@@ -21,6 +23,7 @@ namespace IGtoOBJGen
         private List<CalorimetryData> HBData;
         private List<CalorimetryData> HFData;
         private List<CalorimetryData> HOData;
+        private List<JetData> JetData;
         public IGBoxes(JObject dataFile, string name)
         {
             HBSCALE = 1.0;
@@ -35,6 +38,7 @@ namespace IGtoOBJGen
             }
             setScales();
             Execute();
+            Serialize();
         }
         public void Execute()
         {
@@ -112,62 +116,6 @@ namespace IGtoOBJGen
             File.WriteAllText($"{desktopPath}\\{eventTitle}\\MuonChambers_V1.obj", String.Empty);
             File.WriteAllLines($"{desktopPath}\\{eventTitle}\\MuonChambers_V1.obj", dataStrings);
         }
-        public List<List<CalorimetryData>> calorimetryParse(string name, List<List<CalorimetryData>> dataList)
-        {
-            List<CalorimetryData> mediatingList = new List<CalorimetryData>();
-            foreach (var item in data["Collections"][name])
-            {
-                CalorimetryData ebHitsData = new CalorimetryData();
-                var children = item.Children().Values<double>().ToArray();
-
-                switch (name)
-                {
-                    case "EERecHits_V2":
-                        ebHitsData.scale = children[0] / EESCALE;
-                        break;
-                    case "ESRecHits_V2":
-                        ebHitsData.scale = children[0] / ESSCALE;
-                        break;
-                    case "EBRecHits_V2":
-                        ebHitsData.scale = children[0] / EBSCALE;
-                        break;
-                    case "HBRecHits_V2":
-                        ebHitsData.scale = children[0] / HBSCALE;
-                        break;
-                    case "HERecHits_V2":
-                        ebHitsData.scale = children[0] / HESCALE;
-                        break;
-                    case "HFRecHits_V2":
-                        ebHitsData.scale = children[0] / HFSCALE;
-                        break;
-                    case "HORecHits_V2":
-                        ebHitsData.scale = children[0] / HOSCALE;
-                        break;
-                    default:
-                        ebHitsData.scale = 1.0;
-                        break;
-                }
-
-                ebHitsData.name = name;
-                ebHitsData.energy = children[0];
-                ebHitsData.eta = children[1];
-                ebHitsData.phi = children[2];
-                ebHitsData.time = children[3];
-                ebHitsData.detid = (int)children[4];
-                ebHitsData.front_1 = new double[] { children[5], children[6], children[7] };
-                ebHitsData.front_2 = new double[] { children[8], children[9], children[10] };
-                ebHitsData.front_3 = new double[] { children[11], children[12], children[13] };
-                ebHitsData.front_4 = new double[] { children[14], children[15], children[16] };
-                ebHitsData.back_1 = new double[] { children[17], children[18], children[19] };
-                ebHitsData.back_2 = new double[] { children[20], children[21], children[22] };
-                ebHitsData.back_3 = new double[] { children[23], children[24], children[25] };
-                ebHitsData.back_4 = new double[] { children[26], children[27], children[28] };
-                mediatingList.Add(ebHitsData);
-            }
-
-            dataList.Add(mediatingList);
-            return dataList;
-        }
         public List<CalorimetryData> genericCaloParse(string name, double scale)
         {
             List<CalorimetryData> dataList = new List<CalorimetryData>();
@@ -199,6 +147,7 @@ namespace IGtoOBJGen
         public void makeHFRec()
         {
             HFData = genericCaloParse("HFRecHits_V2", HFSCALE);
+            if ( HFData.Count == 0 ) { return; }
             List<string> dataList = generateCalorimetryBoxes(HFData);
             File.WriteAllText($"{desktopPath}\\{eventTitle}\\HFRecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{desktopPath}\\{eventTitle}\\HFRecHits_V2.obj", dataList);
@@ -207,6 +156,7 @@ namespace IGtoOBJGen
         {
             HBData = genericCaloParse("HBRecHits_V2", HBSCALE);
             List<string> dataList = generateCalorimetryBoxes(HBData);
+            if (HBData.Count == 0 ) { return ; }
             File.WriteAllText($"{desktopPath}\\{eventTitle}\\HBRecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{desktopPath}\\{eventTitle}\\HBRecHits_V2.obj", dataList);
         }
@@ -214,6 +164,7 @@ namespace IGtoOBJGen
         {
             HEData = genericCaloParse("HERecHits_V2", HESCALE);
             List<string> dataList = generateCalorimetryBoxes(HEData);
+            if (HEData.Count == 0 ) { return ; }
             File.WriteAllText($"{desktopPath}\\{eventTitle}\\HERecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{desktopPath}\\{eventTitle}\\HERecHits_V2.obj", dataList);
         }
@@ -221,6 +172,7 @@ namespace IGtoOBJGen
         {
             HOData = genericCaloParse("HORecHits_V2", HOSCALE);
             List<string> dataList = generateCalorimetryTowers(HOData);
+            if (HOData.Count == 0 ) { return; }
             File.WriteAllText($"{desktopPath}\\{eventTitle}\\HORecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{desktopPath}\\{eventTitle}\\HORecHits_V2.obj", dataList);
         }
@@ -228,6 +180,7 @@ namespace IGtoOBJGen
         {
             EBData = genericCaloParse("EBRecHits_V2", EBSCALE);
             List<string> dataList = generateCalorimetryBoxes(EBData);
+            if (EBData.Count == 0) { return; }
             File.WriteAllText($"{desktopPath}\\{eventTitle}\\EBRecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{desktopPath}\\{eventTitle}\\EBRecHits_V2.obj", dataList);
         }
@@ -235,6 +188,7 @@ namespace IGtoOBJGen
         {
             EEData = genericCaloParse("EERecHits_V2", EESCALE);
             List<string> dataList = generateCalorimetryBoxes(EEData);
+            if (EEData.Count == 0 ) { return; }
             File.WriteAllText($"{desktopPath}\\{eventTitle}\\EERecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{desktopPath}\\{eventTitle}\\EERecHits_V2.obj", dataList);
         }
@@ -242,30 +196,34 @@ namespace IGtoOBJGen
         {
             ESData = genericCaloParse("ESRecHits_V2", ESSCALE);
             List<string> dataList = generateCalorimetryBoxes(ESData);
+            if(ESData.Count == 0 ) { return; }
             File.WriteAllText($"{desktopPath}\\{eventTitle}\\ESRecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{desktopPath}\\{eventTitle}\\ESRecHits_V2.obj", dataList);
         }
         public List<JetData> jetParse()
         {
+            int idNumber = 0;
             List<JetData> datalist = new List<JetData>();
             foreach (var item in data["Collections"]["PFJets_V1"])
             {
+  
                 JetData currentJet = new JetData();
                 var children = item.Children().Values<double>().ToArray();
 
+                currentJet.id = idNumber;
                 currentJet.et = children[0];
                 currentJet.eta = children[1];
                 currentJet.theta = children[2];
                 currentJet.phi = children[3];
 
+                idNumber++;
                 datalist.Add(currentJet);
             }
+            JetData = datalist;
             return datalist;
         }
         public void generateJetModels(List<JetData> data)
         {
-            List<string> objData = new List<string>();
-            List<int> exclusionList = new List<int>();
             double maxZ = 2.25;
             double maxR = 1.10;
             double radius = 0.3 * (1.0 / (1 + 0.001));
@@ -282,30 +240,10 @@ namespace IGtoOBJGen
                 double length2 = (st != 0.0) ? maxR / Math.Abs(st) : maxR;
                 double length = length1 < length2 ? length1 : length2;
 
-                var geometryData = jetGeometry(item, radius, length, numSections);
-                objData.AddRange(geometryData);
-                exclusionList.Add(2 * numSections * iterNumber);
-                //Console.WriteLine(exclusionList.Count);
+                jetGeometry(item, radius, length, numSections);
             }
-            exclusionList.ForEach(Console.WriteLine);
-            for (int i = 1; i <= 2 * numSections * data.Count - numSections - 1; i++)
-            {
-                if (exclusionList.Contains(i-1))
-                {
-                    string thisface = $"f {i} {2 * i} {i + 1} {i - numSections + 1}";
-                    objData.Add(thisface);
-                    i += numSections;
-                    continue;
-                }
-
-                string face = $"f {i} {i + numSections} {i + 1 + numSections} {i + 1}";
-                objData.Add(face);
-            }
-
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\jets.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\jets.obj", objData);
         }
-        public List<string> jetGeometry(JetData item, double radius, double length, int sections)
+        public void jetGeometry(JetData item, double radius, double length, int sections)
         {
             List<string> bottomsection = new List<string>();
             List<string> topsection = new List<string>();
@@ -342,7 +280,24 @@ namespace IGtoOBJGen
             }
 
             bottomsection.AddRange(topsection);
-            return bottomsection;
+
+            int n = 0; 
+
+            while (n < sections)
+            {
+                string face = $"f {n} {n + sections} {n + 1 + sections} {n + 1}";
+                bottomsection.Add(face);
+                n++;
+            }
+
+            bottomsection.Add($"f {sections} {2 * sections} {sections + 1} 1");
+
+            if (!Directory.Exists($"{desktopPath}\\{eventTitle}\\jets"))
+            {
+                Directory.CreateDirectory($"{desktopPath}\\{eventTitle}\\jets");
+            }
+                                    
+            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\jets\\jet{item.id}.obj",bottomsection);
         }
         public List<string> generateCalorimetryBoxes(List<CalorimetryData> inputData)
         {
@@ -475,7 +430,6 @@ namespace IGtoOBJGen
                 v6 += v2;
                 v7 += v3;
 
-                geometryData.Add($"o {box.name}");
                 geometryData.Add($"v {String.Join(' ', v0)}");
                 geometryData.Add($"v {String.Join(' ', v1)}");
                 geometryData.Add($"v {String.Join(' ', v2)}");
@@ -542,6 +496,12 @@ namespace IGtoOBJGen
                         break;
                 }
             }
+        }
+        public void Serialize()
+        {
+            string json1 = JsonConvert.SerializeObject(new { jetData = new[] { JetData } },Formatting.Indented);
+
+            File.WriteAllText(@$"{desktopPath}\{eventTitle}\jetData.json", json1);
         }
     }
 }

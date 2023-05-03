@@ -14,7 +14,6 @@ struct MuonChamberData
 };
 struct CalorimetryData 
 {
-    public string name;
     public double energy;
     public double eta;
     public double phi;

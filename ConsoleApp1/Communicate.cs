@@ -36,7 +36,18 @@ namespace IGtoOBJGen
                         service.Push(stream, $"/data/local/tmp/obj/{path.Name}", 444, DateTime.Now, null, CancellationToken.None);
                     }
                 }
-            };
+            }
+            DirectoryInfo jetdir = new DirectoryInfo($"{binPath}\\jets");
+            foreach (var path in jetdir.GetFiles())
+            {
+                using (SyncService service = new SyncService(new AdbSocket(new IPEndPoint(IPAddress.Loopback, AdbClient.AdbServerPort)), oculusDevice))
+                {
+                    using (Stream stream = File.OpenRead(path.FullName))
+                    {
+                        service.Push(stream, $"/data/local/tmp/obj/jets/{path.Name}", 444, DateTime.Now, null, CancellationToken.None);
+                    }
+                }
+            }
             
         }
         public void DownloadFiles(string fileName)
