@@ -24,16 +24,6 @@ namespace IGtoOBJGen
                 }
             }
         }
-        /*public void UploadFile(string filePath)
-        {
-            using (SyncService service = new SyncService(new AdbSocket(new IPEndPoint(IPAddress.Loopback, AdbClient.AdbServerPort)), oculusDevice))
-            {
-                using (Stream stream = File.OpenRead(filePath))
-                {
-                    service.Push(stream, $"/data/local/tmp/{objName}", 444, DateTime.Now, null, CancellationToken.None);
-                }
-            }
-        }*/
         public void UploadFiles(string binPath)
         {
             DirectoryInfo dir = new DirectoryInfo(binPath); 

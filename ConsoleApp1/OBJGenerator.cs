@@ -83,7 +83,7 @@ class OBJGenerator
             Environment.Exit(1);
 
         }
-        //bridge.UploadFiles(trackHandler.filePaths);
+
         Console.WriteLine($"Total Execution Time: {watch.ElapsedMilliseconds} ms"); // See how fast code runs. Code goes brrrrrrr on fancy office pc. It makes me happy. :)
     }
 }

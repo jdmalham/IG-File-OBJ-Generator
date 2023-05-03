@@ -265,7 +265,7 @@ namespace IGtoOBJGen
         public void generateJetModels(List<JetData> data)
         {
             List<string> objData = new List<string>();
-            int[] exclusionList = { };
+            List<int> exclusionList = new List<int>();
             double maxZ = 2.25;
             double maxR = 1.10;
             double radius = 0.3 * (1.0 / (1 + 0.001));
@@ -277,8 +277,6 @@ namespace IGtoOBJGen
                 iterNumber++;
                 double ct = Math.Cos(item.theta);
                 double st = Math.Sin(item.theta);
-                double cp = Math.Cos(item.phi);
-                double sp = Math.Sin(item.phi);
 
                 double length1 = (ct != 0.0) ? maxZ / Math.Abs(ct) : maxZ;
                 double length2 = (st != 0.0) ? maxR / Math.Abs(st) : maxR;
@@ -286,11 +284,13 @@ namespace IGtoOBJGen
 
                 var geometryData = jetGeometry(item, radius, length, numSections);
                 objData.AddRange(geometryData);
-                exclusionList.Append(2 * numSections * iterNumber);
+                exclusionList.Add(2 * numSections * iterNumber);
+                //Console.WriteLine(exclusionList.Count);
             }
+            exclusionList.ForEach(Console.WriteLine);
             for (int i = 1; i <= 2 * numSections * data.Count - numSections - 1; i++)
             {
-                if (exclusionList.Contains(i - 1))
+                if (exclusionList.Contains(i-1))
                 {
                     string thisface = $"f {i} {2 * i} {i + 1} {i - numSections + 1}";
                     objData.Add(thisface);
