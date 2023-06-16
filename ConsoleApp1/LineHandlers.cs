@@ -2,16 +2,13 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Numerics;
-/*
- "Lines are cool 😎" - Pythagoras
- */
 namespace IGtoOBJGen
 {
     internal class IGTracks
     {
         //Properties
         protected string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-        protected string eventTitle { get; set; }
+        protected string eventTitle;
         protected JObject data { get; set; }
         private List<TrackExtrasData> trackExtrasData {  get; set; }
         private List<TrackExtrasData> subTrackExtras { get; set; }//Extras corresponding to "Tracks_V3" data points
@@ -419,6 +416,34 @@ namespace IGtoOBJGen
             File.WriteAllText($"{desktopPath}\\{eventTitle}\\gsfElectrons.obj", String.Empty);
             File.WriteAllLines($"{desktopPath}\\{eventTitle}\\gsfElectrons.obj", dataList);
         }
+        public METData METParse()
+        {
+            METData met = new METData();
+            var metdata = data["PFMETs_V1"][0];
+            var children = metdata.Values<double>().ToList();
+            met.phi = children[0];
+            met.pt = children[1];
+            met.px = children[2];
+            met.py = children[3];
+            met.pz = children[4];
 
+            return met;
+        }
+        public void SerializeMET()
+        {
+            string metdata = JsonConvert.SerializeObject(METParse(), Formatting.Indented);
+            File.WriteAllText($@"{desktopPath}/{eventTitle}/METData.json", metdata);
+        }
+        public void Serialize()
+        {
+            string globaljson = JsonConvert.SerializeObject(new { globalData = new[] { globalMuonExtras } }, Formatting.Indented);
+            File.WriteAllText($@"{desktopPath}/{eventTitle}/globalMuonData.json", globaljson);
+            string trackerjson = JsonConvert.SerializeObject(new { trackerData = new[] { trackerMuonExtras } }, Formatting.Indented);
+            File.WriteAllText($@"{desktopPath}/{eventTitle}/trackerMuonData.json", trackerjson);
+            string standalonejson = JsonConvert.SerializeObject(new { standaloneData = new[] { standaloneMuonExtras } }, Formatting.Indented);
+            File.WriteAllText($@"{desktopPath}/{eventTitle}/standaloneMuonData.json", standalonejson);
+            string electronjson = JsonConvert.SerializeObject(new { electronData = new[] { electronExtras } }, Formatting.Indented);
+            File.WriteAllText($@"{desktopPath}/{eventTitle}/electronData.json", electronjson);
+        }
     }
 }

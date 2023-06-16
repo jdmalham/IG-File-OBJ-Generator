@@ -8,21 +8,27 @@ namespace IGtoOBJGen
     {
         private readonly string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
         private string eventTitle;
+
         private JObject data;
+
         private readonly double EESCALE = (1.0 / 0.01);
         private readonly double EBSCALE = (1.0 / 0.1);
         private readonly double ESSCALE = (1.0 / 100.0);
+
         private double HBSCALE;
         private double HESCALE;
         private double HFSCALE;
         private double HOSCALE;
+
         private List<CalorimetryData> EEData;
         private List<CalorimetryData> EBData;
         private List<CalorimetryData> ESData;
+
         private List<CalorimetryData> HEData;
         private List<CalorimetryData> HBData;
         private List<CalorimetryData> HFData;
         private List<CalorimetryData> HOData;
+
         private List<JetData> JetData;
         public IGBoxes(JObject dataFile, string name)
         {
@@ -85,11 +91,17 @@ namespace IGtoOBJGen
             if (data.Count() == 0) { return; }
 
             List<string> dataStrings = new List<string>();
+            List<string> dataStrings2 = new List<string>();
             int counter = 1;
-            string name = data[0].name;
+            List<int> ids = new List<int>();
 
             foreach (var chamber in data)
             {
+                if (ids.Contains(chamber.detid)) {
+                    continue;
+                } else {
+                    ids.Add(chamber.detid);
+                }
                 dataStrings.Add($"v {String.Join(' ', chamber.front_1)}");
                 dataStrings.Add($"v {String.Join(' ', chamber.front_2)}");
                 dataStrings.Add($"v {String.Join(' ', chamber.front_3)}");
@@ -99,22 +111,76 @@ namespace IGtoOBJGen
                 dataStrings.Add($"v {String.Join(' ', chamber.back_3)}");
                 dataStrings.Add($"v {String.Join(' ', chamber.back_4)}");
 
-                dataStrings.Add($"f {counter} {counter + 1} {counter + 2} {counter + 3}");
+                dataStrings2.Add($"v {String.Join(' ', chamber.front_1)}");
+                dataStrings2.Add($"v {String.Join(' ', chamber.front_2)}");
+                dataStrings2.Add($"v {String.Join(' ', chamber.front_3)}");
+                dataStrings2.Add($"v {String.Join(' ', chamber.front_4)}");
+                dataStrings2.Add($"v {String.Join(' ', chamber.back_1)}");
+                dataStrings2.Add($"v {String.Join(' ', chamber.back_2)}");
+                dataStrings2.Add($"v {String.Join(' ', chamber.back_3)}");
+                dataStrings2.Add($"v {String.Join(' ', chamber.back_4)}");
+
+                /*dataStrings.Add($"f {counter} {counter + 1} {counter + 2}");
+                dataStrings.Add($"f {counter + 2} {counter + 1} {counter}");
+
+                dataStrings.Add($"f {counter + 2} {counter+ 3} {counter}");
+                dataStrings.Add($"f {counter} {counter+ 3} {counter + 2}");
+
+                dataStrings.Add($"f {counter + 4} {counter + 5} {counter + 6}");
+                dataStrings.Add($"f {counter + 6} {counter + 5} {counter + 4}");
+
+                dataStrings.Add($"f {counter + 6} {counter + 7} {counter + 4}");
+                dataStrings.Add($"f {counter + 4} {counter + 7} {counter + 6}");
+
+                dataStrings.Add($"f {counter + 4} {counter + 5} {counter + 1}");
+                dataStrings.Add($"f {counter + 1} {counter + 5} {counter + 4}");
+
+                dataStrings.Add($"f {counter + 1} {counter} {counter + 4}");
+                dataStrings.Add($"f {counter + 4} {counter} {counter + 1}");
+
+                dataStrings.Add($"f {counter + 7} {counter + 6} {counter + 2}");
+                dataStrings.Add($"f {counter + 2} {counter + 6} {counter + 7}");
+
+                dataStrings.Add($"f {counter + 2} {counter + 3} {counter + 7}");
+                dataStrings.Add($"f {counter + 7} {counter + 3} {counter + 2}");
+
+                dataStrings.Add($"f {counter} {counter + 3} {counter + 7}");
+                dataStrings.Add($"f {counter + 7} {counter + 3} {counter}");
+
+                dataStrings.Add($"f {counter + 7} {counter + 4} {counter}");
+                dataStrings.Add($"f {counter} {counter + 4} {counter + 7}");
+
+                dataStrings.Add($"f {counter + 1} {counter + 5} {counter + 6}");
+                dataStrings.Add($"f {counter + 6} {counter + 5} {counter + 1}");
+
+                dataStrings.Add($"f {counter + 6} {counter + 2} {counter + 1}");
+                dataStrings.Add($"f {counter + 1} {counter + 2} {counter + 6}");*/
+
                 dataStrings.Add($"f {counter + 3} {counter + 2} {counter + 1} {counter}");
-                dataStrings.Add($"f {counter + 4} {counter + 5} {counter + 6} {counter + 7}");
-                dataStrings.Add($"f {counter + 7} {counter + 6} {counter + 5} {counter + 4}");
-                dataStrings.Add($"f {counter} {counter + 3} {counter + 7} {counter + 4}");
-                dataStrings.Add($"f {counter + 4} {counter + 7} {counter + 3} {counter}");
+                dataStrings.Add($"f {counter+4} {counter + 5} {counter + 6} {counter + 7}");
                 dataStrings.Add($"f {counter + 1} {counter + 2} {counter + 6} {counter + 5}");
-                dataStrings.Add($"f {counter + 5} {counter + 6} {counter + 2} {counter + 1}");
-                dataStrings.Add($"f {counter + 3} {counter + 2} {counter + 6} {counter + 7}");
-                dataStrings.Add($"f {counter + 7} {counter + 6} {counter + 2} {counter + 3}");
-                dataStrings.Add($"f {counter + 1} {counter} {counter + 4} {counter + 5}");
-                dataStrings.Add($"f {counter + 5} {counter + 4} {counter} {counter + 1}");
+                dataStrings.Add($"f {counter + 4} {counter + 7} {counter + 3} {counter}");
+                dataStrings.Add($"f {counter + 2} {counter + 3} {counter + 7} {counter + 6}");
+                dataStrings.Add($"f {counter} {counter + 1} {counter + 5} {counter + 4}");
+
+                dataStrings2.Add($"f {counter} {counter + 1} {counter + 2} {counter + 3}");
+                dataStrings2.Add($"f {counter + 7} {counter + 6} {counter + 5} {counter + 4}");
+                dataStrings2.Add($"f {counter + 5} {counter + 6} {counter + 2} {counter + 1}");
+                dataStrings2.Add($"f {counter} {counter+3} {counter + 7} {counter + 4}");
+                dataStrings2.Add($"f {counter + 6} {counter + 7} {counter + 3} {counter + 2}");
+                dataStrings2.Add($"f {counter + 4} {counter + 5} {counter + 1} {counter}");
+
                 counter += 8;
             }
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\MuonChambers_V1.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\MuonChambers_V1.obj", dataStrings);
+            foreach ( string item in dataStrings)
+            {
+                Console.WriteLine( item );
+            }
+            File.WriteAllText($"{desktopPath}\\{eventTitle}\\MuonChambers_V1_1.obj", String.Empty);
+            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\MuonChambers_V1_1.obj", dataStrings);
+            File.WriteAllText($"{desktopPath}\\{eventTitle}\\MuonChambers_V1_2.obj", String.Empty);
+            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\MuonChambers_V1_2.obj", dataStrings);
+
         }
         public List<CalorimetryData> genericCaloParse(string name, double scale)
         {
@@ -261,7 +327,7 @@ namespace IGtoOBJGen
 
             var rx = M.DenseOfArray(xRot); //Rotation matrices
             var rz = M.DenseOfArray(zRot);
-
+            bottomsection.Add("o PFJETS");
             for (double i = 1.0; i <= sections; i++)
             {
                 double radian = (2.0 * i * Math.PI) / (double)sections;
@@ -286,12 +352,15 @@ namespace IGtoOBJGen
             while (n < sections)
             {
                 string face = $"f {n} {n + sections} {n + 1 + sections} {n + 1}";
+                string revface = $"f {n+1} {n + 1 + sections} {n + sections} {n}";
+                bottomsection.Add(revface);
                 bottomsection.Add(face);
                 n++;
             }
 
+            bottomsection.Add($"f 1 {sections + 1} {2 * sections} {sections}");
             bottomsection.Add($"f {sections} {2 * sections} {sections + 1} 1");
-
+            
             if (!Directory.Exists($"{desktopPath}\\{eventTitle}\\jets"))
             {
                 Directory.CreateDirectory($"{desktopPath}\\{eventTitle}\\jets");
@@ -499,9 +568,9 @@ namespace IGtoOBJGen
         }
         public void Serialize()
         {
-            string json1 = JsonConvert.SerializeObject(new { jetData = new[] { JetData } },Formatting.Indented);
+            string jetJson = JsonConvert.SerializeObject(new { jetData = new[] { JetData } },Formatting.Indented);
 
-            File.WriteAllText(@$"{desktopPath}\{eventTitle}\jetData.json", json1);
+            File.WriteAllText(@$"{desktopPath}\{eventTitle}\jetData.json", jetJson);
         }
     }
 }

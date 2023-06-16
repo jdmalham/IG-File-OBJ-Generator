@@ -2,17 +2,14 @@
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using IGtoOBJGen;
-/*
-
-What's going on in this file? It's just the main file. Why is it so messy? Good question. 
-
- */
 class OBJGenerator
 {
     static void Main(string[] args)
     {
+        
         bool inputState = args.Length == 0;
         Unzip zipper;
+        //Console.CancelKeyPress += delegate { zipper.destroyStorage(); };
         if (inputState)
         {
             zipper = new Unzip(@"C:\Users\uclav\Desktop\IG\Hto4l_120-130GeV.ig");
@@ -42,7 +39,6 @@ class OBJGenerator
             string destination = zipper.currentFile;
             string[] split = destination.Split('\\');
             eventName = split.Last();
-            Console.WriteLine(eventName);
 
             string text = File.ReadAllText($"{destination}");
             string newText = text.Replace("nan,", "null,");
@@ -54,8 +50,8 @@ class OBJGenerator
         JsonTextReader reader = new JsonTextReader(file);
         JObject o2 = (JObject)JToken.ReadFrom(reader);
 
-        file.Close();
 
+        file.Close();
         if (inputState == false)
         {
             File.Delete($"{args[0]}.tmp");
