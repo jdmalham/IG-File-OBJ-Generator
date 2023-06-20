@@ -9,6 +9,8 @@ class OBJGenerator
         
         bool inputState = args.Length == 0;
         Unzip zipper;
+
+
         //Console.CancelKeyPress += delegate { zipper.destroyStorage(); };
         if (inputState)
         {

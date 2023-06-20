@@ -63,10 +63,19 @@ namespace IGtoOBJGen
         public List<MuonChamberData> muonChamberParse()
         {
             var dataList = new List<MuonChamberData>();
+            var vectorlist = new List<string>();
             if (data["Collections"]["MuonChambers_V1"] != null)
             {
                 foreach (var igChamberData in data["Collections"]["MuonChambers_V1"])
                 {
+                    if (vectorlist.Contains(igChamberData[1].ToString()))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        vectorlist.Add(igChamberData[1].ToString());
+                    }
                     MuonChamberData muonChamberData = new MuonChamberData();
                     var children = igChamberData.Children().Values<double>().ToArray();
 
@@ -91,17 +100,10 @@ namespace IGtoOBJGen
             if (data.Count() == 0) { return; }
 
             List<string> dataStrings = new List<string>();
-            List<string> dataStrings2 = new List<string>();
             int counter = 1;
-            List<int> ids = new List<int>();
-
+            dataStrings.Add("vn -1.0000 -0.0000 -0.0000\nvn -0.0000 -0.0000 -1.0000\nvn 1.0000 -0.0000 -0.0000\nvn -0.0000 -0.0000 1.0000\nvn -0.0000 -1.0000 -0.0000\nvn -0.0000 1.0000 -0.0000");
             foreach (var chamber in data)
             {
-                if (ids.Contains(chamber.detid)) {
-                    continue;
-                } else {
-                    ids.Add(chamber.detid);
-                }
                 dataStrings.Add($"v {String.Join(' ', chamber.front_1)}");
                 dataStrings.Add($"v {String.Join(' ', chamber.front_2)}");
                 dataStrings.Add($"v {String.Join(' ', chamber.front_3)}");
@@ -111,64 +113,12 @@ namespace IGtoOBJGen
                 dataStrings.Add($"v {String.Join(' ', chamber.back_3)}");
                 dataStrings.Add($"v {String.Join(' ', chamber.back_4)}");
 
-                dataStrings2.Add($"v {String.Join(' ', chamber.front_1)}");
-                dataStrings2.Add($"v {String.Join(' ', chamber.front_2)}");
-                dataStrings2.Add($"v {String.Join(' ', chamber.front_3)}");
-                dataStrings2.Add($"v {String.Join(' ', chamber.front_4)}");
-                dataStrings2.Add($"v {String.Join(' ', chamber.back_1)}");
-                dataStrings2.Add($"v {String.Join(' ', chamber.back_2)}");
-                dataStrings2.Add($"v {String.Join(' ', chamber.back_3)}");
-                dataStrings2.Add($"v {String.Join(' ', chamber.back_4)}");
-
-                /*dataStrings.Add($"f {counter} {counter + 1} {counter + 2}");
-                dataStrings.Add($"f {counter + 2} {counter + 1} {counter}");
-
-                dataStrings.Add($"f {counter + 2} {counter+ 3} {counter}");
-                dataStrings.Add($"f {counter} {counter+ 3} {counter + 2}");
-
-                dataStrings.Add($"f {counter + 4} {counter + 5} {counter + 6}");
-                dataStrings.Add($"f {counter + 6} {counter + 5} {counter + 4}");
-
-                dataStrings.Add($"f {counter + 6} {counter + 7} {counter + 4}");
-                dataStrings.Add($"f {counter + 4} {counter + 7} {counter + 6}");
-
-                dataStrings.Add($"f {counter + 4} {counter + 5} {counter + 1}");
-                dataStrings.Add($"f {counter + 1} {counter + 5} {counter + 4}");
-
-                dataStrings.Add($"f {counter + 1} {counter} {counter + 4}");
-                dataStrings.Add($"f {counter + 4} {counter} {counter + 1}");
-
-                dataStrings.Add($"f {counter + 7} {counter + 6} {counter + 2}");
-                dataStrings.Add($"f {counter + 2} {counter + 6} {counter + 7}");
-
-                dataStrings.Add($"f {counter + 2} {counter + 3} {counter + 7}");
-                dataStrings.Add($"f {counter + 7} {counter + 3} {counter + 2}");
-
-                dataStrings.Add($"f {counter} {counter + 3} {counter + 7}");
-                dataStrings.Add($"f {counter + 7} {counter + 3} {counter}");
-
-                dataStrings.Add($"f {counter + 7} {counter + 4} {counter}");
-                dataStrings.Add($"f {counter} {counter + 4} {counter + 7}");
-
-                dataStrings.Add($"f {counter + 1} {counter + 5} {counter + 6}");
-                dataStrings.Add($"f {counter + 6} {counter + 5} {counter + 1}");
-
-                dataStrings.Add($"f {counter + 6} {counter + 2} {counter + 1}");
-                dataStrings.Add($"f {counter + 1} {counter + 2} {counter + 6}");*/
-
-                dataStrings.Add($"f {counter + 3} {counter + 2} {counter + 1} {counter}");
-                dataStrings.Add($"f {counter+4} {counter + 5} {counter + 6} {counter + 7}");
-                dataStrings.Add($"f {counter + 1} {counter + 2} {counter + 6} {counter + 5}");
-                dataStrings.Add($"f {counter + 4} {counter + 7} {counter + 3} {counter}");
-                dataStrings.Add($"f {counter + 2} {counter + 3} {counter + 7} {counter + 6}");
-                dataStrings.Add($"f {counter} {counter + 1} {counter + 5} {counter + 4}");
-
-                dataStrings2.Add($"f {counter} {counter + 1} {counter + 2} {counter + 3}");
-                dataStrings2.Add($"f {counter + 7} {counter + 6} {counter + 5} {counter + 4}");
-                dataStrings2.Add($"f {counter + 5} {counter + 6} {counter + 2} {counter + 1}");
-                dataStrings2.Add($"f {counter} {counter+3} {counter + 7} {counter + 4}");
-                dataStrings2.Add($"f {counter + 6} {counter + 7} {counter + 3} {counter + 2}");
-                dataStrings2.Add($"f {counter + 4} {counter + 5} {counter + 1} {counter}");
+                dataStrings.Add($"f {counter + 3}//1 {counter + 2}//1 {counter + 1}//1 {counter}//1");
+                dataStrings.Add($"f {counter+4}//2 {counter + 5}//2 {counter + 6}//2 {counter + 7}//2");
+                dataStrings.Add($"f {counter + 1}//3 {counter + 2}//3 {counter + 6}//3 {counter + 5}//3");
+                dataStrings.Add($"f {counter + 4}//4 {counter + 7}//4 {counter + 3}//4 {counter}//4");
+                dataStrings.Add($"f {counter + 2}//5 {counter + 3}//5 {counter + 7}//5 {counter + 6}//5");
+                dataStrings.Add($"f {counter}//6 {counter + 1}//6 {counter + 5}//6 {counter + 4}//6");
 
                 counter += 8;
             }
@@ -176,11 +126,8 @@ namespace IGtoOBJGen
             {
                 Console.WriteLine( item );
             }
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\MuonChambers_V1_1.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\MuonChambers_V1_1.obj", dataStrings);
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\MuonChambers_V1_2.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\MuonChambers_V1_2.obj", dataStrings);
-
+            File.WriteAllText($"{desktopPath}\\{eventTitle}\\MuonChambers_V1.obj", String.Empty);
+            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\MuonChambers_V1.obj", dataStrings);
         }
         public List<CalorimetryData> genericCaloParse(string name, double scale)
         {
@@ -373,6 +320,8 @@ namespace IGtoOBJGen
             List<string> geometryData = new List<string>();
             int counter = 1;
 
+            geometryData.Add("vn -1.0000 -0.0000 -0.0000\nvn -0.0000 -0.0000 -1.0000\nvn 1.0000 -0.0000 -0.0000\nvn -0.0000 -0.0000 1.0000\nvn -0.0000 -1.0000 -0.0000\nvn -0.0000 1.0000 -0.0000");
+
             var V = Vector<double>.Build;
 
             foreach (CalorimetryData box in inputData)
@@ -400,36 +349,28 @@ namespace IGtoOBJGen
                 v0 -= center;
                 v0 *= scale;
                 v0 += center;
-
                 v1 -= center;
                 v1 *= scale;
                 v1 += center;
-
                 v2 -= center;
                 v2 *= scale;
                 v2 += center;
-
                 v3 -= center;
                 v3 *= scale;
                 v3 += center;
-
                 v4 -= center;
                 v4 *= scale;
                 v4 += center;
-
                 v5 -= center;
                 v5 *= scale;
                 v5 += center;
-
                 v6 -= center;
                 v6 *= scale;
                 v6 += center;
-
                 v7 -= center;
                 v7 *= scale;
                 v7 += center;
 
-                //geometryData.Add($"o {box.name}");
                 geometryData.Add($"v {String.Join(' ', v0)}");
                 geometryData.Add($"v {String.Join(' ', v1)}");
                 geometryData.Add($"v {String.Join(' ', v2)}");
@@ -439,18 +380,18 @@ namespace IGtoOBJGen
                 geometryData.Add($"v {String.Join(' ', v6)}");
                 geometryData.Add($"v {String.Join(' ', v7)}");
 
-                geometryData.Add($"f {counter} {counter + 1} {counter + 2} {counter + 3}");
-                geometryData.Add($"f {counter + 3} {counter + 2} {counter + 1} {counter}");
-                geometryData.Add($"f {counter + 4} {counter + 5} {counter + 6} {counter + 7}");
-                geometryData.Add($"f {counter + 7} {counter + 6} {counter + 5} {counter + 4}");
-                geometryData.Add($"f {counter} {counter + 3} {counter + 7} {counter + 4}");
-                geometryData.Add($"f {counter + 4} {counter + 7} {counter + 3} {counter}");
-                geometryData.Add($"f {counter + 1} {counter + 2} {counter + 6} {counter + 5}");
-                geometryData.Add($"f {counter + 5} {counter + 6} {counter + 2} {counter + 1}");
-                geometryData.Add($"f {counter + 3} {counter + 2} {counter + 6} {counter + 7}");
-                geometryData.Add($"f {counter + 7} {counter + 6} {counter + 2} {counter + 3}");
-                geometryData.Add($"f {counter + 1} {counter} {counter + 4} {counter + 5}");
-                geometryData.Add($"f {counter + 5} {counter + 4} {counter} {counter + 1}");
+                geometryData.Add($"f {counter}//1 {counter + 1}//1 {counter + 2}//1 {counter + 3}//1");
+                geometryData.Add($"f {counter + 3}//1 {counter + 2}//1 {counter + 1}//1 {counter}//1");
+                geometryData.Add($"f {counter + 4}//2 {counter + 5}//2 {counter + 6}//2 {counter + 7}//2");
+                geometryData.Add($"f {counter + 7}//2 {counter + 6}//2 {counter + 5}//2 {counter + 4}//2");
+                geometryData.Add($"f {counter}//3 {counter + 3}//3 {counter + 7}//3 {counter + 4}//3");
+                geometryData.Add($"f {counter + 4}//3 {counter + 7}//3 {counter + 3}//3 {counter}//3");
+                geometryData.Add($"f {counter + 1}//4 {counter + 2}//4 {counter + 6}//4 {counter + 5}//4");
+                geometryData.Add($"f {counter + 5}//4 {counter + 6}//4 {counter + 2}//4 {counter + 1}//4");
+                geometryData.Add($"f {counter + 3}//5 {counter + 2}//5 {counter + 6}//5 {counter + 7}//5");
+                geometryData.Add($"f {counter + 7}//5 {counter + 6}//5 {counter + 2}//5 {counter + 3}//5");
+                geometryData.Add($"f {counter + 1}//6 {counter}//6 {counter + 4}//6 {counter + 5}//6");
+                geometryData.Add($"f {counter + 5}//6 {counter + 4}//6 {counter}//6 {counter + 1}//6");
 
                 counter += 8;
             }
@@ -460,6 +401,8 @@ namespace IGtoOBJGen
         {
             List<string> geometryData = new List<string>();
             int counter = 1;
+
+            geometryData.Add("vn -1.0000 -0.0000 -0.0000\nvn -0.0000 -0.0000 -1.0000\nvn 1.0000 -0.0000 -0.0000\nvn -0.0000 -0.0000 1.0000\nvn -0.0000 -1.0000 -0.0000\nvn -0.0000 1.0000 -0.0000");
 
             var V = Vector<double>.Build;
 
@@ -508,18 +451,18 @@ namespace IGtoOBJGen
                 geometryData.Add($"v {String.Join(' ', v6)}");
                 geometryData.Add($"v {String.Join(' ', v7)}");
 
-                geometryData.Add($"f {counter} {counter + 1} {counter + 2} {counter + 3}");
-                geometryData.Add($"f {counter + 3} {counter + 2} {counter + 1} {counter}");
-                geometryData.Add($"f {counter + 4} {counter + 5} {counter + 6} {counter + 7}");
-                geometryData.Add($"f {counter + 7} {counter + 6} {counter + 5} {counter + 4}");
-                geometryData.Add($"f {counter} {counter + 3} {counter + 7} {counter + 4}");
-                geometryData.Add($"f {counter + 4} {counter + 7} {counter + 3} {counter}");
-                geometryData.Add($"f {counter + 1} {counter + 2} {counter + 6} {counter + 5}");
-                geometryData.Add($"f {counter + 5} {counter + 6} {counter + 2} {counter + 1}");
-                geometryData.Add($"f {counter + 3} {counter + 2} {counter + 6} {counter + 7}");
-                geometryData.Add($"f {counter + 7} {counter + 6} {counter + 2} {counter + 3}");
-                geometryData.Add($"f {counter + 1} {counter} {counter + 4} {counter + 5}");
-                geometryData.Add($"f {counter + 5} {counter + 4} {counter} {counter + 1}");
+                geometryData.Add($"f {counter}//1 {counter + 1}//1 {counter + 2}//1 {counter + 3}//1");
+                geometryData.Add($"f {counter + 3}//1 {counter + 2}//1 {counter + 1}//1 {counter}//1");
+                geometryData.Add($"f {counter + 4}//2 {counter + 5}//2 {counter + 6}//2 {counter + 7}//2");
+                geometryData.Add($"f {counter + 7}//2 {counter + 6}//2 {counter + 5}//2 {counter + 4}//2");
+                geometryData.Add($"f {counter}//3 {counter + 3}//3 {counter + 7}//3 {counter + 4}//3");
+                geometryData.Add($"f {counter + 4}//3 {counter + 7}//3 {counter + 3}//3 {counter}//3");
+                geometryData.Add($"f {counter + 1}//4 {counter + 2}//4 {counter + 6}//4 {counter + 5}//4");
+                geometryData.Add($"f {counter + 5}//4 {counter + 6}//4 {counter + 2}//4 {counter + 1}//4");
+                geometryData.Add($"f {counter + 3}//5 {counter + 2}//5 {counter + 6}//5 {counter + 7}//5");
+                geometryData.Add($"f {counter + 7}//5 {counter + 6}//5 {counter + 2}//5 {counter + 3}//5");
+                geometryData.Add($"f {counter + 1}//6 {counter}//6 {counter + 4}//6 {counter + 5}//6");
+                geometryData.Add($"f {counter + 5}//6 {counter + 4}//6 {counter}//6 {counter + 1}//6");
 
                 counter += 8;
             }
