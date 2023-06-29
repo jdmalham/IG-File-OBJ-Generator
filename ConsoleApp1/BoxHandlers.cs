@@ -192,7 +192,7 @@ namespace IGtoOBJGen
         public void makeEBRec()
         {
             EBData = genericCaloParse("EBRecHits_V2", EBSCALE);
-            List<string> dataList = generateCalorimetryBoxes(EBData);
+            List<string> dataList = generateCalorimetryTowers(EBData);
             if (EBData.Count == 0) { return; }
             File.WriteAllText($"{desktopPath}\\{eventTitle}\\EBRecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{desktopPath}\\{eventTitle}\\EBRecHits_V2.obj", dataList);
@@ -200,7 +200,7 @@ namespace IGtoOBJGen
         public void makeEERec()
         {
             EEData = genericCaloParse("EERecHits_V2", EESCALE);
-            List<string> dataList = generateCalorimetryBoxes(EEData);
+            List<string> dataList = generateCalorimetryTowers(EEData);
             if (EEData.Count == 0 ) { return; }
             File.WriteAllText($"{desktopPath}\\{eventTitle}\\EERecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{desktopPath}\\{eventTitle}\\EERecHits_V2.obj", dataList);
@@ -208,7 +208,7 @@ namespace IGtoOBJGen
         public void makeESRec()
         {
             ESData = genericCaloParse("ESRecHits_V2", ESSCALE);
-            List<string> dataList = generateCalorimetryBoxes(ESData);
+            List<string> dataList = generateCalorimetryTowers(ESData);
             if(ESData.Count == 0 ) { return; }
             File.WriteAllText($"{desktopPath}\\{eventTitle}\\ESRecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{desktopPath}\\{eventTitle}\\ESRecHits_V2.obj", dataList);
@@ -242,7 +242,7 @@ namespace IGtoOBJGen
             double radius = 0.3 * (1.0 / (1 + 0.001));
             int numSections = 32;
             int iterNumber = 0;
-
+            
             foreach (var item in data)
             {
                 iterNumber++;
@@ -258,6 +258,9 @@ namespace IGtoOBJGen
         }
         public void jetGeometry(JetData item, double radius, double length, int sections)
         {
+            List<string> normals = new List<string>();
+            List<string> normals1 = new List<string>();
+            List<string> normals2 = new List<string>();
             List<string> bottomsection = new List<string>();
             List<string> topsection = new List<string>();
             var M = Matrix<double>.Build;
@@ -274,46 +277,56 @@ namespace IGtoOBJGen
 
             var rx = M.DenseOfArray(xRot); //Rotation matrices
             var rz = M.DenseOfArray(zRot);
-            bottomsection.Add("o PFJETS");
+            normals.Add("o PFJETS");
+
+            double[] arbitrary_vec = { 1.0, 1.0, 1.0 };
+            Vector<double> arbitrary = Vector<double>.Build.DenseOfArray(arbitrary_vec);
+
             for (double i = 1.0; i <= sections; i++)
             {
                 double radian = (2.0 * i * Math.PI) / (double)sections;
 
                 string bottompoint = "v 0 0 0";
                 bottomsection.Add(bottompoint);
-
+                normals1.Add("vn 1 1 1");
                 double[] feederArray = { radius * Math.Cos(radian), radius * Math.Sin(radian), length };
                 Vector<double> temptop = Vector<double>.Build.DenseOfArray(feederArray);
 
                 var rotation = rz * rx;
                 var top = rotation * temptop;
 
+                Vector<double> normal = arbitrary - ((arbitrary * top) / (top * top)) * top;
+
+                string normal_vector = $"vn {normal[0]} {normal[1]} {normal[2]}";
+                normals2.Add(normal_vector);
+
                 string toppoint = $"v {top[0]} {top[1]} {top[2]}";
                 topsection.Add(toppoint);
             }
 
             bottomsection.AddRange(topsection);
-
+            normals.AddRange(normals1);
+            normals.AddRange(normals2);
             int n = 0; 
 
             while (n < sections)
             {
-                string face = $"f {n} {n + sections} {n + 1 + sections} {n + 1}";
-                string revface = $"f {n+1} {n + 1 + sections} {n + sections} {n}";
+                string face = $"f {n}//{n} {n + sections}//{n+sections} {n + 1 + sections}//{n+1+sections} {n + 1}//{n+1}";
+                string revface = $"f {n+1}//{n+1} {n + 1 + sections}//{n+1+sections} {n + sections}//{n+sections} {n}//{n}";
                 bottomsection.Add(revface);
                 bottomsection.Add(face);
                 n++;
             }
 
-            bottomsection.Add($"f 1 {sections + 1} {2 * sections} {sections}");
-            bottomsection.Add($"f {sections} {2 * sections} {sections + 1} 1");
-            
+            bottomsection.Add($"f 1//1 {sections + 1}//{sections + 1} {2 * sections}//{2 * sections} {sections}//{sections}");
+            bottomsection.Add($"f {sections}//{sections} {2 * sections}//{2 * sections} {sections + 1}//{sections+1} 1//1");
+            normals.AddRange(bottomsection);
             if (!Directory.Exists($"{desktopPath}\\{eventTitle}\\jets"))
             {
                 Directory.CreateDirectory($"{desktopPath}\\{eventTitle}\\jets");
             }
                                     
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\jets\\jet{item.id}.obj",bottomsection);
+            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\jets\\jet{item.id}.obj",normals);
         }
         public List<string> generateCalorimetryBoxes(List<CalorimetryData> inputData)
         {

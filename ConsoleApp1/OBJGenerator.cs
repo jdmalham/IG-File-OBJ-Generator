@@ -52,7 +52,6 @@ class OBJGenerator
         JsonTextReader reader = new JsonTextReader(file);
         JObject o2 = (JObject)JToken.ReadFrom(reader);
 
-
         file.Close();
         if (inputState == false)
         {
@@ -79,7 +78,6 @@ class OBJGenerator
                 Console.WriteLine("An ADB exception has been thrown.\nPlease check that the Oculus is connected to the computer.");
             }
             Environment.Exit(1);
-
         }
 
         Console.WriteLine($"Total Execution Time: {watch.ElapsedMilliseconds} ms"); // See how fast code runs. Code goes brrrrrrr on fancy office pc. It makes me happy. :)
