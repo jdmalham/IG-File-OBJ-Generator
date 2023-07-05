@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using CsvHelper.Configuration.Attributes;
+using System.Numerics;
 struct MuonChamberData 
 {
     public string name;
@@ -12,6 +13,13 @@ struct MuonChamberData
     public double[] back_3;
     public double[] back_4;
 };
+struct ConfigValue
+{
+    [Name("key")]
+    public string Key;
+    [Name("value")]
+    public string Value;
+}
 struct CalorimetryData 
 {
     public double energy;

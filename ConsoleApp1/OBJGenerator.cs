@@ -6,11 +6,13 @@ class OBJGenerator
 {
     static void Main(string[] args)
     {
-        
         bool inputState = args.Length == 0;
+        string appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\Android\Sdk\platform-tools\adb.exe";
+        Console.WriteLine(appdata);
+        bool adbState = ADBCheck();
+        if (adbState == false) { Environment.Exit(1); }
         Unzip zipper;
-
-
+        ConfigHandler.ParseCSV(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.csv");
         //Console.CancelKeyPress += delegate { zipper.destroyStorage(); };
         if (inputState)
         {
@@ -81,5 +83,12 @@ class OBJGenerator
         }
 
         Console.WriteLine($"Total Execution Time: {watch.ElapsedMilliseconds} ms"); // See how fast code runs. Code goes brrrrrrr on fancy office pc. It makes me happy. :)
+    }
+    private static bool ADBCheck()
+    {
+        bool state=true;
+        string appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\Android\Sdk\platform-tools\adb.exe";
+        if (File.Exists(appdata)==false) { state = false; }
+        return state;
     }
 }
