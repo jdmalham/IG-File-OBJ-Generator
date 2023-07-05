@@ -20,7 +20,7 @@ class OBJGenerator
             }
             else
             {
-
+                appdata = GetADBPathFromUser();
             }
             Console.WriteLine(appdata);
             Environment.Exit(1); }
@@ -63,11 +63,12 @@ class OBJGenerator
             File.WriteAllText($"{args[0]}.tmp", newText);
             file = File.OpenText($"{args[0]}.tmp");
         }
-        strPath += "//" + eventName;
+        strPath += "\\" + eventName;
         JsonTextReader reader = new JsonTextReader(file);
         JObject o2 = (JObject)JToken.ReadFrom(reader);
 
         file.Close();
+
         if (inputState == false)
         {
             File.Delete($"{args[0]}.tmp");
