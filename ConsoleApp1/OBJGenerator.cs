@@ -2,17 +2,30 @@
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using IGtoOBJGen;
+using MathNet.Numerics.LinearAlgebra;
+
 class OBJGenerator
 {
     static void Main(string[] args)
     {
         bool inputState = args.Length == 0;
         string appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\Android\Sdk\platform-tools\adb.exe";
-        Console.WriteLine(appdata);
+
         bool adbState = ADBCheck();
-        if (adbState == false) { Environment.Exit(1); }
+        if (adbState == false) {
+            var stater = ADBRead();
+            if (stater != null)
+            {
+                appdata = stater;
+            }
+            else
+            {
+
+            }
+            Console.WriteLine(appdata);
+            Environment.Exit(1); }
         Unzip zipper;
-        ConfigHandler.ParseCSV(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.csv");
+        //ConfigHandler.ParseCSV(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.csv");
         //Console.CancelKeyPress += delegate { zipper.destroyStorage(); };
         if (inputState)
         {
@@ -27,7 +40,7 @@ class OBJGenerator
         string strPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
         var watch = new Stopwatch();
         watch.Start();
-        
+
         if (inputState == true)
         {
             file = File.OpenText(@"C:\Users\uclav\source\repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\IGdata\Event_1096322990");
@@ -69,7 +82,9 @@ class OBJGenerator
         {
             Communicate bridge = new Communicate(@"C:\Users\uclav\AppData\Local\Android\Sdk\platform-tools\adb.exe");
             bridge.UploadFiles(strPath);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
 
             if (e is System.ArgumentOutOfRangeException)
             {
@@ -86,9 +101,29 @@ class OBJGenerator
     }
     private static bool ADBCheck()
     {
-        bool state=true;
-        string appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\Android\Sdk\platform-tools\adb.exe";
-        if (File.Exists(appdata)==false) { state = false; }
+        bool state = true;
+        string appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"Android\Sdk\platform-tools\adb.exe";
+        if (File.Exists(appdata) == false) { state = false; }
         return state;
     }
+    private static string ADBRead()
+    {
+        string path;
+        if (File.ReadAllLines(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.txt") != null)
+        {
+            path = File.ReadAllLines(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.txt").First();
+        } else
+        {
+            path = null;
+        }
+        return path;
+    }
+    private static string GetADBPathFromUser()
+    {
+        string path;
+        Console.WriteLine("No ADB path found. Please enter the local path for ADB, or install ADB to its default location.");
+        path = Console.ReadLine();
+        return path;
+    }
 }
+
