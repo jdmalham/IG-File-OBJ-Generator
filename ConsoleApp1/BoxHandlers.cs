@@ -30,7 +30,7 @@ namespace IGtoOBJGen
         private List<CalorimetryData> HFData;
         private List<CalorimetryData> HOData;
 
-        private List<JetData> JetData;
+        private List<JetData> JetDataList;
         public IGBoxes(JObject dataFile, string name)
         {
             HBSCALE = 1.0;
@@ -527,7 +527,7 @@ namespace IGtoOBJGen
         public void Serialize()
         {
             //Output JSON file that contains the data structs
-            string jetJson = JsonConvert.SerializeObject(new { jetData = new[] { JetData } },Formatting.Indented);
+            string jetJson = JsonConvert.SerializeObject(new { jetData = new[] { JetDataList } },Formatting.Indented);
 
             File.WriteAllText(@$"{desktopPath}\{eventTitle}\jetData.json", jetJson);
         }

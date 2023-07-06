@@ -8,10 +8,22 @@ class OBJGenerator
 {
     static void Main(string[] args)
     {
-        bool inputState = args.Length == 0;
-        string appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\Android\Sdk\platform-tools\adb.exe";
+        bool inputState;
+        bool adbState;
+        string appdata;
+        string datapath;
+        string eventName;
+        string strPath;
+        Unzip zipper;
+        StreamReader file;
+        JsonTextReader reader;
+        JObject o2;
 
-        bool adbState = ADBCheck();
+        inputState = args.Length == 0;
+        adbState = ADBCheck();
+        appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\Android\Sdk\platform-tools\adb.exe";
+        strPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+
         if (adbState == false) {
             var stater = ADBRead();
             if (stater != null)
@@ -22,25 +34,24 @@ class OBJGenerator
             {
                 appdata = GetADBPathFromUser();
             }
-            Console.WriteLine(appdata);
-            Environment.Exit(1); }
-        Unzip zipper;
-        //ConfigHandler.ParseCSV(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.csv");
+        }
 
+        //ConfigHandler.ParseCSV(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.csv");
         //TODO: Figure out what the fuck delegate does and how I can use it to make sure memory is managed well
-        
         //Console.CancelKeyPress += delegate { zipper.destroyStorage(); };
+
         if (inputState)
         {
             zipper = new Unzip(@"C:\Users\uclav\Desktop\IG\Hto4l_120-130GeV.ig");
+            datapath = @"C:\Users\uclav\Desktop\IG\Hto4l_120-130GeV.ig";
         }
         else
         {
             zipper = new Unzip(args[0]);
+            datapath = args[0];
         }
-        StreamReader file;
-        string eventName;
-        string strPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+
+        //Timer stopwatch
         var watch = new Stopwatch();
         watch.Start();
 
@@ -56,6 +67,7 @@ class OBJGenerator
             with null so that the JSON library can properly parse it. Store the revisions in a temp file that
             is deleted at the end of the program's execution so that the original file goes unchanged and can 
             still be used with iSpy  */
+            //zipper = new Unzip(args[0]);
             string destination = zipper.currentFile;
             string[] split = destination.Split('\\');
             eventName = split.Last();
@@ -66,9 +78,11 @@ class OBJGenerator
             File.WriteAllText($"{args[0]}.tmp", newText);
             file = File.OpenText($"{args[0]}.tmp");
         }
+        
         strPath += "\\" + eventName;
-        JsonTextReader reader = new JsonTextReader(file);
-        JObject o2 = (JObject)JToken.ReadFrom(reader);
+        
+        reader = new JsonTextReader(file);
+        o2 = (JObject)JToken.ReadFrom(reader);
 
         file.Close();
 
@@ -84,7 +98,7 @@ class OBJGenerator
 
         try
         {
-            Communicate bridge = new Communicate(@"C:\Users\uclav\AppData\Local\Android\Sdk\platform-tools\adb.exe");
+            Communicate bridge = new Communicate(appdata);
             bridge.UploadFiles(strPath);
         }
         catch (Exception e)
@@ -115,7 +129,8 @@ class OBJGenerator
     private static string ADBRead()
     {
         string path;
-        if (File.ReadAllLines(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.txt") != null)
+        var yuh = File.ReadAllLines(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.txt");
+        if (yuh.Length != 0)
         {
             path = File.ReadAllLines(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.txt").First();
         } else
@@ -128,9 +143,9 @@ class OBJGenerator
     private static string GetADBPathFromUser()
     {
         string path;
-        Console.WriteLine("No ADB path found. Please enter the local path for ADB, or install ADB to its default location.");
+        Console.WriteLine("No ADB path found. Please enter the local path for ADB, or install ADB to its default location:");
         path = Console.ReadLine();
+        File.WriteAllText(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.txt", path);
         return path;
     }
 }
-
