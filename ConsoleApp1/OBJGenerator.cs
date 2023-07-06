@@ -26,6 +26,9 @@ class OBJGenerator
             Environment.Exit(1); }
         Unzip zipper;
         //ConfigHandler.ParseCSV(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.csv");
+
+        //TODO: Figure out what the fuck delegate does and how I can use it to make sure memory is managed well
+        
         //Console.CancelKeyPress += delegate { zipper.destroyStorage(); };
         if (inputState)
         {
@@ -100,6 +103,7 @@ class OBJGenerator
 
         Console.WriteLine($"Total Execution Time: {watch.ElapsedMilliseconds} ms"); // See how fast code runs. Code goes brrrrrrr on fancy office pc. It makes me happy. :)
     }
+    //Check for ADB in default location
     private static bool ADBCheck()
     {
         bool state = true;
@@ -107,6 +111,7 @@ class OBJGenerator
         if (File.Exists(appdata) == false) { state = false; }
         return state;
     }
+    //Read in the config file to check for special location
     private static string ADBRead()
     {
         string path;
@@ -119,6 +124,7 @@ class OBJGenerator
         }
         return path;
     }
+    //Called if the config file does not contain anything, allows the user to then specify what the path to be used from now on is.
     private static string GetADBPathFromUser()
     {
         string path;
