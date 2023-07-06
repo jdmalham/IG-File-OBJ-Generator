@@ -10,7 +10,8 @@ namespace IGtoOBJGen
         private string eventTitle;
 
         private JObject data;
-
+        // Scaling factors are used to make sure the calorimetry towers and boxes are generated correctly. I don't know why this is. It's just a thing with the way event data is stored. For more info
+        // you'd need to talk to the guy behind iSpy and IG files generally. Electromagnetic calorimetry scales are hard coded for some reason
         private readonly double EESCALE = (1.0 / 0.01);
         private readonly double EBSCALE = (1.0 / 0.1);
         private readonly double ESSCALE = (1.0 / 100.0);
@@ -483,6 +484,7 @@ namespace IGtoOBJGen
         }
         public void setScales()
         {
+            //Hadronic scaling factor is equivalent to the largest energy value in each respective set (HE,HB,HO,HF)
             List<string> HCALSETS = new List<string>() { "HERecHits_V2", "HBRecHits_V2", "HFRecHits_V2", "HORecHits_V2" };
             foreach (string HCALSET in HCALSETS)
             {
@@ -498,7 +500,7 @@ namespace IGtoOBJGen
                 {
                     energies.Add((double)item[0].Value<double>());
                 }
-
+                
                 double scaleEnergy = energies.ToArray().Max();
 
                 switch (HCALSET)
@@ -524,6 +526,7 @@ namespace IGtoOBJGen
         }
         public void Serialize()
         {
+            //Output JSON file that contains the data structs
             string jetJson = JsonConvert.SerializeObject(new { jetData = new[] { JetData } },Formatting.Indented);
 
             File.WriteAllText(@$"{desktopPath}\{eventTitle}\jetData.json", jetJson);
