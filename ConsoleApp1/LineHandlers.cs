@@ -436,14 +436,21 @@ namespace IGtoOBJGen
         }
         public void Serialize()
         {
-            string globaljson = JsonConvert.SerializeObject(new { globalData = new[] { globalMuonExtras } }, Formatting.Indented);
+           /* string globaljson = JsonConvert.SerializeObject(new { globalData = new[] { globalMuonExtras } }, Formatting.Indented); 
             File.WriteAllText($@"{desktopPath}/{eventTitle}/globalMuonData.json", globaljson);
-            string trackerjson = JsonConvert.SerializeObject(new { trackerData = new[] { trackerMuonExtras } }, Formatting.Indented);
+            string trackerjson = JsonConvert.SerializeObject(new { trackerData = new[] { trackerMuonExtras } }, Formatting.Indented); 
             File.WriteAllText($@"{desktopPath}/{eventTitle}/trackerMuonData.json", trackerjson);
             string standalonejson = JsonConvert.SerializeObject(new { standaloneData = new[] { standaloneMuonExtras } }, Formatting.Indented);
             File.WriteAllText($@"{desktopPath}/{eventTitle}/standaloneMuonData.json", standalonejson);
             string electronjson = JsonConvert.SerializeObject(new { electronData = new[] { electronExtras } }, Formatting.Indented);
-            File.WriteAllText($@"{desktopPath}/{eventTitle}/electronData.json", electronjson);
+            File.WriteAllText($@"{desktopPath}/{eventTitle}/electronData.json", electronjson); */
+
+            globalMuonExtras.AddRange(standaloneMuonExtras);
+            globalMuonExtras.AddRange(trackerMuonExtras);
+            globalMuonExtras.AddRange(electronExtras); //this specific order so that its all muons then all electrons
+
+            string totaljson = JsonConvert.SerializeObject(new { totalData = new[] { globalMuonExtras } }, Formatting.Indented);
+            File.WriteAllText($@"{desktopPath}/{eventTitle}/totalData.json", totaljson);
         }
     }
 }
