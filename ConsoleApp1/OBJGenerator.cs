@@ -2,10 +2,13 @@
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using IGtoOBJGen;
+using System.IO;
+using System.Reflection;
 using MathNet.Numerics.LinearAlgebra;
 
 class OBJGenerator
 {
+    static Assembly resources = Assembly.GetExecutingAssembly();
     static void Main(string[] args)
     {
         bool inputState;
@@ -19,11 +22,13 @@ class OBJGenerator
         JsonTextReader reader;
         JObject o2;
 
+        Array.ForEach(resources.GetManifestResourceNames(),Console.WriteLine);
+
         inputState = args.Length == 0;
         adbState = ADBCheck();
         appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\Android\Sdk\platform-tools\adb.exe";
         strPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-
+        Console.WriteLine(adbState);
         if (adbState == false) {
             var stater = ADBRead();
             if (stater != null)
@@ -98,6 +103,7 @@ class OBJGenerator
 
         try
         {
+            Console.WriteLine(appdata);
             Communicate bridge = new Communicate(appdata);
             bridge.UploadFiles(strPath);
         }
@@ -121,7 +127,7 @@ class OBJGenerator
     private static bool ADBCheck()
     {
         bool state = true;
-        string appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"Android\Sdk\platform-tools\adb.exe";
+        string appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\Android\Sdk\platform-tools\adb.exe";
         if (File.Exists(appdata) == false) { state = false; }
         return state;
     }
@@ -129,10 +135,16 @@ class OBJGenerator
     private static string ADBRead()
     {
         string path;
+        string resourcename = "IGtoOBJGen.config.txt";
         var yuh = File.ReadAllLines(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.txt");
         if (yuh.Length != 0)
         {
             path = File.ReadAllLines(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.txt").First();
+            using (Stream stream = resources.GetManifestResourceStream(resourcename))
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                string result = reader.ReadToEnd();
+            }
         } else
         {
             path = null;
@@ -145,7 +157,7 @@ class OBJGenerator
         string path;
         Console.WriteLine("No ADB path found. Please enter the local path for ADB, or install ADB to its default location:");
         path = Console.ReadLine();
-        Properties.Resources.config = path;
+        //Resources.config = path;
         return path;
     }
 }

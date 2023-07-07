@@ -233,7 +233,7 @@ namespace IGtoOBJGen
                 idNumber++;
                 datalist.Add(currentJet);
             }
-            JetData = datalist;
+            JetDataList = datalist;
             return datalist;
         }
         public void generateJetModels(List<JetData> data)

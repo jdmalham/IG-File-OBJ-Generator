@@ -15,7 +15,11 @@ namespace IGtoOBJGen
         private List<TrackExtrasData> standaloneMuonExtras { get; set; }
         private List<TrackExtrasData> globalMuonExtras { get; set; }
         private List<TrackExtrasData> trackerMuonExtras { get; set; }
-        public List<TrackExtrasData> electronExtras { get; set; }
+        private List<TrackExtrasData> electronExtras { get; set; }
+        private List<StandaloneMuonData> standaloneMuonDatas { get; set; }
+        private List<GlobalMuonData> globalMuonDatas { get; set; }
+        private List<TrackerMuonData> trackerMuonDatas { get; set; }
+        private List<GsfElectron> electronData { get; set; }
         public List<string> filePaths { get; set; }
 
         //Constructor
@@ -30,6 +34,7 @@ namespace IGtoOBJGen
             }
 
             Execute();
+            Serialize();
         }
 
         //Main Class Method
@@ -39,20 +44,21 @@ namespace IGtoOBJGen
             generatePhotonModels(photonlist);
 
             trackExtrasData = trackExtrasParse();
-            var globallist = globalMuonParse();
+            globalMuonDatas = globalMuonParse();
             makeGlobalMuons();
 
-            var trackerlist = trackerMuonParse();   
+            trackerMuonDatas = trackerMuonParse();   
             makeTrackerMuons();
             
-            var standalone = standaloneMuonParse();
+            standaloneMuonDatas = standaloneMuonParse();
             makeStandaloneMuons();
 
             var tracklist = tracksParse();
             makeTracks();
 
-            var electronlist = electronParse();
+            electronData = electronParse();
             makeElectrons();
+            
         }
 
         //Methods
@@ -278,7 +284,7 @@ namespace IGtoOBJGen
                 return dataList;
             }
 
-            foreach (var item in data["Collections"]["GlobalMuons_V1"])
+            foreach (var item in data["Collections"]["TrackerMuons_V1"])
             {
                 TrackerMuonData muonData = new TrackerMuonData();
                 var children = item.Children().Values<double>().ToArray();
@@ -329,9 +335,11 @@ namespace IGtoOBJGen
 
                 idNumber++;
                 dataList.Add(muon);
+                
             }
             int firstassoc = assocs[0][1][1].Value<int>();
             standaloneMuonExtras = trackExtrasData.GetRange(firstassoc, assocs.Last()[1][1].Value<int>() - firstassoc + 1);
+
             return dataList;
         }
         public void makeStandaloneMuons() 
@@ -436,14 +444,8 @@ namespace IGtoOBJGen
         }
         public void Serialize()
         {
-            string globaljson = JsonConvert.SerializeObject(new { globalData = new[] { globalMuonExtras } }, Formatting.Indented);
-            File.WriteAllText($@"{desktopPath}/{eventTitle}/globalMuonData.json", globaljson);
-            string trackerjson = JsonConvert.SerializeObject(new { trackerData = new[] { trackerMuonExtras } }, Formatting.Indented);
-            File.WriteAllText($@"{desktopPath}/{eventTitle}/trackerMuonData.json", trackerjson);
-            string standalonejson = JsonConvert.SerializeObject(new { standaloneData = new[] { standaloneMuonExtras } }, Formatting.Indented);
-            File.WriteAllText($@"{desktopPath}/{eventTitle}/standaloneMuonData.json", standalonejson);
-            string electronjson = JsonConvert.SerializeObject(new { electronData = new[] { electronExtras } }, Formatting.Indented);
-            File.WriteAllText($@"{desktopPath}/{eventTitle}/electronData.json", electronjson);
+            string totaljson = JsonConvert.SerializeObject(new { globalMuonDatas, trackerMuonDatas, standaloneMuonDatas, electronData },Formatting.Indented);
+            File.WriteAllText($@"{desktopPath}/{eventTitle}/totalData.json", totaljson);
         }
     }
 }

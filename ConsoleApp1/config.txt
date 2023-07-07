@@ -1,1 +1,1 @@
-"C:\Users\uclav\AppData\Local\Android\Sdk\platform-tools\adb.exe"
+C:\Users\uclav\AppData\Local\Android\Sdk\platform-tools\adb.exe

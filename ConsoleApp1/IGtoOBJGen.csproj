@@ -15,10 +15,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="config.txt" />
     <None Remove="IGdata\Event_1096322990" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="config.txt" />
     <EmbeddedResource Include="IGdata\Event_1096322990" />
   </ItemGroup>
 
