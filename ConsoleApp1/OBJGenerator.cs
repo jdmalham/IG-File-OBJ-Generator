@@ -145,7 +145,7 @@ class OBJGenerator
         string path;
         Console.WriteLine("No ADB path found. Please enter the local path for ADB, or install ADB to its default location:");
         path = Console.ReadLine();
-        File.WriteAllText(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.txt", path);
+        Properties.Resources.config = path;
         return path;
     }
 }
