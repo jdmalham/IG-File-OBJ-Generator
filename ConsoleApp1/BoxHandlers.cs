@@ -262,7 +262,7 @@ namespace IGtoOBJGen
             List<string> normals = new List<string>();
             List<string> normals1 = new List<string>();
             List<string> normals2 = new List<string>();
-            List<string> bottomsection = new List<string>();
+            List<string> section1 = new List<string>();
             List<string> topsection = new List<string>();
             var M = Matrix<double>.Build;
 
@@ -288,7 +288,7 @@ namespace IGtoOBJGen
                 double radian = (2.0 * i * Math.PI) / (double)sections;
 
                 string bottompoint = "v 0 0 0";
-                bottomsection.Add(bottompoint);
+                section1.Add(bottompoint);
                 normals1.Add("vn 1 1 1");
                 double[] feederArray = { radius * Math.Cos(radian), radius * Math.Sin(radian), length };
                 Vector<double> temptop = Vector<double>.Build.DenseOfArray(feederArray);
@@ -300,12 +300,12 @@ namespace IGtoOBJGen
 
                 string normal_vector = $"vn {normal[0]} {normal[1]} {normal[2]}";
                 normals2.Add(normal_vector);
-
+                //We can use the toppoint list as the vector list to generate normals with. Make a new for loop to handle this
                 string toppoint = $"v {top[0]} {top[1]} {top[2]}";
                 topsection.Add(toppoint);
             }
 
-            bottomsection.AddRange(topsection);
+            section1.AddRange(topsection);
             normals.AddRange(normals1);
             normals.AddRange(normals2);
             int n = 0; 
@@ -314,14 +314,14 @@ namespace IGtoOBJGen
             {
                 string face = $"f {n}//{n} {n + sections}//{n+sections} {n + 1 + sections}//{n+1+sections} {n + 1}//{n+1}";
                 string revface = $"f {n+1}//{n+1} {n + 1 + sections}//{n+1+sections} {n + sections}//{n+sections} {n}//{n}";
-                bottomsection.Add(revface);
-                bottomsection.Add(face);
+                section1.Add(revface);
+                section1.Add(face);
                 n++;
             }
 
-            bottomsection.Add($"f 1//1 {sections + 1}//{sections + 1} {2 * sections}//{2 * sections} {sections}//{sections}");
-            bottomsection.Add($"f {sections}//{sections} {2 * sections}//{2 * sections} {sections + 1}//{sections+1} 1//1");
-            normals.AddRange(bottomsection);
+            section1.Add($"f 1//1 {sections + 1}//{sections + 1} {2 * sections}//{2 * sections} {sections}//{sections}");
+            section1.Add($"f {sections}//{sections} {2 * sections}//{2 * sections} {sections + 1}//{sections+1} 1//1");
+            normals.AddRange(section1);
             if (!Directory.Exists($"{desktopPath}\\{eventTitle}\\jets"))
             {
                 Directory.CreateDirectory($"{desktopPath}\\{eventTitle}\\jets");
