@@ -310,6 +310,7 @@ namespace IGtoOBJGen
                     var vector_2 = radialpoints[0];
                     Vector3D norm = vector_1.CrossProduct(vector_2);
                     normals.Add($"vn {norm.X} {norm.Y} {norm.Z}");
+					 normals.Add($"vn {-norm.X} {-norm.Y} {-norm.Z}");
                     break;
                 }
                 var vector1 = radialpoints[i];
@@ -317,6 +318,7 @@ namespace IGtoOBJGen
 
                 Vector3D normalresult = vector1.CrossProduct(vector2);
                 normals.Add($"vn {normalresult.X} {normalresult.Y} {normalresult.Z}");
+                normals.Add($"vn {-normalresult.X} {-normalresult.Y} {-normalresult.Z}");
             }
 
             int n = 0; 
