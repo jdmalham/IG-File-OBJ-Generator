@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using MathNet.Numerics.LinearAlgebra;
+using MathNet.Spatial.Euclidean;
 using Newtonsoft.Json;
 
 namespace IGtoOBJGen
@@ -264,7 +265,9 @@ namespace IGtoOBJGen
             List<string> normals2 = new List<string>();
             List<string> section1 = new List<string>();
             List<string> topsection = new List<string>();
+            List<Vector3D> radialpoints = new List<Vector3D>();
             var M = Matrix<double>.Build;
+            var V = Vector<double>.Build;
 
             double[,] xRot =
                 { { 1, 0, 0 },
@@ -280,34 +283,42 @@ namespace IGtoOBJGen
             var rz = M.DenseOfArray(zRot);
             normals.Add("o PFJETS");
 
-            double[] arbitrary_vec = { 1.0, 1.0, 1.0 };
-            Vector<double> arbitrary = Vector<double>.Build.DenseOfArray(arbitrary_vec);
-
+            
             for (double i = 1.0; i <= sections; i++)
             {
                 double radian = (2.0 * i * Math.PI) / (double)sections;
 
                 string bottompoint = "v 0 0 0";
                 section1.Add(bottompoint);
-                normals1.Add("vn 1 1 1");
+
                 double[] feederArray = { radius * Math.Cos(radian), radius * Math.Sin(radian), length };
                 Vector<double> temptop = Vector<double>.Build.DenseOfArray(feederArray);
 
                 var rotation = rz * rx;
                 var top = rotation * temptop;
 
-                Vector<double> normal = arbitrary - ((arbitrary * top) / (top * top)) * top;
-
-                string normal_vector = $"vn {normal[0]} {normal[1]} {normal[2]}";
-                normals2.Add(normal_vector);
                 //We can use the toppoint list as the vector list to generate normals with. Make a new for loop to handle this
                 string toppoint = $"v {top[0]} {top[1]} {top[2]}";
                 topsection.Add(toppoint);
+                radialpoints.Add(new Vector3D(top[0], top[1], top[2]));
+            }
+            for(int i =0; i<radialpoints.Count; i++)
+            {
+                if(i == radialpoints.Count - 1)
+                {
+                    var vector_1 = radialpoints[i];
+                    var vector_2 = radialpoints[0];
+                    Vector3D norm = vector_1.CrossProduct(vector_2);
+                    normals.Add($"vn {norm.X} {norm.Y} {norm.Z}");
+                    break;
+                }
+                var vector1 = radialpoints[i];
+                var vector2 = radialpoints[i + 1];
+
+                Vector3D normalresult = vector1.CrossProduct(vector2);
+                normals.Add($"vn {normalresult.X} {normalresult.Y} {normalresult.Z}");
             }
 
-            section1.AddRange(topsection);
-            normals.AddRange(normals1);
-            normals.AddRange(normals2);
             int n = 0; 
 
             while (n < sections)
