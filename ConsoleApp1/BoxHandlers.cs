@@ -302,6 +302,7 @@ namespace IGtoOBJGen
                 topsection.Add(toppoint);
                 radialpoints.Add(new Vector3D(top[0], top[1], top[2]));
             }
+            section1.AddRange(topsection);
             for(int i =0; i<radialpoints.Count; i++)
             {
                 if(i == radialpoints.Count - 1)
@@ -310,7 +311,7 @@ namespace IGtoOBJGen
                     var vector_2 = radialpoints[0];
                     Vector3D norm = vector_1.CrossProduct(vector_2);
                     normals.Add($"vn {norm.X} {norm.Y} {norm.Z}");
-					 normals.Add($"vn {-norm.X} {-norm.Y} {-norm.Z}");
+					 normals2.Add($"vn {-norm.X} {-norm.Y} {-norm.Z}");
                     break;
                 }
                 var vector1 = radialpoints[i];
@@ -318,22 +319,22 @@ namespace IGtoOBJGen
 
                 Vector3D normalresult = vector1.CrossProduct(vector2);
                 normals.Add($"vn {normalresult.X} {normalresult.Y} {normalresult.Z}");
-                normals.Add($"vn {-normalresult.X} {-normalresult.Y} {-normalresult.Z}");
+                normals2.Add($"vn {-normalresult.X} {-normalresult.Y} {-normalresult.Z}");
             }
-
-            int n = 0; 
+            normals.AddRange(normals2);
+            int n = 1; 
 
             while (n < sections)
             {
-                string face = $"f {n}//{n} {n + sections}//{n+sections} {n + 1 + sections}//{n+1+sections} {n + 1}//{n+1}";
-                string revface = $"f {n+1}//{n+1} {n + 1 + sections}//{n+1+sections} {n + sections}//{n+sections} {n}//{n}";
-                section1.Add(revface);
+                string face = $"f {n}//{n} {n + sections}//{n} {n + 1 + sections}//{n} {n + 1}//{n}";
+                //string face = $"f {n} {n + sections} {n + 1 + sections} {n + 1}";
+                string revface = $"f {n+1}//{n+sections} {n + 1 + sections}//{n+sections} {n + sections}//{n+sections} {n}//{n+sections}";
                 section1.Add(face);
+                section1.Add(revface);
                 n++;
             }
 
-            section1.Add($"f 1//1 {sections + 1}//{sections + 1} {2 * sections}//{2 * sections} {sections}//{sections}");
-            section1.Add($"f {sections}//{sections} {2 * sections}//{2 * sections} {sections + 1}//{sections+1} 1//1");
+            section1.Add($"f 32//32 64//32 33//32 1//32\nf 1//64 33//64 64//64 32//64");
             normals.AddRange(section1);
             if (!Directory.Exists($"{desktopPath}\\{eventTitle}\\jets"))
             {

@@ -8,7 +8,6 @@ namespace IGtoOBJGen
         private string directoryName { get; set; }
         public string currentFile;
         private string runFolder;
-        private string 
         public Unzip(string filename)
         {
             string extractPath = tempDirectoryPath();
