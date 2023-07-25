@@ -128,8 +128,8 @@ namespace IGtoOBJGen
             {
                 Console.WriteLine( item );
             }
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\MuonChambers_V1.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\MuonChambers_V1.obj", dataStrings);
+            File.WriteAllText($"{desktopPath}\\{eventTitle}\\7_MuonChambers_V1.obj", String.Empty);
+            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\7_MuonChambers_V1.obj", dataStrings);
         }
         public List<CalorimetryData> genericCaloParse(string name, double scale)
         {
@@ -164,56 +164,56 @@ namespace IGtoOBJGen
             HFData = genericCaloParse("HFRecHits_V2", HFSCALE);
             if ( HFData.Count == 0 ) { return; }
             List<string> dataList = generateCalorimetryBoxes(HFData);
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\HFRecHits_V2.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\HFRecHits_V2.obj", dataList);
+            File.WriteAllText($"{desktopPath}\\{eventTitle}\\6_HFRecHits_V2.obj", String.Empty);
+            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\6_HFRecHits_V2.obj", dataList);
         }
         public void makeHBRec()
         {
             HBData = genericCaloParse("HBRecHits_V2", HBSCALE);
             List<string> dataList = generateCalorimetryBoxes(HBData);
             if (HBData.Count == 0 ) { return ; }
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\HBRecHits_V2.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\HBRecHits_V2.obj", dataList);
+            File.WriteAllText($"{desktopPath}\\{eventTitle}\\6_HBRecHits_V2.obj", String.Empty);
+            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\6_HBRecHits_V2.obj", dataList);
         }
         public void makeHERec()
         {
             HEData = genericCaloParse("HERecHits_V2", HESCALE);
             List<string> dataList = generateCalorimetryBoxes(HEData);
             if (HEData.Count == 0 ) { return ; }
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\HERecHits_V2.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\HERecHits_V2.obj", dataList);
+            File.WriteAllText($"{desktopPath}\\{eventTitle}\\6_HERecHits_V2.obj", String.Empty);
+            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\6_HERecHits_V2.obj", dataList);
         }
         public void makeHORec()
         {
             HOData = genericCaloParse("HORecHits_V2", HOSCALE);
             List<string> dataList = generateCalorimetryTowers(HOData);
             if (HOData.Count == 0 ) { return; }
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\HORecHits_V2.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\HORecHits_V2.obj", dataList);
+            File.WriteAllText($"{desktopPath}\\{eventTitle}\\6_HORecHits_V2.obj", String.Empty);
+            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\6_HORecHits_V2.obj", dataList);
         }
         public void makeEBRec()
         {
             EBData = genericCaloParse("EBRecHits_V2", EBSCALE);
             List<string> dataList = generateCalorimetryTowers(EBData);
             if (EBData.Count == 0) { return; }
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\EBRecHits_V2.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\EBRecHits_V2.obj", dataList);
+            File.WriteAllText($"{desktopPath}\\{eventTitle}\\5_EBRecHits_V2.obj", String.Empty);
+            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\5_EBRecHits_V2.obj", dataList);
         }
         public void makeEERec()
         {
             EEData = genericCaloParse("EERecHits_V2", EESCALE);
             List<string> dataList = generateCalorimetryTowers(EEData);
             if (EEData.Count == 0 ) { return; }
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\EERecHits_V2.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\EERecHits_V2.obj", dataList);
+            File.WriteAllText($"{desktopPath}\\{eventTitle}\\5_EERecHits_V2.obj", String.Empty);
+            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\5_EERecHits_V2.obj", dataList);
         }
         public void makeESRec()
         {
             ESData = genericCaloParse("ESRecHits_V2", ESSCALE);
             List<string> dataList = generateCalorimetryTowers(ESData);
             if(ESData.Count == 0 ) { return; }
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\ESRecHits_V2.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\ESRecHits_V2.obj", dataList);
+            File.WriteAllText($"{desktopPath}\\{eventTitle}\\5_ESRecHits_V2.obj", String.Empty);
+            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\5_ESRecHits_V2.obj", dataList);
         }
         public List<JetData> jetParse()
         {
