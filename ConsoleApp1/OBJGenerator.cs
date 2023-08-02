@@ -5,6 +5,7 @@ using IGtoOBJGen;
 using System.IO;
 using System.Reflection;
 using MathNet.Numerics.LinearAlgebra;
+using System.Xml.Linq;
 
 class OBJGenerator
 {
@@ -25,11 +26,11 @@ class OBJGenerator
         Array.ForEach(resources.GetManifestResourceNames(),Console.WriteLine);
 
         inputState = args.Length == 0;
-        adbState = ADBCheck();
+        //adbState = ADBCheck();
         appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\Android\Sdk\platform-tools\adb.exe";
         strPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-        Console.WriteLine(adbState);
-        if (adbState == false) {
+        //Console.WriteLine(adbState);
+        /*if (adbState == false) {
             var stater = ADBRead();
             if (stater != null)
             {
@@ -39,7 +40,7 @@ class OBJGenerator
             {
                 appdata = GetADBPathFromUser();
             }
-        }
+        }*/
 
         //ConfigHandler.ParseCSV(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.csv");
         //TODO: Figure out what the fuck delegate does and how I can use it to make sure memory is managed well
@@ -47,7 +48,7 @@ class OBJGenerator
 
         if (inputState)
         {
-            zipper = new Unzip(@"C:\Users\uclav\Desktop\IG\Hto4l_120-130GeV.ig");
+            zipper = new Unzip(@"C:\Users\Joseph\Downloads\BJetPlusX_Run2012C_0.ig");
             datapath = @"C:\Users\uclav\Desktop\IG\Hto4l_120-130GeV.ig";
         }
         else
@@ -62,7 +63,7 @@ class OBJGenerator
 
         if (inputState == true)
         {
-            file = File.OpenText(@"C:\Users\uclav\source\repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\IGdata\Event_1096322990");
+            file = File.OpenText(@"C:\Users\Joseph\source\repos\IG-File-OBJ-Generator\ConsoleApp1\IGdata\Event_1096322990");
             eventName = "Event_1096322990";
         }
         else
@@ -132,7 +133,7 @@ class OBJGenerator
         return state;
     }
     //Read in the config file to check for special location
-    private static string ADBRead()
+   /* private static string ADBRead()
     {
         string path;
         string resourcename = "IGtoOBJGen.config.txt";
@@ -159,5 +160,10 @@ class OBJGenerator
         path = Console.ReadLine();
         //Resources.config = path;
         return path;
+    }*/
+   void Serializer(List<List<Type>> data)
+    {
+        string json = JsonConvert.SerializeObject(data, Formatting.Indented);
+        File.WriteAllText(@"C:\Users\Joseph\Desktop\Event_1096322990\totalJson.json",json);
     }
 }

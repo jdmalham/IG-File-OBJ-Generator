@@ -5,7 +5,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <BaseOutputPath>C:\Users\uclav\Desktop\buildBin</BaseOutputPath>
+    <BaseOutputPath>C:\Users\Joseph\Desktop\Build</BaseOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
