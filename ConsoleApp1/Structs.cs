@@ -116,3 +116,29 @@ struct GsfElectron
     public double[] pos;
     public double[] dir;
 }
+struct SuperCluster
+{
+    public int id;
+    public double energy;
+    public double[] pos;
+    public double eta;
+    public double phi;
+    public string algo;
+    public double etaWidth;
+    public double phiWidth;
+    public double rawEnergy;
+    public double preshowerEnergy;
+}
+struct RecHitFraction
+{
+    public int detid;
+    public double fraction;
+    public double[] front_1;
+    public double[] front_2;
+    public double[] front_3;
+    public double[] front_4;
+    public double[] back_1;
+    public double[] back_2;
+    public double[] back_3;
+    public double[] back_4;
+}

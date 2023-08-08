@@ -7,12 +7,15 @@ namespace IGtoOBJGen
     {
         private string directoryName { get; set; }
         public string currentFile;
-        private string runFolder;
         public Unzip(string filename)
         {
             string extractPath = tempDirectoryPath();
             ZipFile.ExtractToDirectory(filename, extractPath);
             directoryName = extractPath;
+            
+        }
+        public void Run()
+        {
             string runFolder = selectFolderFromFolder(directoryName + "\\Events");
             string file = selectFileFromFolder(runFolder);
             currentFile = file;

@@ -2,6 +2,7 @@
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Spatial.Euclidean;
 using Newtonsoft.Json;
+using System.Xml.Linq;
 
 namespace IGtoOBJGen
 {
@@ -9,7 +10,7 @@ namespace IGtoOBJGen
     {
         private readonly string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
         private string eventTitle;
-
+        public string jsonData;
         private JObject data;
         // Scaling factors are used to make sure the calorimetry towers and boxes are generated correctly. I don't know why this is. It's just a thing with the way event data is stored. For more info
         // you'd need to talk to the guy behind iSpy and IG files generally. Electromagnetic calorimetry scales are hard coded for some reason
@@ -22,16 +23,18 @@ namespace IGtoOBJGen
         private double HFSCALE;
         private double HOSCALE;
 
-        private List<CalorimetryData> EEData;
-        private List<CalorimetryData> EBData;
-        private List<CalorimetryData> ESData;
+        public List<CalorimetryData> EEData;
+        public List<CalorimetryData> EBData;
+        public List<CalorimetryData> ESData;
 
-        private List<CalorimetryData> HEData;
-        private List<CalorimetryData> HBData;
-        private List<CalorimetryData> HFData;
-        private List<CalorimetryData> HOData;
+        public List<CalorimetryData> HEData;
+        public List<CalorimetryData> HBData;
+        public List<CalorimetryData> HFData;
+        public List<CalorimetryData> HOData;
 
-        private List<JetData> JetDataList;
+        public List<JetData> jetDatas;
+
+        public List<SuperCluster> superClusters;
         public IGBoxes(JObject dataFile, string name)
         {
             HBSCALE = 1.0;
@@ -40,14 +43,12 @@ namespace IGtoOBJGen
             HOSCALE = 1.0;
             data = dataFile;
             eventTitle = name;
-            if (!Directory.Exists($"{desktopPath}\\{eventTitle}"))
+            if (!Directory.Exists($"{eventTitle}"))
             {
-                Directory.CreateDirectory($"{desktopPath}\\{eventTitle}");
+                Directory.CreateDirectory($"{eventTitle}");
             }
             setScales();
             Execute();
-            Serialize();
-            SerializeCalorimetry();
         }
         public void Execute()
         {
@@ -62,6 +63,9 @@ namespace IGtoOBJGen
             generateMuonChamberModels(MuonData);
             List<JetData> jetList = jetParse();
             generateJetModels(jetList);
+            superClusters = superClusterParse();
+            var yuh = recHitFractionsParse();
+            assignRecHitFractions(yuh);
         }
         public List<MuonChamberData> muonChamberParse()
         {
@@ -125,12 +129,8 @@ namespace IGtoOBJGen
 
                 counter += 8;
             }
-            foreach ( string item in dataStrings)
-            {
-                Console.WriteLine( item );
-            }
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\7_MuonChambers_V1.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\7_MuonChambers_V1.obj", dataStrings);
+            File.WriteAllText($"{eventTitle}\\7_MuonChambers_V1.obj", String.Empty);
+            File.WriteAllLines($"{eventTitle}\\7_MuonChambers_V1.obj", dataStrings);
         }
         public List<CalorimetryData> genericCaloParse(string name, double scale)
         {
@@ -165,56 +165,56 @@ namespace IGtoOBJGen
             HFData = genericCaloParse("HFRecHits_V2", HFSCALE);
             if ( HFData.Count == 0 ) { return; }
             List<string> dataList = generateCalorimetryBoxes(HFData);
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\6_HFRecHits_V2.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\6_HFRecHits_V2.obj", dataList);
+            File.WriteAllText($"{eventTitle}\\6_HFRecHits_V2.obj", String.Empty);
+            File.WriteAllLines($"{eventTitle}\\6_HFRecHits_V2.obj", dataList);
         }
         public void makeHBRec()
         {
             HBData = genericCaloParse("HBRecHits_V2", HBSCALE);
             List<string> dataList = generateCalorimetryBoxes(HBData);
             if (HBData.Count == 0 ) { return ; }
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\6_HBRecHits_V2.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\6_HBRecHits_V2.obj", dataList);
+            File.WriteAllText($"{eventTitle}\\6_HBRecHits_V2.obj", String.Empty);
+            File.WriteAllLines($"{eventTitle}\\6_HBRecHits_V2.obj", dataList);
         }
         public void makeHERec()
         {
             HEData = genericCaloParse("HERecHits_V2", HESCALE);
             List<string> dataList = generateCalorimetryBoxes(HEData);
             if (HEData.Count == 0 ) { return ; }
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\6_HERecHits_V2.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\6_HERecHits_V2.obj", dataList);
+            File.WriteAllText($"{eventTitle}\\6_HERecHits_V2.obj", String.Empty);
+            File.WriteAllLines($"{eventTitle}\\6_HERecHits_V2.obj", dataList);
         }
         public void makeHORec()
         {
             HOData = genericCaloParse("HORecHits_V2", HOSCALE);
             List<string> dataList = generateCalorimetryTowers(HOData);
             if (HOData.Count == 0 ) { return; }
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\6_HORecHits_V2.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\6_HORecHits_V2.obj", dataList);
+            File.WriteAllText($"{eventTitle}\\6_HORecHits_V2.obj", String.Empty);
+            File.WriteAllLines($"{eventTitle}\\6_HORecHits_V2.obj", dataList);
         }
         public void makeEBRec()
         {
             EBData = genericCaloParse("EBRecHits_V2", EBSCALE);
             List<string> dataList = generateCalorimetryTowers(EBData);
             if (EBData.Count == 0) { return; }
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\5_EBRecHits_V2.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\5_EBRecHits_V2.obj", dataList);
+            File.WriteAllText($"{eventTitle}\\5_EBRecHits_V2.obj", String.Empty);
+            File.WriteAllLines($"{eventTitle}\\5_EBRecHits_V2.obj", dataList);
         }
         public void makeEERec()
         {
             EEData = genericCaloParse("EERecHits_V2", EESCALE);
             List<string> dataList = generateCalorimetryTowers(EEData);
             if (EEData.Count == 0 ) { return; }
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\5_EERecHits_V2.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\5_EERecHits_V2.obj", dataList);
+            File.WriteAllText($"{eventTitle}\\5_EERecHits_V2.obj", String.Empty);
+            File.WriteAllLines($"{eventTitle}\\5_EERecHits_V2.obj", dataList);
         }
         public void makeESRec()
         {
             ESData = genericCaloParse("ESRecHits_V2", ESSCALE);
             List<string> dataList = generateCalorimetryTowers(ESData);
             if(ESData.Count == 0 ) { return; }
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\5_ESRecHits_V2.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\5_ESRecHits_V2.obj", dataList);
+            File.WriteAllText($"{eventTitle}\\5_ESRecHits_V2.obj", String.Empty);
+            File.WriteAllLines($"{eventTitle}\\5_ESRecHits_V2.obj", dataList);
         }
         public List<JetData> jetParse()
         {
@@ -235,7 +235,7 @@ namespace IGtoOBJGen
                 idNumber++;
                 datalist.Add(currentJet);
             }
-            JetDataList = datalist;
+            jetDatas = datalist;
             return datalist;
         }
         public void generateJetModels(List<JetData> data)
@@ -243,8 +243,10 @@ namespace IGtoOBJGen
             double maxZ = 2.25;
             double maxR = 1.10;
             double radius = 0.3 * (1.0 / (1 + 0.001));
-            int numSections = 32;
+            int numSections = 64;
             int iterNumber = 0;
+            int index = 0;
+            List<string> dataList = new List<string>();
             
             foreach (var item in data)
             {
@@ -255,11 +257,13 @@ namespace IGtoOBJGen
                 double length1 = (ct != 0.0) ? maxZ / Math.Abs(ct) : maxZ;
                 double length2 = (st != 0.0) ? maxR / Math.Abs(st) : maxR;
                 double length = length1 < length2 ? length1 : length2;
-
-                jetGeometry(item, radius, length, numSections);
+                
+                dataList = jetGeometry(item, radius, length, numSections,index,dataList);
+                index++;
             }
+            File.WriteAllLines($"{eventTitle}//0_PFJets.obj", dataList);
         }
-        public void jetGeometry(JetData item, double radius, double length, int sections)
+        public List<string> jetGeometry(JetData item, double radius, double length, int sections,int index, List<string> dataList)
         {
             List<string> normals = new List<string>();
             List<string> normals1 = new List<string>();
@@ -282,7 +286,7 @@ namespace IGtoOBJGen
 
             var rx = M.DenseOfArray(xRot); //Rotation matrices
             var rz = M.DenseOfArray(zRot);
-            normals.Add("o PFJETS");
+            normals.Add($"o Jets_{index}");
 
             
             for (double i = 1.0; i <= sections; i++)
@@ -327,22 +331,25 @@ namespace IGtoOBJGen
 
             while (n < sections)
             {
-                string face = $"f {n}//{n} {n + sections}//{n} {n + 1 + sections}//{n} {n + 1}//{n}";
+                string face = $"f {n+(2*sections*index)}//{n + (2 * sections * index)} {n + sections + (2 * sections * index)}//{n + (2 * sections * index)} {n + 1 + sections + (2 * sections * index)}//{n + (2 * sections * index)} {n + 1 + (2 * sections * index)}//{n + (2 * sections * index)}";
                 //string face = $"f {n} {n + sections} {n + 1 + sections} {n + 1}";
-                string revface = $"f {n+1}//{n+sections} {n + 1 + sections}//{n+sections} {n + sections}//{n+sections} {n}//{n+sections}";
+                string revface = $"f {n+1 + (2 * sections * index)}//{n+sections + (2 * sections * index)} {n + 1 + sections + (2 * sections * index)}//{n+sections + (2 * sections * index)} {n + sections + (2 * sections * index)}//{n+sections + (2 * sections * index)} {n + (2 * sections * index)}//{n+sections + (2 * sections * index)}";
                 section1.Add(face);
                 section1.Add(revface);
                 n++;
             }
 
-            section1.Add($"f 32//32 64//32 33//32 1//32\nf 1//64 33//64 64//64 32//64");
+            section1.Add($"f {2* sections * index + sections}//{2 * sections *index+sections} {2 * sections * index + 2*sections}//{2 * sections * index + sections} {2 * sections * index + sections+1}//{2 * sections * index + sections} {2 * sections * index + 1}//{2 * sections * index + sections}\n" +
+                $"f {2 * sections * index + 1}//{2 * sections * index + 2 * sections} {2 * sections * index + sections +1}//{2 * sections * index + 2 * sections} {2 * sections * index + 2 * sections}//{2 * sections * index + 2*sections} {2 * sections * index + sections}//{2 * sections * index + 2*sections}");
             normals.AddRange(section1);
-            if (!Directory.Exists($"{desktopPath}\\{eventTitle}\\jets"))
+            /*if (!Directory.Exists($"{desktopPath}\\{eventTitle}\\jets"))
             {
                 Directory.CreateDirectory($"{desktopPath}\\{eventTitle}\\jets");
             }
                                     
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\jets\\jet{item.id}.obj",normals);
+            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\jets\\jet{item.id}.obj",normals);*/
+            dataList.AddRange(normals);
+            return dataList;
         }
         public List<string> generateCalorimetryBoxes(List<CalorimetryData> inputData)
         {
@@ -515,7 +522,7 @@ namespace IGtoOBJGen
                 {
                     energies.Add((double)item[0].Value<double>());
                 }
-                
+
                 double scaleEnergy = energies.ToArray().Max();
 
                 switch (HCALSET)
@@ -539,16 +546,85 @@ namespace IGtoOBJGen
                 }
             }
         }
-        public void Serialize()
+        public List<RecHitFraction> recHitFractionsParse()
         {
-            //Output JSON file that contains the data structs
-            string jetJson = JsonConvert.SerializeObject(new { jetData = new[] { JetDataList } },Formatting.Indented);
-            File.WriteAllText(@$"{desktopPath}\{eventTitle}\jetData.json", jetJson);
+            List<RecHitFraction> dataList = new List<RecHitFraction>();
+            foreach (var item in data["Collections"]["RecHitFractions_V1"])
+            {
+                RecHitFraction thing = new RecHitFraction();
+                var children = item.Children().Values<double>().ToList();
+                thing.detid = (int)children[0];
+                thing.fraction = children[1];
+                thing.front_1 = new[] { children[2], children[3], children[4] };
+                thing.front_2 = new[] { children[5], children[6], children[7] };
+                thing.front_3 = new[] { children[8], children[9], children[10] };
+                thing.front_4 = new[] { children[11], children[12], children[13] };
+                thing.back_1 = new[] { children[14], children[15], children[16] };
+                thing.back_2 = new[] { children[17], children[18], children[19] };
+                thing.back_3 = new[] { children[20], children[21], children[22] };
+                thing.back_4 = new[] { children[23], children[24], children[25] };
+                dataList.Add(thing);
+            }
+            return dataList;
         }
-        public void SerializeCalorimetry()
+        public List<List<RecHitFraction>> assignRecHitFractions(List<RecHitFraction> extras)
         {
-            string json = JsonConvert.SerializeObject(new { EEData, EBData, ESData, HEData,HBData,HOData,HFData }, Formatting.Indented);
-            File.WriteAllText($@"{desktopPath}\{eventTitle}\calorimetryData.json",json);
+            List<List<RecHitFraction>> dataList = new List<List<RecHitFraction>>();
+            int indexer = 0;
+            foreach (var item in data["Associations"]["SuperClusterRecHitFractions_V1"])
+            {
+                int index = item[0][1].Value<int>();
+                if (dataList.Count() < index + 1)
+                {
+                    List<RecHitFraction> h = new List<RecHitFraction>();
+                    dataList.Add(h);
+                }
+                dataList[index].Add(extras[indexer]);
+                indexer++;
+            }
+            return dataList;
+        }
+        public List<SuperCluster> superClusterParse()
+        {
+            List<SuperCluster> dataList = new List<SuperCluster>();
+            int idNumber = 0;
+            
+            foreach (var item in data["Collections"]["SuperClusters_V1"])
+            {
+                SuperCluster cluster = new SuperCluster();
+                var values = item.Children().Values<string>().ToArray();
+
+                cluster.id = idNumber;
+                cluster.energy = Double.Parse(values[0]);
+                cluster.pos = new[] { Double.Parse(values[1]),Double.Parse(values[2]),Double.Parse(values[3])};
+                cluster.eta = Double.Parse(values[4]);
+                cluster.phi = Double.Parse(values[5]);
+                cluster.algo = values[6];
+                cluster.etaWidth = Double.Parse(values[7]);
+                cluster.phiWidth = Double.Parse(values[8]);
+                cluster.rawEnergy = Double.Parse(values[9]);
+                cluster.preshowerEnergy = Double.Parse(values[10]);
+
+                dataList.Add(cluster);
+                idNumber++;
+            }
+            return dataList;
+        }
+        public void averageVectors(List<List<RecHitFraction>> input)
+        {
+            List<RecHitFraction> things = new List<RecHitFraction>();
+            foreach (var item in input)
+            {
+                double front1mean;
+                double front2mean;
+                double front3mean;
+                double front4mean;
+                double back1mean;
+                double back2mean;
+                double back3mean;
+                double back4mean;
+
+            }
         }
         public List<List<Type>> GetDataLists()
         {

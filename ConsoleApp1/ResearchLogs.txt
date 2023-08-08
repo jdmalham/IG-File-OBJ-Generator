@@ -24,3 +24,24 @@ Daily TODO:
 08/02/2023:
 
 Got some parsing stuff done on the unity side of things. I want to find out how to make an installer that also installs ADB.
+
+08/03/2023:
+
+More parsing stuff in Unity got done. I reworked the Jet functions as well such that the jets are contained in a singular file. 
+
+08/04/2023:
+
+Realizing I need to make the parser something that works without needing to compile. I also need to change everything
+so that the file system is much cleaner. Got the delegate shit with the console.cancelkeypress done. Fixing things as well so 
+that command line flags can be given via command line, such that different outcomes can be done. The parser's standard function
+will be to make the files and then send them over to the Oculus. That's it. Then we can add flags to do stuff like saving the 
+obj files to the desktop. Probably gonna have other flags but yeah. 
+
+TODO:
+
+1. I need to make a cleanup class. A class that will delete any temporary files that are generated. My idea is that it has 
+multiple methods or delegates and the list of which ones will be called is to be determined by which rbanches of code are 
+executed based on flags and arguments.
+2. I need to grab the trackermuons from the track datas and extras so that we can actually see the trackermuons in the 
+final scene.
+3. I need to make the SuperCluster stuff.

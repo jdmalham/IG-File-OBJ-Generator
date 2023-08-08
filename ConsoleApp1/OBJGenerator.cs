@@ -5,6 +5,8 @@ using IGtoOBJGen;
 using System.IO;
 using System.Reflection;
 using MathNet.Numerics.LinearAlgebra;
+using System.Xml.Linq;
+using System.Runtime.Loader;
 
 class OBJGenerator
 {
@@ -16,7 +18,7 @@ class OBJGenerator
         string appdata;
         string datapath;
         string eventName;
-        string strPath;
+        string targetPath;
         Unzip zipper;
         StreamReader file;
         JsonTextReader reader;
@@ -27,8 +29,28 @@ class OBJGenerator
         inputState = args.Length == 0;
         adbState = ADBCheck();
         appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\Android\Sdk\platform-tools\adb.exe";
-        strPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-        Console.WriteLine(adbState);
+        if (args.Count() > 1)
+        {
+            targetPath = "";
+            foreach(char flag in args[1].ToCharArray()) 
+            {
+                switch(flag)
+                {
+                    case 's':
+                        targetPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                        break;
+                    default: targetPath = "hu";break;
+                }
+            }
+        } else
+        {
+            string tempFolder = Path.GetTempFileName();
+            File.Delete(tempFolder);
+            Directory.CreateDirectory(tempFolder);
+            targetPath = tempFolder;
+            Console.CancelKeyPress += delegate { Directory.Delete(tempFolder, true); };
+        }
+        /*Console.WriteLine(adbState);
         if (adbState == false) {
             var stater = ADBRead();
             if (stater != null)
@@ -39,15 +61,15 @@ class OBJGenerator
             {
                 appdata = GetADBPathFromUser();
             }
-        }
+        }*/
 
         //ConfigHandler.ParseCSV(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.csv");
         //TODO: Figure out what the fuck delegate does and how I can use it to make sure memory is managed well
-        //Console.CancelKeyPress += delegate { zipper.destroyStorage(); };
+        
 
         if (inputState)
         {
-            zipper = new Unzip(@"C:\Users\uclav\Desktop\IG\Hto4l_120-130GeV.ig");
+            zipper = new Unzip(@"C:\Users\Joseph\Downloads\BJetPlusX_Run2012C_0.ig");
             datapath = @"C:\Users\uclav\Desktop\IG\Hto4l_120-130GeV.ig";
         }
         else
@@ -56,13 +78,16 @@ class OBJGenerator
             datapath = args[0];
         }
 
+        Console.CancelKeyPress += delegate { zipper.destroyStorage(); };
+        zipper.Run();
+
         //Timer stopwatch
         var watch = new Stopwatch();
         watch.Start();
 
         if (inputState == true)
         {
-            file = File.OpenText(@"C:\Users\uclav\source\repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\IGdata\Event_1096322990");
+            file = File.OpenText(@"C:\Users\Joseph\Source\Repos\IG-File-OBJ-Generator\ConsoleApp1\IGdata\Event_1096322990");
             eventName = "Event_1096322990";
         }
         else
@@ -81,10 +106,12 @@ class OBJGenerator
             string newText = text.Replace("nan,", "null,");
 
             File.WriteAllText($"{args[0]}.tmp", newText);
+
             file = File.OpenText($"{args[0]}.tmp");
+            Console.CancelKeyPress += delegate { file.Close(); File.Delete($"{args[0]}.tmp"); };
         }
-        
-        strPath += "\\" + eventName;
+
+        targetPath += "\\" + eventName;
         
         reader = new JsonTextReader(file);
         o2 = (JObject)JToken.ReadFrom(reader);
@@ -96,16 +123,18 @@ class OBJGenerator
             File.Delete($"{args[0]}.tmp");
         }
 
-        IGTracks trackHandler = new IGTracks(o2, eventName);
-        IGBoxes boxHandler = new IGBoxes(o2, eventName);
+        IGTracks t = new IGTracks(o2, targetPath);
+        IGBoxes b = new IGBoxes(o2, targetPath);
 
+        var totaljson = JsonConvert.SerializeObject(new {b.jetDatas,b.EEData, b.EBData, b.ESData, b.HEData, b.HBData, b.HOData, b.HFData, t.globalMuonDatas, t.trackerMuonDatas, t.standaloneMuonDatas, t.electronDatas, t.trackDatas }, Formatting.Indented);
+        File.WriteAllText($"{targetPath}//totalData.json",totaljson);
         zipper.destroyStorage();
-
+        Console.WriteLine($"Total Execution Time: {watch.ElapsedMilliseconds} ms");
         try
         {
             Console.WriteLine(appdata);
             Communicate bridge = new Communicate(appdata);
-            bridge.UploadFiles(strPath);
+            bridge.UploadFiles(targetPath);
         }
         catch (Exception e)
         {
@@ -120,7 +149,7 @@ class OBJGenerator
             }
             Environment.Exit(1);
         }
-
+        
         Console.WriteLine($"Total Execution Time: {watch.ElapsedMilliseconds} ms"); // See how fast code runs. Code goes brrrrrrr on fancy office pc. It makes me happy. :)
     }
     //Check for ADB in default location

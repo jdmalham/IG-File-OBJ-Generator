@@ -12,6 +12,7 @@ namespace IGtoOBJGen
         //Properties
         protected string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
         protected string eventTitle;
+        public string jsonData;
         protected JObject data { get; set; }
         private List<TrackExtrasData> trackExtrasData {  get; set; }
         private List<TrackExtrasData> subTrackExtras { get; set; }//Extras corresponding to "Tracks_V3" data points
@@ -19,11 +20,11 @@ namespace IGtoOBJGen
         private List<TrackExtrasData> globalMuonExtras { get; set; }
         private List<TrackExtrasData> trackerMuonExtras { get; set; }
         private List<TrackExtrasData> electronExtras { get; set; }
-        private List<StandaloneMuonData> standaloneMuonDatas { get; set; }
-        private List<GlobalMuonData> globalMuonDatas { get; set; }
-        private List<TrackerMuonData> trackerMuonDatas { get; set; }
-        private List<GsfElectron> electronDatas { get; set; }
-        private List<Track> trackDatas { get; set; }
+        public List<StandaloneMuonData> standaloneMuonDatas { get; set; }
+        public List<GlobalMuonData> globalMuonDatas { get; set; }
+        public List<TrackerMuonData> trackerMuonDatas { get; set; }
+        public List<GsfElectron> electronDatas { get; set; }
+        public List<Track> trackDatas { get; set; }
         public List<string> filePaths { get; set; }
 
         //Constructor
@@ -33,15 +34,10 @@ namespace IGtoOBJGen
 
             eventTitle = name;
 
-            if (!Directory.Exists($"{desktopPath}\\{eventTitle}")) { 
-                Directory.CreateDirectory($"{desktopPath}\\{eventTitle}");
-                Directory.CreateDirectory($"{desktopPath}\\{eventTitle}\\standaloneMuons");
-                Directory.CreateDirectory($"{desktopPath}\\{eventTitle}\\globalMuons");
-                Directory.CreateDirectory($"{desktopPath}\\{eventTitle}\\trackerMuons");
-                Directory.CreateDirectory($"{desktopPath}\\{eventTitle}\\gsfElectrons");
+            if (!Directory.Exists($"{eventTitle}")) { 
+                Directory.CreateDirectory($"{eventTitle}");
             }
             Execute();
-            Serialize();
             SerializeMET();
         }
 
@@ -66,8 +62,7 @@ namespace IGtoOBJGen
             trackDatas = trackDataParse();
 
             electronDatas = electronParse();
-            makeElectrons();
-         
+            makeElectrons();         
         }
 
         //Methods
@@ -140,8 +135,8 @@ namespace IGtoOBJGen
                 counter += 4;
             }
 
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\Photons_V1.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\Photons_V1.obj", dataStrings);
+            File.WriteAllText($"{eventTitle}\\8_Photons_V1.obj", String.Empty);
+            File.WriteAllLines($"{eventTitle}\\8_Photons_V1.obj", dataStrings);
         }
         public List<string> trackCubicBezierCurve(List<TrackExtrasData> inputData, string objectName)
         {
@@ -277,15 +272,10 @@ namespace IGtoOBJGen
         }
         public void makeGlobalMuons() 
         {
-            DirectoryInfo dir = new DirectoryInfo($"{desktopPath}\\{eventTitle}\\2_globalMuons");
-            foreach (var file in dir.GetFiles())
-            {
-                file.Delete();
-            }
             if (globalMuonExtras == null) { return; }
             List<string> dataList = trackCubicBezierCurve(globalMuonExtras,"globalMuons");
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\2_globalMuons.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\2_globalMuons.obj", dataList);
+            File.WriteAllText($"{eventTitle}\\2_globalMuons.obj", String.Empty);
+            File.WriteAllLines($"{eventTitle}\\2_globalMuons.obj", dataList);
         }
         public List<TrackerMuonData> trackerMuonParse()
         {
@@ -322,15 +312,10 @@ namespace IGtoOBJGen
         }
         public void makeTrackerMuons() 
         {
-            DirectoryInfo dir = new DirectoryInfo($"{desktopPath}\\{eventTitle}\\1_trackerMuons");
-            foreach (var file in dir.GetFiles())
-            {
-                file.Delete();
-            }
             if (trackerMuonExtras == null) { return; }
             List<string> dataList = trackCubicBezierCurve(trackerMuonExtras,"trackerMuons");
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\1_trackerMuons.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\1_trackerMuons.obj", dataList);
+            File.WriteAllText($"{eventTitle}\\1_trackerMuons.obj", String.Empty);
+            File.WriteAllLines($"{eventTitle}\\1_trackerMuons.obj", dataList);
         }
         public List<StandaloneMuonData> standaloneMuonParse()
         {
@@ -365,15 +350,10 @@ namespace IGtoOBJGen
         }
         public void makeStandaloneMuons() 
         {
-            DirectoryInfo dir = new DirectoryInfo($"{desktopPath}\\{eventTitle}\\3_standaloneMuons");
-            foreach (var file in dir.GetFiles())
-            {
-                file.Delete();
-            }
             if (standaloneMuonExtras == null) { return; }
             List<string> dataList = trackCubicBezierCurve(standaloneMuonExtras,"standaloneMuons");
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\3_standaloneMuons.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\3_standaloneMuons.obj", dataList);
+            File.WriteAllText($"{eventTitle}\\3_standaloneMuons.obj", String.Empty);
+            File.WriteAllLines($"{eventTitle}\\3_standaloneMuons.obj", dataList);
         }
         public List<Track> tracksParse()
         {
@@ -408,8 +388,8 @@ namespace IGtoOBJGen
         {
             if (subTrackExtras == null) { return; }
             List<string> dataList = trackCubicBezierCurve(subTrackExtras, "Tracks");
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\9_tracks.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\9_tracks.obj", dataList);
+            File.WriteAllText($"{eventTitle}\\9_tracks.obj", String.Empty);
+            File.WriteAllLines($"{eventTitle}\\9_tracks.obj", dataList);
         }
         public List<GsfElectron> electronParse()
         {
@@ -446,15 +426,10 @@ namespace IGtoOBJGen
         }
         public void makeElectrons() 
         {
-            DirectoryInfo dir = new DirectoryInfo($"{desktopPath}\\{eventTitle}\\4_gsfElectrons");
-            foreach (var file in dir.GetFiles())
-            {
-                file.Delete();
-            }
             if (electronExtras == null) { return; }
             List<string> dataList = trackCubicBezierCurve(electronExtras, "gsfElectrons");
-            File.WriteAllText($"{desktopPath}\\{eventTitle}\\4_gsfElectrons.obj", String.Empty);
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\4_gsfElectrons.obj", dataList);
+            File.WriteAllText($"{eventTitle}\\4_gsfElectrons.obj", String.Empty);
+            File.WriteAllLines($"{eventTitle}\\4_gsfElectrons.obj", dataList);
         }
         public METData METParse()
         {
@@ -494,12 +469,7 @@ namespace IGtoOBJGen
         public void SerializeMET()
         {
             string metdata = JsonConvert.SerializeObject(METParse(), Formatting.Indented);
-            File.WriteAllText($@"{desktopPath}/{eventTitle}/METData.json", metdata);
-        }
-        public void Serialize()
-        {
-            string totaljson = JsonConvert.SerializeObject(new { globalMuonDatas, trackerMuonDatas, standaloneMuonDatas, electronDatas, trackDatas },Formatting.Indented);
-            File.WriteAllText($@"{desktopPath}/{eventTitle}/totalData.json", totaljson);
+            File.WriteAllText($@"{eventTitle}/METData.json", metdata);
         }
     }
 }
