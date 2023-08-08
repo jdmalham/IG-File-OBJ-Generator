@@ -58,6 +58,7 @@ namespace IGtoOBJGen
             makeStandaloneMuons();
 
             var tracklist = tracksParse();
+            removeMuonsFromTracks();
             makeTracks();
             trackDatas = trackDataParse();
 
@@ -470,6 +471,17 @@ namespace IGtoOBJGen
         {
             string metdata = JsonConvert.SerializeObject(METParse(), Formatting.Indented);
             File.WriteAllText($@"{eventTitle}/METData.json", metdata);
+        }
+        public void removeMuonsFromTracks()
+        {
+            foreach(TrackExtrasData muon in trackerMuonExtras)
+            {
+                var index = subTrackExtras.FindIndex(x => x.pos1[0] == muon.pos1[0]);
+                if (index > -1)
+                {
+                    subTrackExtras.RemoveAt(index);
+                }
+            }
         }
     }
 }

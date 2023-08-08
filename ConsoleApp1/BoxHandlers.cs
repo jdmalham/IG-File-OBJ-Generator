@@ -188,7 +188,7 @@ namespace IGtoOBJGen
         {
             HOData = genericCaloParse("HORecHits_V2", HOSCALE);
             List<string> dataList = generateCalorimetryTowers(HOData);
-            if (HOData.Count == 0 ) { return; }
+            if (HOData.Count == 0) { return; }
             File.WriteAllText($"{eventTitle}\\6_HORecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{eventTitle}\\6_HORecHits_V2.obj", dataList);
         }
