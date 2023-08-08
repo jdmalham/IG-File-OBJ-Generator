@@ -12,13 +12,6 @@ struct MuonChamberData
     public double[] back_2;
     public double[] back_3;
     public double[] back_4;
-};
-struct ConfigValue
-{
-    [Name("key")]
-    public string Key;
-    [Name("value")]
-    public string Value;
 }
 struct CalorimetryData 
 {

@@ -47,6 +47,7 @@ namespace IGtoOBJGen
             setScales();
             Execute();
             Serialize();
+            SerializeCalorimetry();
         }
         public void Execute()
         {
@@ -542,8 +543,18 @@ namespace IGtoOBJGen
         {
             //Output JSON file that contains the data structs
             string jetJson = JsonConvert.SerializeObject(new { jetData = new[] { JetDataList } },Formatting.Indented);
-
             File.WriteAllText(@$"{desktopPath}\{eventTitle}\jetData.json", jetJson);
+        }
+        public void SerializeCalorimetry()
+        {
+            string json = JsonConvert.SerializeObject(new { EEData, EBData, ESData, HEData,HBData,HOData,HFData }, Formatting.Indented);
+            File.WriteAllText($@"{desktopPath}\{eventTitle}\calorimetryData.json",json);
+        }
+        public List<List<Type>> GetDataLists()
+        {
+            List<List<Type>> dataList = new List<List<Type>>();
+           // dataList.Add(EEData);
+            return dataList;
         }
     }
 }

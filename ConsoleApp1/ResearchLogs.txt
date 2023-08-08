@@ -1,0 +1,26 @@
+﻿07/28/2023: Beginning of Logs
+
+Doing this because Jay said its what scientists do. Getting a little bit of work done regarding file structure. 
+Started work with calorimetry metrics and their parsing. Earlier this week worked on finishing up the loader and associated issues.
+
+Daily TODO: (The idea is to do this everyday I work so I can keep track of what I have thought of getting done across time)
+
+1. Loading and parsing calorimetry metrics. Mathing them to associated gameobjects
+2. Separate muons from the track values in the track extras so that tracker muons don't get hidden in Unity.
+3. Change where files get written to on local system. Don't save to desktop anymore.
+
+08/01/2023:
+
+Continuing to work on the above. The file structure stuff is done, leptons are stored as separate track files. Ethan said Jay didn't seem to care much about 
+calorimetry but it still gets parsed out. Jay said he wanted individual track data shown so I wrote a function to parse
+that out and include it in the totalData JSON file. I need to figure out how to separate the tracks out in an efficient
+tracks so that we can pair the datas to specific objects. 
+
+Daily TODO:
+1. Investigate how to load tracks into unity as their own separate game objects. 
+2. Separate muons from the track values in the track extras so that tracker muons don't get hidden in Unity.
+3. Change where files get written to on local system. Don't save to desktop anymore.
+
+08/02/2023:
+
+Got some parsing stuff done on the unity side of things. I want to find out how to make an installer that also installs ADB.
