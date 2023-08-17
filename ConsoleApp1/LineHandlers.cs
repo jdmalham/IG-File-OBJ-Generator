@@ -4,7 +4,6 @@ using Newtonsoft.Json.Linq;
 using System.Numerics;
 using System.Security.AccessControl;
 using System.Threading.Tasks.Dataflow;
-
 namespace IGtoOBJGen
 {
     internal class IGTracks
@@ -26,7 +25,6 @@ namespace IGtoOBJGen
         public List<GsfElectron> electronDatas { get; set; }
         public List<Track> trackDatas { get; set; }
         public List<string> filePaths { get; set; }
-
         //Constructor
         public IGTracks(JObject inputData, string name)
         {
@@ -40,7 +38,6 @@ namespace IGtoOBJGen
             Execute();
             SerializeMET();
         }
-
         //Main Class Method
         public void Execute()
         {
@@ -65,7 +62,6 @@ namespace IGtoOBJGen
             electronDatas = electronParse();
             makeElectrons();         
         }
-
         //Methods
         public List<PhotonData> photonParse()
         {

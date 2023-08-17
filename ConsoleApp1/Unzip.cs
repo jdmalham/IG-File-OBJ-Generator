@@ -7,11 +7,22 @@ namespace IGtoOBJGen
     {
         private string directoryName { get; set; }
         public string currentFile;
+        private string tempStorageDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"/Temp/IGtoOBJGenExtraction";
+        private string tempTransmitDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"/Temp/IGtoOBJGenTransmission";
         public Unzip(string filename)
         {
+            if(Directory.Exists(tempStorageDirectory)) 
+            { 
+                Directory.Delete(tempStorageDirectory, true);
+                Directory.CreateDirectory(tempStorageDirectory);
+            }
+            else
+            {
+                Directory.CreateDirectory(tempStorageDirectory);
+            }
             string extractPath = tempDirectoryPath();
-            ZipFile.ExtractToDirectory(filename, extractPath);
-            directoryName = extractPath;
+            ZipFile.ExtractToDirectory(filename, tempStorageDirectory);
+            directoryName = tempStorageDirectory;
             
         }
         public void Run()

@@ -45,3 +45,10 @@ executed based on flags and arguments.
 2. I need to grab the trackermuons from the track datas and extras so that we can actually see the trackermuons in the 
 final scene.
 3. I need to make the SuperCluster stuff.
+
+8/12/2023
+
+Stuff to do:
+
+1) make installer (include ADB)
+2) Do cleanup stuff

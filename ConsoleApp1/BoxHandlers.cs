@@ -35,6 +35,7 @@ namespace IGtoOBJGen
         public List<JetData> jetDatas;
 
         public List<SuperCluster> superClusters;
+        public List<List<RecHitFraction>> recHitFractions;
         public IGBoxes(JObject dataFile, string name)
         {
             HBSCALE = 1.0;
@@ -65,7 +66,8 @@ namespace IGtoOBJGen
             generateJetModels(jetList);
             superClusters = superClusterParse();
             var yuh = recHitFractionsParse();
-            assignRecHitFractions(yuh);
+            recHitFractions = assignRecHitFractions(yuh);
+            makeSuperClusters();
         }
         public List<MuonChamberData> muonChamberParse()
         {
@@ -107,10 +109,12 @@ namespace IGtoOBJGen
             if (data.Count() == 0) { return; }
 
             List<string> dataStrings = new List<string>();
+            int index = 0;
             int counter = 1;
             dataStrings.Add("vn -1.0000 -0.0000 -0.0000\nvn -0.0000 -0.0000 -1.0000\nvn 1.0000 -0.0000 -0.0000\nvn -0.0000 -0.0000 1.0000\nvn -0.0000 -1.0000 -0.0000\nvn -0.0000 1.0000 -0.0000");
             foreach (var chamber in data)
             {
+                dataStrings.Add($"o MuonChamber_{index}");
                 dataStrings.Add($"v {String.Join(' ', chamber.front_1)}");
                 dataStrings.Add($"v {String.Join(' ', chamber.front_2)}");
                 dataStrings.Add($"v {String.Join(' ', chamber.front_3)}");
@@ -126,7 +130,7 @@ namespace IGtoOBJGen
                 dataStrings.Add($"f {counter + 4}//4 {counter + 7}//4 {counter + 3}//4 {counter}//4");
                 dataStrings.Add($"f {counter + 2}//5 {counter + 3}//5 {counter + 7}//5 {counter + 6}//5");
                 dataStrings.Add($"f {counter}//6 {counter + 1}//6 {counter + 5}//6 {counter + 4}//6");
-
+                index++;
                 counter += 8;
             }
             File.WriteAllText($"{eventTitle}\\7_MuonChambers_V1.obj", String.Empty);
@@ -236,6 +240,7 @@ namespace IGtoOBJGen
                 datalist.Add(currentJet);
             }
             jetDatas = datalist;
+            Console.WriteLine(datalist.Count());
             return datalist;
         }
         public void generateJetModels(List<JetData> data)
@@ -610,27 +615,40 @@ namespace IGtoOBJGen
             }
             return dataList;
         }
-        public void averageVectors(List<List<RecHitFraction>> input)
+        public void makeSuperClusters()
         {
-            List<RecHitFraction> things = new List<RecHitFraction>();
-            foreach (var item in input)
+            List<string> dataList = new List<string>();
+            List<string> faces = new List<string>();
+            int index = 0;
+            int counter = 1;
+            foreach(var item in recHitFractions)
             {
-                double front1mean;
-                double front2mean;
-                double front3mean;
-                double front4mean;
-                double back1mean;
-                double back2mean;
-                double back3mean;
-                double back4mean;
+                dataList.Add($"o SuperCluster_{index}");
 
+                foreach(RecHitFraction hit in item)
+                {
+                    dataList.Add($"v {String.Join(' ', hit.front_1)}");
+                    dataList.Add($"v {String.Join(' ', hit.front_2)}");
+                    dataList.Add($"v {String.Join(' ', hit.front_3)}");
+                    dataList.Add($"v {String.Join(' ', hit.front_3)}");
+                    dataList.Add($"v {String.Join(' ', hit.front_4)}");
+                    dataList.Add($"v {String.Join(' ', hit.front_1)}");
+                    /*dataList.Add($"v {String.Join(' ', hit.back_1)}");
+                    dataList.Add($"v {String.Join(' ', hit.back_2)}");
+                    dataList.Add($"v {String.Join(' ', hit.back_3)}");
+                    dataList.Add($"v {String.Join(' ', hit.back_4)}");*/
+
+                    faces.Add($"f {counter} {counter+1} {counter+2}");
+                    faces.Add($"f {counter+2} {counter+1} {counter}");
+                    faces.Add($"f {counter+3} {counter+4} {counter+5}");
+                    faces.Add($"f {counter+5} {counter+4} {counter+3}");
+                    counter += 6;
+                }
+                dataList.AddRange(faces);
+                faces.Clear();
+                index++;
             }
-        }
-        public List<List<Type>> GetDataLists()
-        {
-            List<List<Type>> dataList = new List<List<Type>>();
-           // dataList.Add(EEData);
-            return dataList;
+            File.WriteAllLines($"{eventTitle}//$_supercluster.obj", dataList);
         }
     }
 }
