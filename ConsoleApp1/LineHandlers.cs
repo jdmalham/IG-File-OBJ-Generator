@@ -1,6 +1,7 @@
 ﻿using MathNet.Numerics;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Net.WebSockets;
 using System.Numerics;
 using System.Security.AccessControl;
 using System.Threading.Tasks.Dataflow;
@@ -16,8 +17,11 @@ namespace IGtoOBJGen
         private List<TrackExtrasData> trackExtrasData {  get; set; }
         private List<TrackExtrasData> subTrackExtras { get; set; }//Extras corresponding to "Tracks_V3" data points
         private List<TrackExtrasData> standaloneMuonExtras { get; set; }
-        private List<TrackExtrasData> globalMuonExtras { get; set; }
+        private List<List<double[]>> standaloneMuonPoints;
+        private List<TrackExtrasData> globalMuonExtras;
+        private List<List<double[]>> globalMuonPoints;
         private List<TrackExtrasData> trackerMuonExtras { get; set; }
+        private List<List<double[]>> trackerMuonPoints;
         private List<TrackExtrasData> electronExtras { get; set; }
         public List<StandaloneMuonData> standaloneMuonDatas { get; set; }
         public List<GlobalMuonData> globalMuonDatas { get; set; }
@@ -60,7 +64,8 @@ namespace IGtoOBJGen
             trackDatas = trackDataParse();
 
             electronDatas = electronParse();
-            makeElectrons();         
+            makeElectrons();
+
         }
         //Methods
         public List<PhotonData> photonParse()
@@ -263,25 +268,23 @@ namespace IGtoOBJGen
                 dataList.Add(muonData);
             }
             int firstassoc = assocs[0][1][1].Value<int>();
-            globalMuonExtras = trackExtrasData.GetRange(firstassoc, assocs.Last()[1][1].Value<int>() - firstassoc + 1);
+            globalMuonPoints = makeTrackPoints(assocs);
 
             return dataList;
         }
         public void makeGlobalMuons() 
         {
-            if (globalMuonExtras == null) { return; }
-            List<string> dataList = trackCubicBezierCurve(globalMuonExtras,"globalMuons");
-            File.WriteAllText($"{eventTitle}\\2_globalMuons.obj", String.Empty);
-            File.WriteAllLines($"{eventTitle}\\2_globalMuons.obj", dataList);
+            if (globalMuonPoints == null) { Console.WriteLine("NoGlobal"); return; }
+            makeGeometryFromPoints(globalMuonPoints,"2_globalMuons","globalMuons");
         }
         public List<TrackerMuonData> trackerMuonParse()
         {
             List<TrackerMuonData> dataList = new List<TrackerMuonData>();
             int idNumber = 0;
 
-            var assocs = data["Associations"]["MuonTrackerExtras_V1"];
-
-            if (assocs == null || assocs.HasValues == false)
+            var assocsExtras = data["Associations"]["MuonTrackerExtras_V1"];
+            var assocsPoints = data["Associations"]["MuonTrackerPoints_V1"];
+            if ((assocsExtras == null || assocsExtras.HasValues == false)&&(assocsPoints==null||assocsPoints.HasValues == false))
             {
                 Console.WriteLine("No Tracker Muons!");
                 return dataList;
@@ -302,8 +305,15 @@ namespace IGtoOBJGen
                 idNumber++;
                 dataList.Add(muonData);
             }
-            int firstassoc = assocs[0][1][1].Value<int>();
-            trackerMuonExtras = trackExtrasData.GetRange(firstassoc, assocs.Last()[1][1].Value<int>() - firstassoc + 1);
+            if (assocsExtras.HasValues)
+            {
+                int firstassoc = assocsExtras[0][1][1].Value<int>();
+                trackerMuonExtras = trackExtrasData.GetRange(firstassoc, assocsExtras.Last()[1][1].Value<int>() - firstassoc + 1);
+            }
+            if (assocsPoints.HasValues)
+            {
+                trackerMuonPoints = makeTrackPoints(assocsPoints);
+            }
 
             return dataList;
         }
@@ -319,7 +329,8 @@ namespace IGtoOBJGen
             List<StandaloneMuonData> dataList = new List<StandaloneMuonData>();
             int idNumber = 0;
             var assocs = data["Associations"]["MuonTrackExtras_V1"];
-            if (assocs == null || assocs.HasValues == false)
+            var assocsPoints = data["Associations"]["MuonStandalonePoints_V1"];
+            if ((assocs == null || assocs.HasValues == false)&&(assocsPoints==null||assocsPoints.HasValues ==false))
             {
                 Console.WriteLine("No Standalone Muons!");
                 return dataList;
@@ -342,6 +353,7 @@ namespace IGtoOBJGen
             }
             int firstassoc = assocs[0][1][1].Value<int>();
             standaloneMuonExtras = trackExtrasData.GetRange(firstassoc, assocs.Last()[1][1].Value<int>() - firstassoc + 1);
+            try { standaloneMuonPoints = makeTrackPoints(assocsPoints); }catch(Exception ex) { }
 
             return dataList;
         }
@@ -478,6 +490,64 @@ namespace IGtoOBJGen
                     subTrackExtras.RemoveAt(index);
                 }
             }
+        }
+        public List<List<double[]>> makeTrackPoints(JToken assoc)
+        {
+            List<List<double[]>> positions = new List<List<double[]>>();
+            //var assoc = data["Associations"]["MuonGlobalPoints_V1"];
+            var extras = data["Collections"]["Points_V1"];
+
+            if (assoc ==null || assoc.HasValues ==false||extras.HasValues == false || extras == null)
+            {
+                return positions;
+            }
+            
+            int mi;
+            int pi;
+
+            foreach(var item in assoc)
+            {
+                mi = item[0][1].Value<int>();
+                pi = item[1][1].Value<int>();
+                if (positions.Count() <= mi) { List<double[]> blank = new List<double[]>(); positions.Add(blank); }
+                positions[mi].Add(extras[pi][0].ToObject<double[]>());
+            }
+            return positions;
+        }
+        public void makeGeometryFromPoints(List<List<double[]>> points,string path,string name)
+        {
+            List<List<string>> dataLists = new List<List<string>>();
+            int accountingfactor=0;
+            List<string> strings = new List<string>();
+            int counter = 0;
+            foreach(var subitem in points)
+            {
+                List<string> medi = new List<string>();
+                medi.Add($"o {name}_{counter}");
+                foreach(var item in subitem)
+                {
+                    string line1 = $"v {item[0]} {item[1]} {item[2]}";
+                    string line2 = $"v {item[0]} {item[1] + 0.001} {item[2]}";
+                    medi.Add(line1);medi.Add(line2);
+                }
+                dataLists.Add(medi);
+                counter++;
+            }
+            foreach(var item in dataLists)
+            {
+                var ble = item;
+                int count = ble.Count();
+                for(int i = 1; i < (count-3); i+=2) 
+                {
+                    string bleh = $"f {accountingfactor+i} {accountingfactor + i + 1} {accountingfactor + i + 2} {accountingfactor + i + 3}";
+                    ble.Add(bleh);
+                    string bleh1 = $"f {accountingfactor + i + 3} {accountingfactor + i + 2} {accountingfactor + i + 1} {accountingfactor + i}";
+                    ble.Add(bleh1);
+                }
+                accountingfactor += count-1;
+                strings.AddRange(ble);
+            }
+            File.WriteAllLines(@$"{eventTitle}\{path}.obj", strings);
         }
     }
 }

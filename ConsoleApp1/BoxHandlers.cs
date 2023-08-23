@@ -240,7 +240,7 @@ namespace IGtoOBJGen
                 datalist.Add(currentJet);
             }
             jetDatas = datalist;
-            Console.WriteLine(datalist.Count());
+
             return datalist;
         }
         public void generateJetModels(List<JetData> data)
@@ -534,19 +534,15 @@ namespace IGtoOBJGen
                 {
                     case "HERecHits_V2":
                         HESCALE = scaleEnergy;
-                        Console.WriteLine($"HESCALE: {HESCALE}");
                         break;
                     case "HBRecHits_V2":
                         HBSCALE = scaleEnergy;
-                        Console.WriteLine($"HBSCALE: {HBSCALE}");
                         break;
                     case "HFRecHits_V2":
                         HFSCALE = scaleEnergy;
-                        Console.WriteLine($"HFSCALE: {HFSCALE}");
                         break;
                     case "HORecHits_V2":
                         HOSCALE = scaleEnergy;
-                        Console.WriteLine($"HOSCALE: {HOSCALE}");
                         break;
                 }
             }

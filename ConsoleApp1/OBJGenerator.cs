@@ -132,7 +132,6 @@ class OBJGenerator
         Console.WriteLine($"Total Execution Time: {watch.ElapsedMilliseconds} ms");
         try
         {
-            Console.WriteLine(appdata);
             Console.WriteLine(targetPath);
             Console.ReadLine();
             Communicate bridge = new Communicate(appdata);

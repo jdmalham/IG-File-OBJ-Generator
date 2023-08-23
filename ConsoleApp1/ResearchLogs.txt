@@ -52,3 +52,12 @@ Stuff to do:
 
 1) make installer (include ADB)
 2) Do cleanup stuff
+
+8/22/2023
+
+So the other day I realized that there are a lot of geometric data points that count as extras, but arent included in extras.
+
+This stuff is saved as "Points" and tehy apply to all muon types so I need to handle that. Be able to handle if the muon geometry is stored in Extras OR 
+Points.
+
+Ethan and I are going to work on fixing the datadisplay stuff tomorrow.
