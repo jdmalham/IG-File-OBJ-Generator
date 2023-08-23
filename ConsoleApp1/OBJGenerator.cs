@@ -50,7 +50,7 @@ class OBJGenerator
             targetPath = tempFolder;
             Console.CancelKeyPress += delegate { Directory.Delete(tempFolder, true); };
         }
-        /*Console.WriteLine(adbState);
+        Console.WriteLine(adbState);
         if (adbState == false) {
             var stater = ADBRead();
             if (stater != null)
@@ -61,7 +61,7 @@ class OBJGenerator
             {
                 appdata = GetADBPathFromUser();
             }
-        }*/
+        }
 
         //ConfigHandler.ParseCSV(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.csv");
         //TODO: Figure out what the fuck delegate does and how I can use it to make sure memory is managed well
@@ -69,7 +69,7 @@ class OBJGenerator
 
         if (inputState)
         {
-            zipper = new Unzip(@"C:\Users\Joseph\Downloads\BJetPlusX_Run2012C_0.ig");
+            zipper = new Unzip(@"C:\Users\uclav\Desktop\IG\Hto4l_120-130GeV.ig");
             datapath = @"C:\Users\uclav\Desktop\IG\Hto4l_120-130GeV.ig";
         }
         else
@@ -87,7 +87,7 @@ class OBJGenerator
 
         if (inputState == true)
         {
-            file = File.OpenText(@"C:\Users\Joseph\Source\Repos\IG-File-OBJ-Generator\ConsoleApp1\IGdata\Event_1096322990");
+            file = File.OpenText(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\IGdata\Event_1096322990");
             eventName = "Event_1096322990";
         }
         else
@@ -128,11 +128,12 @@ class OBJGenerator
 
         var totaljson = JsonConvert.SerializeObject(new {b.jetDatas,b.EEData, b.EBData, b.ESData, b.HEData, b.HBData, b.HOData, b.HFData, t.globalMuonDatas, t.trackerMuonDatas, t.standaloneMuonDatas, t.electronDatas, t.trackDatas }, Formatting.Indented);
         File.WriteAllText($"{targetPath}//totalData.json",totaljson);
+
         zipper.destroyStorage();
-        Console.WriteLine($"Total Execution Time: {watch.ElapsedMilliseconds} ms");
+
         try
         {
-            Console.WriteLine(appdata);
+            //Console.WriteLine(appdata);
             Communicate bridge = new Communicate(appdata);
             bridge.UploadFiles(targetPath);
         }
