@@ -87,7 +87,7 @@ class OBJGenerator
 
         if (inputState == true)
         {
-            file = File.OpenText(@"C:\Users\Joseph\Downloads\Events\Run_195099\Event_137440354");
+            file = File.OpenText(@"C:\Users\Joseph\Downloads\MET\Run_202209\Event_20657260");
             eventName = "Event_1096322990";
         }
         else

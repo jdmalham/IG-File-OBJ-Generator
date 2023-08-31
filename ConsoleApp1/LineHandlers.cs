@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using System.Net.WebSockets;
 using System.Numerics;
 using System.Security.AccessControl;
+using System.IO;
 using System.Threading.Tasks.Dataflow;
 namespace IGtoOBJGen
 {
@@ -319,10 +320,19 @@ namespace IGtoOBJGen
         }
         public void makeTrackerMuons() 
         {
-            if (trackerMuonExtras == null) { return; }
-            List<string> dataList = trackCubicBezierCurve(trackerMuonExtras,"trackerMuons");
-            File.WriteAllText($"{eventTitle}\\1_trackerMuons.obj", String.Empty);
-            File.WriteAllLines($"{eventTitle}\\1_trackerMuons.obj", dataList);
+            if (trackerMuonExtras == null&&trackerMuonPoints==null) {
+                File.WriteAllText($"{eventTitle}\\1_trackerMuons.obj", String.Empty);
+                return; }
+            if (trackerMuonPoints == null)
+            {
+                List<string> dataList = trackCubicBezierCurve(trackerMuonExtras, "trackerMuons");
+                File.WriteAllText($"{eventTitle}\\1_trackerMuons.obj", String.Empty);
+                File.WriteAllLines($"{eventTitle}\\1_trackerMuons.obj", dataList);
+            }
+            else
+            {
+                makeGeometryFromPoints(trackerMuonPoints,"3_trackerMuons","trackerMuons");
+            }
         }
         public List<StandaloneMuonData> standaloneMuonParse()
         {
@@ -359,10 +369,21 @@ namespace IGtoOBJGen
         }
         public void makeStandaloneMuons() 
         {
-            if (standaloneMuonExtras == null) { return; }
-            List<string> dataList = trackCubicBezierCurve(standaloneMuonExtras,"standaloneMuons");
-            File.WriteAllText($"{eventTitle}\\3_standaloneMuons.obj", String.Empty);
-            File.WriteAllLines($"{eventTitle}\\3_standaloneMuons.obj", dataList);
+            if (standaloneMuonExtras == null&&standaloneMuonPoints==null) 
+            {
+                File.WriteAllText($"{eventTitle}\\3_standaloneMuons.obj", String.Empty); 
+                return; 
+            }
+            if (standaloneMuonPoints == null)
+            {
+                List<string> dataList = trackCubicBezierCurve(standaloneMuonExtras, "standaloneMuons");
+                File.WriteAllText($"{eventTitle}\\3_standaloneMuons.obj", String.Empty);
+                File.WriteAllLines($"{eventTitle}\\3_standaloneMuons.obj", dataList);
+            }
+            else
+            {
+                makeGeometryFromPoints(standaloneMuonPoints, "3_standaloneMuons", "standaloneMuons");
+            }
         }
         public List<Track> tracksParse()
         {
@@ -472,6 +493,7 @@ namespace IGtoOBJGen
                 track.chi2 = children[10];
                 track.ndof = children[11];
                 dataList.Add(track);
+                n++;
             }
             return dataList;
         }
@@ -482,6 +504,7 @@ namespace IGtoOBJGen
         }
         public void removeMuonsFromTracks()
         {
+            if(trackerMuonExtras == null) { return; }
             foreach(TrackExtrasData muon in trackerMuonExtras)
             {
                 var index = subTrackExtras.FindIndex(x => x.pos1[0] == muon.pos1[0]);
