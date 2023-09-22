@@ -24,8 +24,6 @@ class OBJGenerator
         JsonTextReader reader;
         JObject o2;
 
-        Array.ForEach(resources.GetManifestResourceNames(),Console.WriteLine);
-
         inputState = args.Length == 0;
         adbState = ADBCheck();
         appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\Android\Sdk\platform-tools\adb.exe";
@@ -39,7 +37,10 @@ class OBJGenerator
                     case 's':
                         targetPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
                         break;
-                    default: targetPath = "hu";break;
+                    default: targetPath = "hui"; 
+                        Console.WriteLine("Invalid Argument");
+                        Environment.Exit(1);
+                        break;
                 }
             }
         } else
@@ -64,7 +65,6 @@ class OBJGenerator
         }
 
         //ConfigHandler.ParseCSV(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.csv");
-        //TODO: Figure out what the fuck delegate does and how I can use it to make sure memory is managed well
         
 
         if (inputState)
@@ -126,14 +126,15 @@ class OBJGenerator
         IGTracks t = new IGTracks(o2, targetPath);
         IGBoxes b = new IGBoxes(o2, targetPath);
 
-        var totaljson = JsonConvert.SerializeObject(new {b.jetDatas,b.EEData, b.EBData, b.ESData, b.HEData, b.HBData, b.HOData, b.HFData, t.globalMuonDatas, t.trackerMuonDatas, t.standaloneMuonDatas, t.electronDatas, t.trackDatas }, Formatting.Indented);
+        var totaljson = JsonConvert.SerializeObject(new {b.jetDatas,b.EEData, b.EBData, b.ESData, b.HEData, b.HBData, b.HOData, b.HFData, b.superClusters, t.globalMuonDatas, t.trackerMuonDatas, t.standaloneMuonDatas, t.electronDatas, t.trackDatas }, Formatting.Indented);
         File.WriteAllText($"{targetPath}//totalData.json",totaljson);
 
         zipper.destroyStorage();
 
         try
         {
-            //Console.WriteLine(appdata);
+            Console.WriteLine(targetPath);
+            Console.ReadLine();
             Communicate bridge = new Communicate(appdata);
             bridge.UploadFiles(targetPath);
         }
