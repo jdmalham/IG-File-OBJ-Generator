@@ -325,13 +325,13 @@ namespace IGtoOBJGen
                 return; }
             if (trackerMuonPoints == null)
             {
-                List<string> dataList = trackCubicBezierCurve(trackerMuonExtras, "trackerMuons");
-                File.WriteAllText($"{eventTitle}\\1_trackerMuons.obj", String.Empty);
-                File.WriteAllLines($"{eventTitle}\\1_trackerMuons.obj", dataList);
+                List<string> dataList = trackCubicBezierCurve(trackerMuonExtras, "TrackerMuons");
+                File.WriteAllText($"{eventTitle}\\1_TrackerMuons.obj", String.Empty);
+                File.WriteAllLines($"{eventTitle}\\1_TrackerMuons.obj", dataList);
             }
             else
             {
-                makeGeometryFromPoints(trackerMuonPoints,"3_trackerMuons","trackerMuons");
+                makeGeometryFromPoints(trackerMuonPoints,"3_TrackerMuons","TrackerMuons");
             }
         }
         public List<StandaloneMuonData> standaloneMuonParse()
@@ -418,8 +418,8 @@ namespace IGtoOBJGen
         {
             if (subTrackExtras == null) { return; }
             List<string> dataList = trackCubicBezierCurve(subTrackExtras, "Tracks");
-            File.WriteAllText($"{eventTitle}\\9_tracks.obj", String.Empty);
-            File.WriteAllLines($"{eventTitle}\\9_tracks.obj", dataList);
+            File.WriteAllText($"{eventTitle}\\9_Tracks.obj", String.Empty);
+            File.WriteAllLines($"{eventTitle}\\9_Tracks.obj", dataList);
         }
         public List<GsfElectron> electronParse()
         {

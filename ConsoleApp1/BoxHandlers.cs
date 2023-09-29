@@ -14,9 +14,9 @@ namespace IGtoOBJGen
         private JObject data;
         // Scaling factors are used to make sure the calorimetry towers and boxes are generated correctly. I don't know why this is. It's just a thing with the way event data is stored. For more info
         // you'd need to talk to the guy behind iSpy and IG files generally. Electromagnetic calorimetry scales are hard coded for some reason
-        private readonly double EESCALE = (1.0 / 0.01);
-        private readonly double EBSCALE = (1.0 / 0.1);
-        private readonly double ESSCALE = (1.0 / 100.0);
+        private double EESCALE;
+        private double EBSCALE;
+        private double ESSCALE;
 
         private double HBSCALE;
         private double HESCALE;
@@ -109,9 +109,11 @@ namespace IGtoOBJGen
             if (data.Count() == 0) { return; }
 
             List<string> dataStrings = new List<string>();
+            List<string> normals = new List<string>();
             int index = 0;
             int counter = 1;
-            dataStrings.Add("vn -1.0000 -0.0000 -0.0000\nvn -0.0000 -0.0000 -1.0000\nvn 1.0000 -0.0000 -0.0000\nvn -0.0000 -0.0000 1.0000\nvn -0.0000 -1.0000 -0.0000\nvn -0.0000 1.0000 -0.0000");
+            //dataStrings.Add("vn -1.0000 -0.0000 -0.0000\nvn -0.0000 -0.0000 -1.0000\nvn 1.0000 -0.0000 -0.0000\nvn -0.0000 -0.0000 1.0000\nvn -0.0000 -1.0000 -0.0000\nvn -0.0000 1.0000 -0.0000");
+            
             foreach (var chamber in data)
             {
                 dataStrings.Add($"o MuonChamber_{index}");
@@ -123,6 +125,10 @@ namespace IGtoOBJGen
                 dataStrings.Add($"v {String.Join(' ', chamber.back_2)}");
                 dataStrings.Add($"v {String.Join(' ', chamber.back_3)}");
                 dataStrings.Add($"v {String.Join(' ', chamber.back_4)}");
+                Vector3D normal1_1 = (new Vector3D(chamber.front_1[0], chamber.front_1[1], chamber.front_1[2]))- (new Vector3D(chamber.front_2[0], chamber.front_2[1], chamber.front_2[2]));
+                Vector3D normal1_2 = (new Vector3D(chamber.front_1[0], chamber.front_1[1], chamber.front_1[2])) - (new Vector3D(chamber.front_3[0], chamber.front_3[1], chamber.front_3[2]));
+                Vector3D normal_1 = (new Vector3D(chamber.front_1[0], chamber.front_1[1], chamber.front_1[2])) - (new Vector3D(chamber.front_2[0], chamber.front_2[1], chamber.front_2[2]));
+                Vector3D norm1 = normal1_1.CrossProduct( normal1_2 );
 
                 dataStrings.Add($"f {counter + 3}//1 {counter + 2}//1 {counter + 1}//1 {counter}//1");
                 dataStrings.Add($"f {counter+4}//2 {counter + 5}//2 {counter + 6}//2 {counter + 7}//2");
@@ -167,7 +173,9 @@ namespace IGtoOBJGen
         public void makeHFRec()
         {
             HFData = genericCaloParse("HFRecHits_V2", HFSCALE);
-            if ( HFData.Count == 0 ) { return; }
+            if ( HFData.Count == 0 ) { 
+            File.WriteAllText($"{eventTitle}\\6_HFRecHits_V2.obj", String.Empty);
+                return; }
             List<string> dataList = generateCalorimetryBoxes(HFData);
             File.WriteAllText($"{eventTitle}\\6_HFRecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{eventTitle}\\6_HFRecHits_V2.obj", dataList);
@@ -176,7 +184,9 @@ namespace IGtoOBJGen
         {
             HBData = genericCaloParse("HBRecHits_V2", HBSCALE);
             List<string> dataList = generateCalorimetryBoxes(HBData);
-            if (HBData.Count == 0 ) { return ; }
+            if (HBData.Count == 0 ) { 
+            File.WriteAllText($"{eventTitle}\\6_HBRecHits_V2.obj", String.Empty);
+                return; }
             File.WriteAllText($"{eventTitle}\\6_HBRecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{eventTitle}\\6_HBRecHits_V2.obj", dataList);
         }
@@ -184,7 +194,9 @@ namespace IGtoOBJGen
         {
             HEData = genericCaloParse("HERecHits_V2", HESCALE);
             List<string> dataList = generateCalorimetryBoxes(HEData);
-            if (HEData.Count == 0 ) { return ; }
+            if (HEData.Count == 0 ) { 
+            File.WriteAllText($"{eventTitle}\\6_HERecHits_V2.obj", String.Empty);
+                return; }
             File.WriteAllText($"{eventTitle}\\6_HERecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{eventTitle}\\6_HERecHits_V2.obj", dataList);
         }
@@ -192,7 +204,10 @@ namespace IGtoOBJGen
         {
             HOData = genericCaloParse("HORecHits_V2", HOSCALE);
             List<string> dataList = generateCalorimetryTowers(HOData);
-            if (HOData.Count == 0) { return; }
+            if (HOData.Count == 0) { 
+            File.WriteAllText($"{eventTitle}\\6_HORecHits_V2.obj", String.Empty);
+
+                return; }
             File.WriteAllText($"{eventTitle}\\6_HORecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{eventTitle}\\6_HORecHits_V2.obj", dataList);
         }
@@ -200,7 +215,10 @@ namespace IGtoOBJGen
         {
             EBData = genericCaloParse("EBRecHits_V2", EBSCALE);
             List<string> dataList = generateCalorimetryTowers(EBData);
-            if (EBData.Count == 0) { return; }
+            if (EBData.Count == 0) {
+                File.WriteAllText($"{eventTitle}\\5_EBRecHits_V2.obj", String.Empty);
+                return; 
+            }
             File.WriteAllText($"{eventTitle}\\5_EBRecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{eventTitle}\\5_EBRecHits_V2.obj", dataList);
         }
@@ -208,7 +226,10 @@ namespace IGtoOBJGen
         {
             EEData = genericCaloParse("EERecHits_V2", EESCALE);
             List<string> dataList = generateCalorimetryTowers(EEData);
-            if (EEData.Count == 0 ) { return; }
+            if (EEData.Count == 0 ) {
+                File.WriteAllText($"{eventTitle}\\5_EERecHits_V2.obj", String.Empty);
+                return; 
+            }
             File.WriteAllText($"{eventTitle}\\5_EERecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{eventTitle}\\5_EERecHits_V2.obj", dataList);
         }
@@ -216,7 +237,10 @@ namespace IGtoOBJGen
         {
             ESData = genericCaloParse("ESRecHits_V2", ESSCALE);
             List<string> dataList = generateCalorimetryTowers(ESData);
-            if(ESData.Count == 0 ) { return; }
+            if(ESData.Count == 0 ) { 
+            File.WriteAllText($"{eventTitle}\\5_ESRecHits_V2.obj", String.Empty);
+
+                return; }
             File.WriteAllText($"{eventTitle}\\5_ESRecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{eventTitle}\\5_ESRecHits_V2.obj", dataList);
         }
@@ -472,11 +496,11 @@ namespace IGtoOBJGen
                 v5 /= v5mag;
                 v6 /= v6mag;
                 v7 /= v7mag;
-
-                v4 *= box.scale;
-                v5 *= box.scale;
-                v6 *= box.scale;
-                v7 *= box.scale;
+                double scale = (box.energy / box.scale);
+                v4 *= (box.scale);
+                v5 *= (box.scale);
+                v6 *= (box.scale);
+                v7 *= (box.scale);
 
                 v4 += v0;
                 v5 += v1;
@@ -512,10 +536,10 @@ namespace IGtoOBJGen
         public void setScales()
         {
             //Hadronic scaling factor is equivalent to the largest energy value in each respective set (HE,HB,HO,HF)
-            List<string> HCALSETS = new List<string>() { "HERecHits_V2", "HBRecHits_V2", "HFRecHits_V2", "HORecHits_V2" };
-            foreach (string HCALSET in HCALSETS)
+            List<string> CALSETS = new List<string>() { "HERecHits_V2", "HBRecHits_V2", "HFRecHits_V2", "HORecHits_V2", "EBRecHits_V2","ESRecHits_V2","EERecHits_V2" };
+            foreach (string CALSET in CALSETS)
             {
-                var collection = data["Collections"][HCALSET];
+                var collection = data["Collections"][CALSET];
 
                 if (collection.HasValues == false)
                 {
@@ -530,7 +554,7 @@ namespace IGtoOBJGen
 
                 double scaleEnergy = energies.ToArray().Max();
 
-                switch (HCALSET)
+                switch (CALSET)
                 {
                     case "HERecHits_V2":
                         HESCALE = scaleEnergy;
@@ -543,6 +567,15 @@ namespace IGtoOBJGen
                         break;
                     case "HORecHits_V2":
                         HOSCALE = scaleEnergy;
+                        break;
+                    case "EBRecHits_V2":
+                        EBSCALE = scaleEnergy;
+                        break;
+                    case "EERecHits_V2":
+                        EESCALE = scaleEnergy;
+                        break;
+                    case "ESRecHits_V2":
+                        ESSCALE = scaleEnergy;
                         break;
                 }
             }
@@ -644,7 +677,7 @@ namespace IGtoOBJGen
                 faces.Clear();
                 index++;
             }
-            File.WriteAllLines($"{eventTitle}//$_supercluster.obj", dataList);
+            File.WriteAllLines($"{eventTitle}//$_Superclusters.obj", dataList);
         }
     }
 }

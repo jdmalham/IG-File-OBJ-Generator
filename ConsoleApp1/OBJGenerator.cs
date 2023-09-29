@@ -87,7 +87,7 @@ class OBJGenerator
 
         if (inputState == true)
         {
-            file = File.OpenText(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\IGdata\Event_1096322990");
+            file = File.OpenText(@"C:\Users\uclav\Downloads\Hto4l_120-130GeV\Run_201191\Event_1357605031");
             eventName = "Event_1096322990";
         }
         else
