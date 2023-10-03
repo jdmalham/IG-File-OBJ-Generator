@@ -125,17 +125,19 @@ namespace IGtoOBJGen
                 dataStrings.Add($"v {String.Join(' ', chamber.back_2)}");
                 dataStrings.Add($"v {String.Join(' ', chamber.back_3)}");
                 dataStrings.Add($"v {String.Join(' ', chamber.back_4)}");
-                Vector3D normal1_1 = (new Vector3D(chamber.front_1[0], chamber.front_1[1], chamber.front_1[2]))- (new Vector3D(chamber.front_2[0], chamber.front_2[1], chamber.front_2[2]));
-                Vector3D normal1_2 = (new Vector3D(chamber.front_1[0], chamber.front_1[1], chamber.front_1[2])) - (new Vector3D(chamber.front_3[0], chamber.front_3[1], chamber.front_3[2]));
-                Vector3D normal_1 = (new Vector3D(chamber.front_1[0], chamber.front_1[1], chamber.front_1[2])) - (new Vector3D(chamber.front_2[0], chamber.front_2[1], chamber.front_2[2]));
-                Vector3D norm1 = normal1_1.CrossProduct( normal1_2 );
+                Vector3D f1_1 = (new Vector3D(chamber.front_1[0], chamber.front_1[1], chamber.front_1[2]))- (new Vector3D(chamber.front_2[0], chamber.front_2[1], chamber.front_2[2]));
+                Vector3D f1_2 = (new Vector3D(chamber.front_1[0], chamber.front_1[1], chamber.front_1[2])) - (new Vector3D(chamber.front_3[0], chamber.front_3[1], chamber.front_3[2]));
+                Vector3D normal2_1 = (new Vector3D(chamber.front_1[0], chamber.front_1[1], chamber.front_1[2])) - (new Vector3D(chamber.back_1[0], chamber.back_1[1], chamber.back_1[2]));
+                Vector3D normal2_2 = (new Vector3D(chamber.back_1[0], chamber.back_1[1], chamber.back_1[2])) - (new Vector3D(chamber.back_2[0], chamber.back_2[1], chamber.back_2[2]));
+                Vector3D normal;
+                Vector3D norm1 = f1_1.CrossProduct( f1_2 );
 
-                dataStrings.Add($"f {counter + 3}//1 {counter + 2}//1 {counter + 1}//1 {counter}//1");
-                dataStrings.Add($"f {counter+4}//2 {counter + 5}//2 {counter + 6}//2 {counter + 7}//2");
-                dataStrings.Add($"f {counter + 1}//3 {counter + 2}//3 {counter + 6}//3 {counter + 5}//3");
-                dataStrings.Add($"f {counter + 4}//4 {counter + 7}//4 {counter + 3}//4 {counter}//4");
-                dataStrings.Add($"f {counter + 2}//5 {counter + 3}//5 {counter + 7}//5 {counter + 6}//5");
-                dataStrings.Add($"f {counter}//6 {counter + 1}//6 {counter + 5}//6 {counter + 4}//6");
+                dataStrings.Add($"f {counter + 3} {counter + 2} {counter + 1} {counter}");
+                dataStrings.Add($"f {counter+4} {counter + 5} {counter + 6} {counter + 7}");
+                dataStrings.Add($"f {counter + 1} {counter + 2} {counter + 6} {counter + 5}");
+                dataStrings.Add($"f {counter + 4} {counter + 7} {counter + 3} {counter}");
+                dataStrings.Add($"f {counter + 2} {counter + 3} {counter + 7} {counter + 6}");
+                dataStrings.Add($"f {counter} {counter + 1} {counter + 5} {counter + 4}");
                 index++;
                 counter += 8;
             }
