@@ -33,7 +33,7 @@ namespace IGtoOBJGen
         public List<CalorimetryData> HOData;
 
         public List<JetData> jetDatas;
-
+        public List<MuonChamberData> muonChamberDatas;
         public List<SuperCluster> superClusters;
         public List<List<RecHitFraction>> recHitFractions;
         public IGBoxes(JObject dataFile, string name)
@@ -60,8 +60,8 @@ namespace IGtoOBJGen
             makeHERec();
             makeHFRec();
             makeHORec();
-            List<MuonChamberData> MuonData= muonChamberParse();
-            generateMuonChamberModels(MuonData);
+            muonChamberDatas = muonChamberParse();
+            generateMuonChamberModels(muonChamberDatas);
             List<JetData> jetList = jetParse();
             generateJetModels(jetList);
             superClusters = superClusterParse();
@@ -98,6 +98,9 @@ namespace IGtoOBJGen
                     muonChamberData.back_2 = new double[] { children[16], children[17], children[18] };
                     muonChamberData.back_3 = new double[] { children[19], children[20], children[21] };
                     muonChamberData.back_4 = new double[] { children[22], children[23], children[24] };
+                    muonChamberData.vertical = new double[] { children[1] - children[10], children[2] - children[11], children[3] - children[12] };
+                    muonChamberData.horizontal = new double[] { children[1] - children[4], children[2] - children[5], children[3] - children[6] };
+
 
                     dataList.Add(muonChamberData);
                 }

@@ -126,7 +126,7 @@ class OBJGenerator
         IGTracks t = new IGTracks(o2, targetPath);
         IGBoxes b = new IGBoxes(o2, targetPath);
 
-        var totaljson = JsonConvert.SerializeObject(new {b.jetDatas,b.EEData, b.EBData, b.ESData, b.HEData, b.HBData, b.HOData, b.HFData, b.superClusters, t.globalMuonDatas, t.trackerMuonDatas, t.standaloneMuonDatas, t.electronDatas, t.trackDatas }, Formatting.Indented);
+        var totaljson = JsonConvert.SerializeObject(new {b.jetDatas,b.EEData, b.EBData, b.ESData, b.HEData, b.HBData, b.HOData, b.HFData, b.superClusters,b.muonChamberDatas, t.globalMuonDatas, t.trackerMuonDatas, t.standaloneMuonDatas, t.electronDatas, t.trackDatas }, Formatting.Indented);
         File.WriteAllText($"{targetPath}//totalData.json",totaljson);
 
         zipper.destroyStorage();

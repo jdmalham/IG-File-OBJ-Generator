@@ -12,6 +12,8 @@ struct MuonChamberData
     public double[] back_2;
     public double[] back_3;
     public double[] back_4;
+    public double[] vertical;
+    public double[] horizontal;
 }
 struct CalorimetryData 
 {
