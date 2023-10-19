@@ -46,6 +46,7 @@ namespace IGtoOBJGen
         //Main Class Method
         public void Execute()
         {
+            //Jesus christ this is so ugly, desperately need to replace all of these non void functions with void, in place methods
             var photonlist = photonParse();
             generatePhotonModels(photonlist);
 
@@ -170,6 +171,8 @@ namespace IGtoOBJGen
                     // also we're using double arrays because i dont like Vector3 and floats. I'm the one who has to go through the headaches of working with double arrays
                     // instead of Vector3 so i get to make that call. i also wrote this before i realized i couldn't avoid using MathNET and i can't be bothered to 
                     // change it such that it uses MathNET vectors
+
+                    // UPDATE: I should have refactored to use MathNET for everything when I had the chance
 
                     double[] term1 = { t1 * item.pos1[0], t1 * item.pos1[1], t1 * item.pos1[2] };
                     double[] term2 = { t2 * item.pos3[0], t2 * item.pos3[1], t2 * item.pos3[2] };

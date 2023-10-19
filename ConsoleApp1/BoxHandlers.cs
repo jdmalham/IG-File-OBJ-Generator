@@ -71,8 +71,17 @@ namespace IGtoOBJGen
         }
         public List<MuonChamberData> muonChamberParse()
         {
+            /* 
+             * UGH, I have to work on a way to get the canvases in unity aligned properly with the muon chambers so that we can display 
+             * detector ID. I want to try changing the way the muon chamber data gets parsed out here. The problem is that the CSCs
+             * narrow as they move inwards, so I need to set the vertical/horizontal component to only choose the smaller one.
+             * Doing that will make sure that the canvasses don't extend past the models and the detector ID can be shown 
+             * directly on the chamber. Add a ternary operator that chooses the centroid vector based on whether back1 or front1 is closer to origin
+            */
             var dataList = new List<MuonChamberData>();
             var vectorlist = new List<string>();
+            int idNumber = 0;
+            var V = Vector<double>.Build;
             if (data["Collections"]["MuonChambers_V1"] != null)
             {
                 foreach (var igChamberData in data["Collections"]["MuonChambers_V1"])
@@ -89,6 +98,7 @@ namespace IGtoOBJGen
                     var children = igChamberData.Children().Values<double>().ToArray();
 
                     muonChamberData.name = "MuonChambers_V1";
+                    muonChamberData.id = idNumber;
                     muonChamberData.detid = (int)children[0];
                     muonChamberData.front_1 = new double[] { children[1], children[2], children[3] };
                     muonChamberData.front_2 = new double[] { children[4], children[5], children[6] };
@@ -101,6 +111,22 @@ namespace IGtoOBJGen
                     muonChamberData.vertical = new double[] { children[1] - children[10], children[2] - children[11], children[3] - children[12] };
                     muonChamberData.horizontal = new double[] { children[1] - children[4], children[2] - children[5], children[3] - children[6] };
 
+                    var front1 = V.DenseOfArray(muonChamberData.front_1);
+                    var back1 = V.DenseOfArray(muonChamberData.back_1);
+
+                    if (front1.L2Norm() < back1.L2Norm())
+                    {
+                        muonChamberData.centroid = new double[] { (children[1] + children[4] + children[7] + children[10]) / 4.0, (children[2] + children[5] + children[8] + children[11])/4.0,
+                        (children[3]+children[6]+children[9]+children[12])/4.0};
+                    }
+                    else
+                    {
+                        muonChamberData.centroid = new double[] { (children[13] + children[16] + children[19] + children[22]) / 4.0, (children[14] + children[17] + children[20] + children[23])/4.0,
+                    (children[15]+children[18]+children[21]+children[24])/4.0};
+                    }
+                    
+
+                    idNumber++;
 
                     dataList.Add(muonChamberData);
                 }
@@ -376,12 +402,6 @@ namespace IGtoOBJGen
             section1.Add($"f {2* sections * index + sections}//{2 * sections *index+sections} {2 * sections * index + 2*sections}//{2 * sections * index + sections} {2 * sections * index + sections+1}//{2 * sections * index + sections} {2 * sections * index + 1}//{2 * sections * index + sections}\n" +
                 $"f {2 * sections * index + 1}//{2 * sections * index + 2 * sections} {2 * sections * index + sections +1}//{2 * sections * index + 2 * sections} {2 * sections * index + 2 * sections}//{2 * sections * index + 2*sections} {2 * sections * index + sections}//{2 * sections * index + 2*sections}");
             normals.AddRange(section1);
-            /*if (!Directory.Exists($"{desktopPath}\\{eventTitle}\\jets"))
-            {
-                Directory.CreateDirectory($"{desktopPath}\\{eventTitle}\\jets");
-            }
-                                    
-            File.WriteAllLines($"{desktopPath}\\{eventTitle}\\jets\\jet{item.id}.obj",normals);*/
             dataList.AddRange(normals);
             return dataList;
         }
