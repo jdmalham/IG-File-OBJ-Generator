@@ -5,9 +5,14 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <BaseOutputPath>C:\Users\uclav\Desktop\buildBin</BaseOutputPath>
+    <BaseOutputPath>C:\Users\andrewsu\Downloads\</BaseOutputPath>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>..\..\..\..\Desktop\buildbin</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Remove="objModels\**" />
     <EmbeddedResource Remove="objModels\**" />

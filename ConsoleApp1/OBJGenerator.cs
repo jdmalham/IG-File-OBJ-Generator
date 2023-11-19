@@ -7,6 +7,7 @@ using System.Reflection;
 using MathNet.Numerics.LinearAlgebra;
 using System.Xml.Linq;
 using System.Runtime.Loader;
+using System;
 
 class OBJGenerator
 {
@@ -23,10 +24,10 @@ class OBJGenerator
         StreamReader file;
         JsonTextReader reader;
         JObject o2;
-
+        List<string> fileNames = new List<string>();
         inputState = args.Length == 0;
-        adbState = ADBCheck();
-        appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\Android\Sdk\platform-tools\adb.exe";
+        //adbState = ADBCheck();
+        //appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\Android\Sdk\platform-tools\adb.exe";
         if (args.Count() > 1)
         {
             targetPath = "";
@@ -36,6 +37,7 @@ class OBJGenerator
                 {
                     case 's':
                         targetPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                        Console.WriteLine(targetPath);
                         break;
                     default: targetPath = "hui"; 
                         Console.WriteLine("Invalid Argument");
@@ -51,7 +53,7 @@ class OBJGenerator
             targetPath = tempFolder;
             Console.CancelKeyPress += delegate { Directory.Delete(tempFolder, true); };
         }
-        Console.WriteLine(adbState);
+        /*Console.WriteLine(adbState);
         if (adbState == false) {
             var stater = ADBRead();
             if (stater != null)
@@ -62,15 +64,15 @@ class OBJGenerator
             {
                 appdata = GetADBPathFromUser();
             }
-        }
+        }*/
 
         //ConfigHandler.ParseCSV(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.csv");
         
 
         if (inputState)
         {
-            zipper = new Unzip(@"C:\Users\uclav\Desktop\IG\Hto4l_120-130GeV.ig");
-            datapath = @"C:\Users\uclav\Desktop\IG\Hto4l_120-130GeV.ig";
+            zipper = new Unzip(@"/Users/andrewsu/Downloads/code/IG-File-OBJ-Generator/ConsoleApp1/IGdata/Hto4l_120-130GeV (1).ig");
+            datapath = @"/Users/andrewsu/Downloads/code/IG-File-OBJ-Generator/ConsoleApp1/IGdata/Hto4l_120-130GeV (1).ig";
         }
         else
         {
@@ -87,7 +89,7 @@ class OBJGenerator
 
         if (inputState == true)
         {
-            file = File.OpenText(@"C:\Users\uclav\Downloads\Hto4l_120-130GeV\Run_201191\Event_1357605031");
+            file = File.OpenText(@"/Users/andrewsu/Downloads/code/IG-File-OBJ-Generator/ConsoleApp1/IGdata/Event_1096322990");
             eventName = "Event_1096322990";
         }
         else
@@ -106,11 +108,11 @@ class OBJGenerator
             string newText = text.Replace("nan,", "null,");
 
             File.WriteAllText($"{args[0]}.tmp", newText);
-
             file = File.OpenText($"{args[0]}.tmp");
             Console.CancelKeyPress += delegate { file.Close(); File.Delete($"{args[0]}.tmp"); };
         }
 
+        var deletionPath = Path.GetDirectoryName(targetPath);
         targetPath += "\\" + eventName;
         
         reader = new JsonTextReader(file);
@@ -129,14 +131,40 @@ class OBJGenerator
         var totaljson = JsonConvert.SerializeObject(new {b.jetDatas,b.EEData, b.EBData, b.ESData, b.HEData, b.HBData, b.HOData, b.HFData, b.superClusters,b.muonChamberDatas, t.globalMuonDatas, t.trackerMuonDatas, t.standaloneMuonDatas, t.electronDatas, t.trackDatas }, Formatting.Indented);
         File.WriteAllText($"{targetPath}//totalData.json",totaljson);
 
+        
+        string temp_name = Path.GetFileNameWithoutExtension(Path.GetFileName(targetPath)); // i.e. tmp900y20.tmp
+
+        AppDomain.CurrentDomain.ProcessExit += (sender, eventArgs) =>
+        {
+            // Code inside this block will be executed just before the program exits
+            Console.WriteLine("Executing cleanup before exit...");
+            try
+            {
+                if (deletionPath != null)
+                {
+                    Cleanup.CleanupTempFiles(temp_name, deletionPath);
+                }
+                else
+                {
+                    // Handle the case when deletionPath is null (if needed)
+                    Console.WriteLine("deletionPath is null. Unable to perform cleanup.");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception
+                Console.WriteLine($"An error occurred during cleanup: {ex.Message}");
+            }
+        };
+
         zipper.destroyStorage();
 
         try
         {
             Console.WriteLine(targetPath);
             Console.ReadLine();
-            Communicate bridge = new Communicate(appdata);
-            bridge.UploadFiles(targetPath);
+            //Communicate bridge = new Communicate(appdata);
+            //bridge.UploadFiles(targetPath);
         }
         catch (Exception e)
         {
