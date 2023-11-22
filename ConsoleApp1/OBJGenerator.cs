@@ -134,31 +134,14 @@ class OBJGenerator
         
         string temp_name = Path.GetFileNameWithoutExtension(Path.GetFileName(targetPath)); // i.e. tmp900y20.tmp
 
+        Cleanup.setParameters(temp_name, targetPath, deletionPath);
         AppDomain.CurrentDomain.ProcessExit += (sender, eventArgs) =>
         {
-            // Code inside this block will be executed just before the program exits
-            Console.WriteLine("Executing cleanup before exit...");
-            try
-            {
-                if (deletionPath != null)
-                {
-                    Cleanup.CleanupTempFiles(temp_name, deletionPath);
-                }
-                else
-                {
-                    // Handle the case when deletionPath is null (if needed)
-                    Console.WriteLine("deletionPath is null. Unable to perform cleanup.");
-                }
-            }
-            catch (Exception ex)
-            {
-                // Handle the exception
-                Console.WriteLine($"An error occurred during cleanup: {ex.Message}");
-            }
+            Cleanup.callCleanup();
         };
 
         zipper.destroyStorage();
-
+        
         try
         {
             Console.WriteLine(targetPath);
