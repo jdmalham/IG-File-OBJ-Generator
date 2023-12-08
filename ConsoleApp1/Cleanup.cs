@@ -5,44 +5,22 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace IGtoOBJGen
-{
-    public class CleanupParameters
-    {
-        public string TempName { get; set; }
-        public string TargetPath { get; set; }
-        public string DeletionPath { get; set; }
-    }
-
-
-    public class CleanupHandler
-    {
-        private CleanupParameters parameters;
-
-        public CleanupHandler(string tempName, string targetPath, string deletionPath)
-        {
-            parameters = new CleanupParameters
-            {
-                TempName = tempName,
-                TargetPath = targetPath,
-                DeletionPath = deletionPath
-            };
-        }
-    }
+{ 
         //Cleanup class that handles cleanup processes for the parser.
     internal class Cleanup
     {
-        private static dynamic temp_name;
-        private static dynamic targetPath;
-        private static dynamic deletionPath;
+        private string temp_name;
+        private string targetPath;
+        private string deletionPath;
 
-        public static void setParameters(dynamic temp_name_i, dynamic targetPath, dynamic deletionPath)
+        public Cleanup(string temp_name, string targetPath, string deletionPath)
         {
-            temp_name = temp_name_i;
-            targetPath = targetPath;
-            deletionPath = deletionPath;
+            this.temp_name = temp_name;
+            this.targetPath = targetPath;
+            this.deletionPath = deletionPath;
         }
 
-        public static void callCleanup()
+        public void callCleanup()
         {
             // Code inside this block will be executed just before the program exits
             Console.WriteLine("Executing cleanup before exit...");
@@ -50,7 +28,7 @@ namespace IGtoOBJGen
             {
                 if (deletionPath != null)
                 {
-                    CleanupTempFiles(temp_name, deletionPath);
+                    CleanupTempFiles();
                 }
                 else
                 {
@@ -64,7 +42,7 @@ namespace IGtoOBJGen
                 Console.WriteLine($"An error occurred during cleanup: {ex.Message}");
             }
         }
-        public static void CleanupTempFiles(string temp_name, string targetPath)
+        public void CleanupTempFiles()
         {
             // Verify if the target directory exists
             if (Directory.Exists(targetPath))

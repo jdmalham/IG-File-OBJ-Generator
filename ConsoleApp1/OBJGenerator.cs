@@ -134,10 +134,11 @@ class OBJGenerator
         
         string temp_name = Path.GetFileNameWithoutExtension(Path.GetFileName(targetPath)); // i.e. tmp900y20.tmp
 
-        Cleanup.setParameters(temp_name, targetPath, deletionPath);
+        var cleanup = new Cleanup(temp_name, targetPath, deletionPath);
+
         AppDomain.CurrentDomain.ProcessExit += (sender, eventArgs) =>
         {
-            Cleanup.callCleanup();
+            cleanup.callCleanup();
         };
 
         zipper.destroyStorage();
