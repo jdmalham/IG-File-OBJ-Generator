@@ -20,7 +20,7 @@ namespace IGtoOBJGen
             this.deletionPath = deletionPath;
         }
 
-        public void callCleanup()
+        public void callCleanUp()
         {
             // Code inside this block will be executed just before the program exits
             Console.WriteLine("Executing cleanup before exit...");
