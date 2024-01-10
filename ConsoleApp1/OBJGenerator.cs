@@ -138,7 +138,7 @@ class OBJGenerator
 
         AppDomain.CurrentDomain.ProcessExit += (sender, eventArgs) =>
         {
-            cleanup.callCleanup();
+            cleanup.callCleanUp();
         };
 
         zipper.destroyStorage();
