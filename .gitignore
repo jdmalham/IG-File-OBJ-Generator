@@ -363,3 +363,9 @@ MigrationBackup/
 FodyWeavers.xsd
 
 .DS_Store
+
+ConsoleApp1/IGtoOBJGen.csproj
+
+ConsoleApp1/IGtoOBJGen.sln
+
+ConsoleApp1/IGdata/Hto4l_120-130GeV (1).ig
