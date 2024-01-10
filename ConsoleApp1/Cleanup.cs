@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace IGtoOBJGen
 { 
-        //Cleanup class that handles cleanup processes for the parser.
+    //Cleanup class that handles cleanup processes for the parser.
     internal class Cleanup
     {
         private string temp_name;

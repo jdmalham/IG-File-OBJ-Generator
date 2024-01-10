@@ -133,9 +133,7 @@ class OBJGenerator
 
         
         string temp_name = Path.GetFileNameWithoutExtension(Path.GetFileName(targetPath)); // i.e. tmp900y20.tmp
-
         var cleanup = new Cleanup(temp_name, targetPath, deletionPath);
-
         AppDomain.CurrentDomain.ProcessExit += (sender, eventArgs) =>
         {
             cleanup.callCleanUp();
