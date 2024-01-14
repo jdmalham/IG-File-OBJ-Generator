@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,13 +10,11 @@ namespace IGtoOBJGen
     internal class Cleanup
     {
         private string temp_name;
-        private string targetPath;
         private string deletionPath;
 
-        public Cleanup(string temp_name, string targetPath, string deletionPath)
+        public Cleanup(string temp_name, string deletionPath)
         {
             this.temp_name = temp_name;
-            this.targetPath = targetPath;
             this.deletionPath = deletionPath;
         }
 
@@ -45,10 +43,10 @@ namespace IGtoOBJGen
         public void CleanupTempFiles()
         {
             // Verify if the target directory exists
-            if (Directory.Exists(targetPath))
+            if (Directory.Exists(deletionPath))
             {
                 //obtain list of items in the target directory
-                string[] filesAndFolders = Directory.GetFileSystemEntries(targetPath);
+                string[] filesAndFolders = Directory.GetFileSystemEntries(deletionPath);
 
                 foreach (var fileOrFolder in filesAndFolders) //loop through items
                 {
@@ -59,7 +57,7 @@ namespace IGtoOBJGen
                             if (File.Exists(fileOrFolder))
                             {
                                 File.Delete(fileOrFolder); // Delete file
-                                //Console.WriteLine($"Deleted file: {fileOrFolder}");
+                                Console.WriteLine($"Deleted file: {fileOrFolder}");
                             }
                             else if (Directory.Exists(fileOrFolder))
                             {
@@ -77,7 +75,7 @@ namespace IGtoOBJGen
             }
             else
             {
-                Console.WriteLine($"Target directory not found: {targetPath}");
+                Console.WriteLine($"Target directory not found: {deletionPath}");
             }
         }
     }
