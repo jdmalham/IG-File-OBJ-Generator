@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using IGtoOBJGen;
@@ -26,8 +26,8 @@ class OBJGenerator
         JObject o2;
         List<string> fileNames = new List<string>();
         inputState = args.Length == 0;
-        //adbState = ADBCheck();
-        //appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\Android\Sdk\platform-tools\adb.exe";
+        adbState = ADBCheck();
+        appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\Android\Sdk\platform-tools\adb.exe";
         if (args.Count() > 1)
         {
             targetPath = "";
@@ -53,7 +53,7 @@ class OBJGenerator
             targetPath = tempFolder;
             Console.CancelKeyPress += delegate { Directory.Delete(tempFolder, true); };
         }
-        /*Console.WriteLine(adbState);
+        Console.WriteLine(adbState);
         if (adbState == false) {
             var stater = ADBRead();
             if (stater != null)
@@ -64,7 +64,7 @@ class OBJGenerator
             {
                 appdata = GetADBPathFromUser();
             }
-        }*/
+        }
 
         //ConfigHandler.ParseCSV(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.csv");
         
@@ -133,9 +133,7 @@ class OBJGenerator
 
         
         string temp_name = Path.GetFileNameWithoutExtension(Path.GetFileName(targetPath)); // i.e. tmp900y20.tmp
-
-        var cleanup = new Cleanup(temp_name, targetPath, deletionPath);
-
+        var cleanup = new Cleanup(temp_name, deletionPath);
         AppDomain.CurrentDomain.ProcessExit += (sender, eventArgs) =>
         {
             cleanup.callCleanUp();
