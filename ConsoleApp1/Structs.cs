@@ -15,6 +15,17 @@ struct MuonChamberData
     public double[] vertical;
     public double[] horizontal;
 }
+struct Vertex
+{
+    public int isValid;
+    public int isFake;
+    public double[] pos;
+    public double xError;
+    public double yError;
+    public double zError;
+    public double chi2;
+    public double ndof;
+}
 struct CalorimetryData 
 {
     public double energy;

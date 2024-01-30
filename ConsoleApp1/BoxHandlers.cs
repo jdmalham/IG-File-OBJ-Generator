@@ -3,6 +3,7 @@ using MathNet.Numerics.LinearAlgebra;
 using MathNet.Spatial.Euclidean;
 using Newtonsoft.Json;
 using System.Xml.Linq;
+using System.Globalization;
 
 namespace IGtoOBJGen
 {
@@ -68,6 +69,15 @@ namespace IGtoOBJGen
             var yuh = recHitFractionsParse();
             recHitFractions = assignRecHitFractions(yuh);
             makeSuperClusters();
+
+            List<Vertex> vertices = vertexParse();
+            int i = 0;
+            foreach(Vertex v in vertices)
+            {
+                GenerateEllipsoidObj($@"{eventTitle}\vertices.obj",vertices, 3.0);
+                i += 1;
+            }
+            
         }
         public List<MuonChamberData> muonChamberParse()
         {
@@ -116,7 +126,7 @@ namespace IGtoOBJGen
             int index = 0;
             int counter = 1;
             //dataStrings.Add("vn -1.0000 -0.0000 -0.0000\nvn -0.0000 -0.0000 -1.0000\nvn 1.0000 -0.0000 -0.0000\nvn -0.0000 -0.0000 1.0000\nvn -0.0000 -1.0000 -0.0000\nvn -0.0000 1.0000 -0.0000");
-            
+
             foreach (var chamber in data)
             {
                 dataStrings.Add($"o MuonChamber_{index}");
@@ -128,15 +138,15 @@ namespace IGtoOBJGen
                 dataStrings.Add($"v {String.Join(' ', chamber.back_2)}");
                 dataStrings.Add($"v {String.Join(' ', chamber.back_3)}");
                 dataStrings.Add($"v {String.Join(' ', chamber.back_4)}");
-                Vector3D f1_1 = (new Vector3D(chamber.front_1[0], chamber.front_1[1], chamber.front_1[2]))- (new Vector3D(chamber.front_2[0], chamber.front_2[1], chamber.front_2[2]));
+                Vector3D f1_1 = (new Vector3D(chamber.front_1[0], chamber.front_1[1], chamber.front_1[2])) - (new Vector3D(chamber.front_2[0], chamber.front_2[1], chamber.front_2[2]));
                 Vector3D f1_2 = (new Vector3D(chamber.front_1[0], chamber.front_1[1], chamber.front_1[2])) - (new Vector3D(chamber.front_3[0], chamber.front_3[1], chamber.front_3[2]));
                 Vector3D normal2_1 = (new Vector3D(chamber.front_1[0], chamber.front_1[1], chamber.front_1[2])) - (new Vector3D(chamber.back_1[0], chamber.back_1[1], chamber.back_1[2]));
                 Vector3D normal2_2 = (new Vector3D(chamber.back_1[0], chamber.back_1[1], chamber.back_1[2])) - (new Vector3D(chamber.back_2[0], chamber.back_2[1], chamber.back_2[2]));
                 Vector3D normal;
-                Vector3D norm1 = f1_1.CrossProduct( f1_2 );
+                Vector3D norm1 = f1_1.CrossProduct(f1_2);
 
                 dataStrings.Add($"f {counter + 3} {counter + 2} {counter + 1} {counter}");
-                dataStrings.Add($"f {counter+4} {counter + 5} {counter + 6} {counter + 7}");
+                dataStrings.Add($"f {counter + 4} {counter + 5} {counter + 6} {counter + 7}");
                 dataStrings.Add($"f {counter + 1} {counter + 2} {counter + 6} {counter + 5}");
                 dataStrings.Add($"f {counter + 4} {counter + 7} {counter + 3} {counter}");
                 dataStrings.Add($"f {counter + 2} {counter + 3} {counter + 7} {counter + 6}");
@@ -178,9 +188,11 @@ namespace IGtoOBJGen
         public void makeHFRec()
         {
             HFData = genericCaloParse("HFRecHits_V2", HFSCALE);
-            if ( HFData.Count == 0 ) { 
-            File.WriteAllText($"{eventTitle}\\6_HFRecHits_V2.obj", String.Empty);
-                return; }
+            if (HFData.Count == 0)
+            {
+                File.WriteAllText($"{eventTitle}\\6_HFRecHits_V2.obj", String.Empty);
+                return;
+            }
             List<string> dataList = generateCalorimetryBoxes(HFData);
             File.WriteAllText($"{eventTitle}\\6_HFRecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{eventTitle}\\6_HFRecHits_V2.obj", dataList);
@@ -189,9 +201,11 @@ namespace IGtoOBJGen
         {
             HBData = genericCaloParse("HBRecHits_V2", HBSCALE);
             List<string> dataList = generateCalorimetryBoxes(HBData);
-            if (HBData.Count == 0 ) { 
-            File.WriteAllText($"{eventTitle}\\6_HBRecHits_V2.obj", String.Empty);
-                return; }
+            if (HBData.Count == 0)
+            {
+                File.WriteAllText($"{eventTitle}\\6_HBRecHits_V2.obj", String.Empty);
+                return;
+            }
             File.WriteAllText($"{eventTitle}\\6_HBRecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{eventTitle}\\6_HBRecHits_V2.obj", dataList);
         }
@@ -199,9 +213,11 @@ namespace IGtoOBJGen
         {
             HEData = genericCaloParse("HERecHits_V2", HESCALE);
             List<string> dataList = generateCalorimetryBoxes(HEData);
-            if (HEData.Count == 0 ) { 
-            File.WriteAllText($"{eventTitle}\\6_HERecHits_V2.obj", String.Empty);
-                return; }
+            if (HEData.Count == 0)
+            {
+                File.WriteAllText($"{eventTitle}\\6_HERecHits_V2.obj", String.Empty);
+                return;
+            }
             File.WriteAllText($"{eventTitle}\\6_HERecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{eventTitle}\\6_HERecHits_V2.obj", dataList);
         }
@@ -209,10 +225,12 @@ namespace IGtoOBJGen
         {
             HOData = genericCaloParse("HORecHits_V2", HOSCALE);
             List<string> dataList = generateCalorimetryTowers(HOData);
-            if (HOData.Count == 0) { 
-            File.WriteAllText($"{eventTitle}\\6_HORecHits_V2.obj", String.Empty);
+            if (HOData.Count == 0)
+            {
+                File.WriteAllText($"{eventTitle}\\6_HORecHits_V2.obj", String.Empty);
 
-                return; }
+                return;
+            }
             File.WriteAllText($"{eventTitle}\\6_HORecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{eventTitle}\\6_HORecHits_V2.obj", dataList);
         }
@@ -220,9 +238,10 @@ namespace IGtoOBJGen
         {
             EBData = genericCaloParse("EBRecHits_V2", EBSCALE);
             List<string> dataList = generateCalorimetryTowers(EBData);
-            if (EBData.Count == 0) {
+            if (EBData.Count == 0)
+            {
                 File.WriteAllText($"{eventTitle}\\5_EBRecHits_V2.obj", String.Empty);
-                return; 
+                return;
             }
             File.WriteAllText($"{eventTitle}\\5_EBRecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{eventTitle}\\5_EBRecHits_V2.obj", dataList);
@@ -231,9 +250,10 @@ namespace IGtoOBJGen
         {
             EEData = genericCaloParse("EERecHits_V2", EESCALE);
             List<string> dataList = generateCalorimetryTowers(EEData);
-            if (EEData.Count == 0 ) {
+            if (EEData.Count == 0)
+            {
                 File.WriteAllText($"{eventTitle}\\5_EERecHits_V2.obj", String.Empty);
-                return; 
+                return;
             }
             File.WriteAllText($"{eventTitle}\\5_EERecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{eventTitle}\\5_EERecHits_V2.obj", dataList);
@@ -242,10 +262,12 @@ namespace IGtoOBJGen
         {
             ESData = genericCaloParse("ESRecHits_V2", ESSCALE);
             List<string> dataList = generateCalorimetryTowers(ESData);
-            if(ESData.Count == 0 ) { 
-            File.WriteAllText($"{eventTitle}\\5_ESRecHits_V2.obj", String.Empty);
+            if (ESData.Count == 0)
+            {
+                File.WriteAllText($"{eventTitle}\\5_ESRecHits_V2.obj", String.Empty);
 
-                return; }
+                return;
+            }
             File.WriteAllText($"{eventTitle}\\5_ESRecHits_V2.obj", String.Empty);
             File.WriteAllLines($"{eventTitle}\\5_ESRecHits_V2.obj", dataList);
         }
@@ -255,7 +277,7 @@ namespace IGtoOBJGen
             List<JetData> datalist = new List<JetData>();
             foreach (var item in data["Collections"]["PFJets_V1"])
             {
-  
+
                 JetData currentJet = new JetData();
                 var children = item.Children().Values<double>().ToArray();
 
@@ -281,7 +303,7 @@ namespace IGtoOBJGen
             int iterNumber = 0;
             int index = 0;
             List<string> dataList = new List<string>();
-            
+
             foreach (var item in data)
             {
                 iterNumber++;
@@ -291,13 +313,13 @@ namespace IGtoOBJGen
                 double length1 = (ct != 0.0) ? maxZ / Math.Abs(ct) : maxZ;
                 double length2 = (st != 0.0) ? maxR / Math.Abs(st) : maxR;
                 double length = length1 < length2 ? length1 : length2;
-                
-                dataList = jetGeometry(item, radius, length, numSections,index,dataList);
+
+                dataList = jetGeometry(item, radius, length, numSections, index, dataList);
                 index++;
             }
             File.WriteAllLines($"{eventTitle}//0_PFJets.obj", dataList);
         }
-        public List<string> jetGeometry(JetData item, double radius, double length, int sections,int index, List<string> dataList)
+        public List<string> jetGeometry(JetData item, double radius, double length, int sections, int index, List<string> dataList)
         {
             List<string> normals = new List<string>();
             List<string> normals1 = new List<string>();
@@ -322,7 +344,7 @@ namespace IGtoOBJGen
             var rz = M.DenseOfArray(zRot);
             normals.Add($"o Jets_{index}");
 
-            
+
             for (double i = 1.0; i <= sections; i++)
             {
                 double radian = (2.0 * i * Math.PI) / (double)sections;
@@ -342,15 +364,15 @@ namespace IGtoOBJGen
                 radialpoints.Add(new Vector3D(top[0], top[1], top[2]));
             }
             section1.AddRange(topsection);
-            for(int i =0; i<radialpoints.Count; i++)
+            for (int i = 0; i < radialpoints.Count; i++)
             {
-                if(i == radialpoints.Count - 1)
+                if (i == radialpoints.Count - 1)
                 {
                     var vector_1 = radialpoints[i];
                     var vector_2 = radialpoints[0];
                     Vector3D norm = vector_1.CrossProduct(vector_2);
                     normals.Add($"vn {norm.X} {norm.Y} {norm.Z}");
-					 normals2.Add($"vn {-norm.X} {-norm.Y} {-norm.Z}");
+                    normals2.Add($"vn {-norm.X} {-norm.Y} {-norm.Z}");
                     break;
                 }
                 var vector1 = radialpoints[i];
@@ -361,20 +383,20 @@ namespace IGtoOBJGen
                 normals2.Add($"vn {-normalresult.X} {-normalresult.Y} {-normalresult.Z}");
             }
             normals.AddRange(normals2);
-            int n = 1; 
+            int n = 1;
 
             while (n < sections)
             {
-                string face = $"f {n+(2*sections*index)}//{n + (2 * sections * index)} {n + sections + (2 * sections * index)}//{n + (2 * sections * index)} {n + 1 + sections + (2 * sections * index)}//{n + (2 * sections * index)} {n + 1 + (2 * sections * index)}//{n + (2 * sections * index)}";
+                string face = $"f {n + (2 * sections * index)}//{n + (2 * sections * index)} {n + sections + (2 * sections * index)}//{n + (2 * sections * index)} {n + 1 + sections + (2 * sections * index)}//{n + (2 * sections * index)} {n + 1 + (2 * sections * index)}//{n + (2 * sections * index)}";
                 //string face = $"f {n} {n + sections} {n + 1 + sections} {n + 1}";
-                string revface = $"f {n+1 + (2 * sections * index)}//{n+sections + (2 * sections * index)} {n + 1 + sections + (2 * sections * index)}//{n+sections + (2 * sections * index)} {n + sections + (2 * sections * index)}//{n+sections + (2 * sections * index)} {n + (2 * sections * index)}//{n+sections + (2 * sections * index)}";
+                string revface = $"f {n + 1 + (2 * sections * index)}//{n + sections + (2 * sections * index)} {n + 1 + sections + (2 * sections * index)}//{n + sections + (2 * sections * index)} {n + sections + (2 * sections * index)}//{n + sections + (2 * sections * index)} {n + (2 * sections * index)}//{n + sections + (2 * sections * index)}";
                 section1.Add(face);
                 section1.Add(revface);
                 n++;
             }
 
-            section1.Add($"f {2* sections * index + sections}//{2 * sections *index+sections} {2 * sections * index + 2*sections}//{2 * sections * index + sections} {2 * sections * index + sections+1}//{2 * sections * index + sections} {2 * sections * index + 1}//{2 * sections * index + sections}\n" +
-                $"f {2 * sections * index + 1}//{2 * sections * index + 2 * sections} {2 * sections * index + sections +1}//{2 * sections * index + 2 * sections} {2 * sections * index + 2 * sections}//{2 * sections * index + 2*sections} {2 * sections * index + sections}//{2 * sections * index + 2*sections}");
+            section1.Add($"f {2 * sections * index + sections}//{2 * sections * index + sections} {2 * sections * index + 2 * sections}//{2 * sections * index + sections} {2 * sections * index + sections + 1}//{2 * sections * index + sections} {2 * sections * index + 1}//{2 * sections * index + sections}\n" +
+                $"f {2 * sections * index + 1}//{2 * sections * index + 2 * sections} {2 * sections * index + sections + 1}//{2 * sections * index + 2 * sections} {2 * sections * index + 2 * sections}//{2 * sections * index + 2 * sections} {2 * sections * index + sections}//{2 * sections * index + 2 * sections}");
             normals.AddRange(section1);
             /*if (!Directory.Exists($"{desktopPath}\\{eventTitle}\\jets"))
             {
@@ -541,7 +563,7 @@ namespace IGtoOBJGen
         public void setScales()
         {
             //Hadronic scaling factor is equivalent to the largest energy value in each respective set (HE,HB,HO,HF)
-            List<string> CALSETS = new List<string>() { "HERecHits_V2", "HBRecHits_V2", "HFRecHits_V2", "HORecHits_V2", "EBRecHits_V2","ESRecHits_V2","EERecHits_V2" };
+            List<string> CALSETS = new List<string>() { "HERecHits_V2", "HBRecHits_V2", "HFRecHits_V2", "HORecHits_V2", "EBRecHits_V2", "ESRecHits_V2", "EERecHits_V2" };
             foreach (string CALSET in CALSETS)
             {
                 var collection = data["Collections"][CALSET];
@@ -627,7 +649,7 @@ namespace IGtoOBJGen
         {
             List<SuperCluster> dataList = new List<SuperCluster>();
             int idNumber = 0;
-            
+
             foreach (var item in data["Collections"]["SuperClusters_V1"])
             {
                 SuperCluster cluster = new SuperCluster();
@@ -635,7 +657,7 @@ namespace IGtoOBJGen
 
                 cluster.id = idNumber;
                 cluster.energy = Double.Parse(values[0]);
-                cluster.pos = new[] { Double.Parse(values[1]),Double.Parse(values[2]),Double.Parse(values[3])};
+                cluster.pos = new[] { Double.Parse(values[1]), Double.Parse(values[2]), Double.Parse(values[3]) };
                 cluster.eta = Double.Parse(values[4]);
                 cluster.phi = Double.Parse(values[5]);
                 cluster.algo = values[6];
@@ -655,11 +677,11 @@ namespace IGtoOBJGen
             List<string> faces = new List<string>();
             int index = 0;
             int counter = 1;
-            foreach(var item in recHitFractions)
+            foreach (var item in recHitFractions)
             {
                 dataList.Add($"o SuperCluster_{index}");
 
-                foreach(RecHitFraction hit in item)
+                foreach (RecHitFraction hit in item)
                 {
                     dataList.Add($"v {String.Join(' ', hit.front_1)}");
                     dataList.Add($"v {String.Join(' ', hit.front_2)}");
@@ -672,10 +694,10 @@ namespace IGtoOBJGen
                     dataList.Add($"v {String.Join(' ', hit.back_3)}");
                     dataList.Add($"v {String.Join(' ', hit.back_4)}");*/
 
-                    faces.Add($"f {counter} {counter+1} {counter+2}");
-                    faces.Add($"f {counter+2} {counter+1} {counter}");
-                    faces.Add($"f {counter+3} {counter+4} {counter+5}");
-                    faces.Add($"f {counter+5} {counter+4} {counter+3}");
+                    faces.Add($"f {counter} {counter + 1} {counter + 2}");
+                    faces.Add($"f {counter + 2} {counter + 1} {counter}");
+                    faces.Add($"f {counter + 3} {counter + 4} {counter + 5}");
+                    faces.Add($"f {counter + 5} {counter + 4} {counter + 3}");
                     counter += 6;
                 }
                 dataList.AddRange(faces);
@@ -683,6 +705,81 @@ namespace IGtoOBJGen
                 index++;
             }
             File.WriteAllLines($"{eventTitle}//$_Superclusters.obj", dataList);
+        }
+        List<Vertex> vertexParse()
+        {
+            List<Vertex> dataList = new List<Vertex>();
+
+            foreach (var item in data["Collections"]["Vertices_V1"])
+            {
+                var children = item.Children().Values<double>().ToList();
+                Vertex vertex = new Vertex();
+
+                vertex.isValid = (int)children[0];
+                vertex.isFake = (int)children[1];
+                vertex.pos = new double[] { children[2], children[3], children[4] };
+                vertex.xError = children[5];
+                vertex.yError = children[6];
+                vertex.zError = children[7];
+                vertex.chi2 = children[8];
+                vertex.ndof = children[9];
+            
+                dataList.Add(vertex);
+            }
+            
+            return dataList;
+        }
+
+
+        void GenerateEllipsoidObj(string filePath, List<Vertex> vertexList, double sigmaFactor)
+        {
+            int vertexNumber = 0;
+            int indexer = 0;
+            using (StreamWriter writer = new StreamWriter(filePath))
+            {
+                foreach (var item in vertexList) {
+                    writer.WriteLine($"o Vertex_{vertexNumber}");
+                    double[] pos = item.pos;
+                    double xDiameter = sigmaFactor*item.xError;double yDiameter = sigmaFactor * item.yError;double zDiameter = sigmaFactor * item.zError;
+                
+                    int index = 0;
+                    // Generate vertices
+                    int numVertices = 100;
+                    for (int i = 0; i < numVertices; i++)
+                    {
+                        double theta = 2.0 * Math.PI * i / numVertices;
+                        for (int j = 0; j < numVertices / 2; j++)
+                        {
+                            double phi = Math.PI * j / (numVertices / 2);
+
+                            double x = pos[0] + xDiameter * Math.Sin(phi) * Math.Cos(theta);
+                            double y = pos[1] + yDiameter * Math.Sin(phi) * Math.Sin(theta);
+                            double z = pos[2] + zDiameter * Math.Cos(phi);
+
+                            writer.WriteLine($"v {x} {y} {z}");
+                        }
+                    }
+
+                    int vIndex = 1; // Vertex indices start from 1 in OBJ format
+                    for (int i = 0; i < numVertices; i++)
+                    {
+                        for (int j = 0; j < numVertices / 2 - 1; j++)
+                        {                   
+                            int v1 = vIndex + j;
+                            int v2 = vIndex + (j + 1) % (numVertices / 2);
+                            int v3 = vIndex + (j + 1) % (numVertices / 2) + numVertices / 2;
+                            int v4 = vIndex + j + numVertices / 2;
+
+                            writer.WriteLine($"f {indexer+v1} {indexer + v2} {indexer + v3}");
+                            writer.WriteLine($"f {indexer + v1} {indexer + v3} {indexer + v4}");
+                            index = v4;
+                        }
+                        vIndex += numVertices / 2;
+                    }
+                    indexer += index;
+                    vertexNumber++;
+                }
+            }
         }
     }
 }
