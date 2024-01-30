@@ -1,9 +1,11 @@
 ﻿using CsvHelper.Configuration.Attributes;
 using System.Numerics;
+//Wouldn't be the end of the world to replace the double arrays with Vectors
 struct MuonChamberData 
 {
     public string name;
     public int detid;
+    public int id;
     public double[] front_1;
     public double[] front_2;
     public double[] front_3;
@@ -14,6 +16,7 @@ struct MuonChamberData
     public double[] back_4;
     public double[] vertical;
     public double[] horizontal;
+    public double[] centroid;
 }
 struct Vertex
 {
