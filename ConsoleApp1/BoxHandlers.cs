@@ -34,6 +34,7 @@ namespace IGtoOBJGen
         public List<CalorimetryData> HOData;
 
         public List<JetData> jetDatas;
+        public List<Vertex> vertexDatas;
         public List<MuonChamberData> muonChamberDatas;
         public List<SuperCluster> superClusters;
         public List<List<RecHitFraction>> recHitFractions;
@@ -70,11 +71,11 @@ namespace IGtoOBJGen
             recHitFractions = assignRecHitFractions(yuh);
             makeSuperClusters();
 
-            List<Vertex> vertices = vertexParse();
+            vertexDatas = vertexParse();
             int i = 0;
-            foreach(Vertex v in vertices)
+            foreach(Vertex v in vertexDatas)
             {
-                GenerateEllipsoidObj($@"{eventTitle}\vertices.obj",vertices, 3.0);
+                GenerateEllipsoidObj($@"{eventTitle}\vertices.obj",vertexDatas, 3.0);
                 i += 1;
             }
             
@@ -757,11 +758,12 @@ namespace IGtoOBJGen
             int indexer = 0;
             using (StreamWriter writer = new StreamWriter(filePath))
             {
-                foreach (var item in vertexList) {
+                foreach (var item in vertexList)
+                {
                     writer.WriteLine($"o Vertex_{vertexNumber}");
                     double[] pos = item.pos;
-                    double xDiameter = sigmaFactor*item.xError;double yDiameter = sigmaFactor * item.yError;double zDiameter = sigmaFactor * item.zError;
-                
+                    double xDiameter = sigmaFactor * item.xError; double yDiameter = sigmaFactor * item.yError; double zDiameter = sigmaFactor * item.zError;
+
                     int index = 0;
                     // Generate vertices
                     int numVertices = 100;
@@ -784,14 +786,14 @@ namespace IGtoOBJGen
                     for (int i = 0; i < numVertices; i++)
                     {
                         for (int j = 0; j < numVertices / 2 - 1; j++)
-                        {                   
+                        {
                             int v1 = vIndex + j;
                             int v2 = vIndex + (j + 1) % (numVertices / 2);
                             int v3 = vIndex + (j + 1) % (numVertices / 2) + numVertices / 2;
                             int v4 = vIndex + j + numVertices / 2;
 
-                            writer.WriteLine($"f {indexer+v1} {indexer + v2} {indexer + v3}");
-                            writer.WriteLine($"f {indexer + v1} {indexer + v3} {indexer + v4}");
+                            writer.WriteLine($"f {indexer + v1} {indexer + v2} {indexer + v3} {indexer + v4}");
+                            //writer.WriteLine($"f {indexer + v1} {indexer + v3} {indexer + v4}");
                             index = v4;
                         }
                         vIndex += numVertices / 2;
