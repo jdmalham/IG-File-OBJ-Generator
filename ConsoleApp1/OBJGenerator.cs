@@ -54,20 +54,19 @@ class OBJGenerator
             Console.CancelKeyPress += delegate { Directory.Delete(tempFolder, true); };
         }
         Console.WriteLine(adbState);
-        if (adbState == false) {
-            var stater = ADBRead();
-            if (stater != null)
+
+        if (adbState == false)
+        {
+            string path = Directory.GetCurrentDirectory() + "/platform-tools/adb";
+            if (path != null)
             {
-                appdata = stater;
+                appdata = path;
             }
             else
             {
                 appdata = GetADBPathFromUser();
             }
         }
-
-        //ConfigHandler.ParseCSV(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.csv");
-        
 
         if (inputState)
         {
@@ -128,7 +127,7 @@ class OBJGenerator
         IGTracks t = new IGTracks(o2, targetPath);
         IGBoxes b = new IGBoxes(o2, targetPath);
 
-        var totaljson = JsonConvert.SerializeObject(new {b.jetDatas,b.EEData, b.EBData, b.ESData, b.HEData, b.HBData, b.HOData, b.HFData, b.superClusters,b.muonChamberDatas, t.globalMuonDatas, t.trackerMuonDatas, t.standaloneMuonDatas, t.electronDatas, t.trackDatas }, Formatting.Indented);
+        var totaljson = JsonConvert.SerializeObject(new {b.jetDatas,b.EEData, b.EBData, b.ESData, b.HEData, b.HBData, b.HOData, b.HFData, b.superClusters,b.muonChamberDatas,b.vertexDatas, t.globalMuonDatas, t.trackerMuonDatas, t.standaloneMuonDatas, t.electronDatas, t.trackDatas }, Formatting.Indented);
         File.WriteAllText($"{targetPath}//totalData.json",totaljson);
 
         
@@ -167,31 +166,10 @@ class OBJGenerator
     //Check for ADB in default location
     private static bool ADBCheck()
     {
-        bool state = true;
         string appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\Android\Sdk\platform-tools\adb.exe";
-        if (File.Exists(appdata) == false) { state = false; }
-        return state;
+        return File.Exists(appdata);
     }
-    //Read in the config file to check for special location
-    private static string ADBRead()
-    {
-        string path;
-        string resourcename = "IGtoOBJGen.config.txt";
-        var yuh = File.ReadAllLines(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.txt");
-        if (yuh.Length != 0)
-        {
-            path = File.ReadAllLines(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.txt").First();
-            using (Stream stream = resources.GetManifestResourceStream(resourcename))
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                string result = reader.ReadToEnd();
-            }
-        } else
-        {
-            path = null;
-        }
-        return path;
-    }
+
     //Called if the config file does not contain anything, allows the user to then specify what the path to be used from now on is.
     private static string GetADBPathFromUser()
     {
