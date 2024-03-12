@@ -11,7 +11,7 @@ namespace IGtoOBJGen
     internal class IGTracks
     {
         //Properties
-        protected string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+        protected string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);//******
         protected string eventTitle;
         public string jsonData;
         protected JObject data { get; set; }
@@ -291,6 +291,7 @@ namespace IGtoOBJGen
             if ((assocsExtras == null || assocsExtras.HasValues == false)&&(assocsPoints==null||assocsPoints.HasValues == false))
             {
                 Console.WriteLine("No Tracker Muons!");
+                trackerMuonExtras = new List<TrackExtrasData>();
                 return dataList;
             }
 
@@ -309,10 +310,15 @@ namespace IGtoOBJGen
                 idNumber++;
                 dataList.Add(muonData);
             }
-            if (assocsExtras.HasValues)
+            if (assocsExtras.Count() >=1)
             {
                 int firstassoc = assocsExtras[0][1][1].Value<int>();
                 trackerMuonExtras = trackExtrasData.GetRange(firstassoc, assocsExtras.Last()[1][1].Value<int>() - firstassoc + 1);
+            }
+            else
+            {
+                trackerMuonExtras = new List<TrackExtrasData>();
+                trackerMuonExtras.Clear();
             }
             if (assocsPoints.HasValues)
             {
@@ -346,6 +352,7 @@ namespace IGtoOBJGen
             if ((assocs == null || assocs.HasValues == false)&&(assocsPoints==null||assocsPoints.HasValues ==false))
             {
                 Console.WriteLine("No Standalone Muons!");
+                
                 return dataList;
             }
             foreach (var item in data["Collections"]["Tracks_V3"])
