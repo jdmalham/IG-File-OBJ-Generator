@@ -11,12 +11,9 @@ using System;
 
 class OBJGenerator
 {
-    static Assembly resources = Assembly.GetExecutingAssembly();
     static void Main(string[] args)
     {
         bool inputState;
-        bool adbState;
-        string datapath;
         string eventName;
         string targetPath;
         Unzip zipper;
@@ -26,6 +23,7 @@ class OBJGenerator
         List<string> fileNames = new List<string>();
         string adbPath = Directory.GetCurrentDirectory() + "/platform-tools/adb";
         inputState = args.Length == 0;
+        
         if (args.Count() > 1)
         {
             targetPath = "";
@@ -57,12 +55,10 @@ class OBJGenerator
         if (inputState)
         {
             zipper = new Unzip(@"/IGdata/Hto4l_120-130GeV (1).ig");
-            datapath = @"/IGdata/Hto4l_120-130GeV (1).ig";
         }
         else
         {
             zipper = new Unzip(args[0]);
-            datapath = args[0];
         }
 
         Console.CancelKeyPress += delegate { zipper.destroyStorage(); };
@@ -149,21 +145,5 @@ class OBJGenerator
         }
 
         Console.WriteLine($"Total Execution Time: {watch.ElapsedMilliseconds} ms"); // See how fast code runs. Code goes brrrrrrr on fancy office pc. It makes me happy. :)
-    }
-    //Check for ADB in default location
-    private static bool ADBCheck()
-    {
-        string path = Directory.GetCurrentDirectory()+"/platform-tools/adb";
-        return File.Exists(path);
-    }
-   
-    //Called if the config file does not contain anything, allows the user to then specify what the path to be used from now on is.
-    private static string GetadbPathFromUser()
-    {
-        string path;
-        Console.WriteLine("No ADB path found. Please enter the local path for ADB, or install ADB to its default location:");
-        path = Console.ReadLine();
-        //Resources.config = path;
-        return path;
     }
 }
