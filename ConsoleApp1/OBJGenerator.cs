@@ -52,6 +52,7 @@ class OBJGenerator
             Console.CancelKeyPress += delegate { Directory.Delete(tempFolder, true); };
         }
         Console.WriteLine(adbState);
+        /*
         if (adbState == false) {
             var stater = ADBRead();
             if (stater != null)
@@ -62,12 +63,24 @@ class OBJGenerator
             {
                 appdata = GetADBPathFromUser();
             }
+        }*/
+        Console.WriteLine(Directory.GetCurrentDirectory());
+        if (adbState == false)
+        {
+            string path = Directory.GetCurrentDirectory() + "/platform-tools/adb";
+            if (path != null)
+            {
+                appdata = path;
+            }
+            else
+            {
+                appdata = GetADBPathFromUser();
+            }
         }
+            //ConfigHandler.ParseCSV(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.csv");
 
-        //ConfigHandler.ParseCSV(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.csv");
-        
 
-        if (inputState)
+            if (inputState)
         {
             zipper = new Unzip(@"C:\Users\uclav\Desktop\IG\Hto4l_120-130GeV.ig");
             datapath = @"C:\Users\uclav\Desktop\IG\Hto4l_120-130GeV.ig";
@@ -128,6 +141,7 @@ class OBJGenerator
 
         var totaljson = JsonConvert.SerializeObject(new {b.jetDatas,b.EEData, b.EBData, b.ESData, b.HEData, b.HBData, b.HOData, b.HFData, b.superClusters,b.muonChamberDatas, t.globalMuonDatas, t.trackerMuonDatas, t.standaloneMuonDatas, t.electronDatas, t.trackDatas }, Formatting.Indented);
         File.WriteAllText($"{targetPath}//totalData.json",totaljson);
+        File.WriteAllText($"{Directory.GetCurrentDirectory()}//totalData(copy).json", totaljson);
 
         zipper.destroyStorage();
 
@@ -163,6 +177,7 @@ class OBJGenerator
         return state;
     }
     //Read in the config file to check for special location
+    /*
     private static string ADBRead()
     {
         string path;
@@ -182,6 +197,7 @@ class OBJGenerator
         }
         return path;
     }
+    */
     //Called if the config file does not contain anything, allows the user to then specify what the path to be used from now on is.
     private static string GetADBPathFromUser()
     {
