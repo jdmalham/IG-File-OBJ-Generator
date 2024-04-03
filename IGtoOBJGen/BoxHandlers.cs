@@ -34,6 +34,7 @@ namespace IGtoOBJGen
         public List<CalorimetryData> HOData;
 
         public List<JetData> jetDatas;
+        public List<Vertex> vertexDatas;
         public List<MuonChamberData> muonChamberDatas;
         public List<SuperCluster> superClusters;
         public List<List<RecHitFraction>> recHitFractions;
@@ -70,11 +71,11 @@ namespace IGtoOBJGen
             recHitFractions = assignRecHitFractions(yuh);
             makeSuperClusters();
 
-            List<Vertex> vertices = vertexParse();
+            vertexDatas = vertexParse();
             int i = 0;
-            foreach(Vertex v in vertices)
+            foreach(Vertex v in vertexDatas)
             {
-                GenerateEllipsoidObj($@"{eventTitle}\vertices.obj",vertices, 3.0);
+                GenerateEllipsoidObj($@"{eventTitle}\vertices.obj",vertexDatas, 3.0);
                 i += 1;
             }
             
