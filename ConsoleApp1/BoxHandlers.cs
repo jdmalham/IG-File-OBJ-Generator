@@ -750,18 +750,99 @@ namespace IGtoOBJGen
             return dataList;
         }
 
+        public static void GenerateOBJ(List<(Point3D center, Point3D width)> ellipsoids, string filePath)
+        {
+            using (StreamWriter writer = new StreamWriter(filePath))
+            {
+                int vertexCount = 1;
+                int objectCount = 1;
+                int current = 0;
 
-        void GenerateEllipsoidObj(string filePath, List<Vertex> vertexList, double sigmaFactor)
+                foreach (var ellipsoid in ellipsoids)
+                {
+                    writer.WriteLine($"o Object{objectCount++}");
+
+                    // Generate vertices
+                    List<Point3D> vertices = GenerateEllipsoidVertices(ellipsoid.center, ellipsoid.width);
+
+                    // Write vertices
+                    foreach (var vertex in vertices)
+                    {
+                        writer.WriteLine($"v {vertex.X} {vertex.Y} {vertex.Z}");
+                    }
+
+                    // Write faces
+                    int n = (int)Math.Sqrt(vertices.Count); // Assuming square grid
+                    for (int i = 0; i < n - 1; i++)
+                    {
+                        for (int j = 0; j < n - 1; j++)
+                        {
+                            int currentIndex = i * n + j + vertexCount;
+                            int nextIndex = currentIndex + 1;
+                            int bottomIndex = currentIndex + n;
+                            int nextBottomIndex = nextIndex + n;
+
+                            writer.WriteLine($"f {currentIndex} {nextIndex} {nextBottomIndex} {bottomIndex}");
+                        }
+
+                    }
+                    vertexCount += vertices.Count;
+                }
+            }
+
+            Console.WriteLine("OBJ file generated successfully.");
+        }
+
+        private static List<Point3D> GenerateEllipsoidVertices(Point3D center, Point3D width)
+        {
+            List<Point3D> vertices = new List<Point3D>();
+
+            int segments = 20; // Adjust as needed for smoother ellipsoids
+            double thetaStep = 2 * Math.PI / segments;
+            double phiStep = Math.PI / segments;
+
+            for (int i = 0; i <= segments; i++)
+            {
+                double theta = i * thetaStep;
+                for (int j = 0; j <= segments; j++)
+                {
+                    double phi = j * phiStep;
+                    double x = center.X + width.X * Math.Sin(phi) * Math.Cos(theta);
+                    double y = center.Y + width.Y * Math.Sin(phi) * Math.Sin(theta);
+                    double z = center.Z + width.Z * Math.Cos(phi);
+                    vertices.Add(new Point3D(x, y, z));
+                }
+            }
+
+            return vertices;
+        }
+    }
+
+    struct Point3D
+    {
+        public double X;
+        public double Y;
+        public double Z;
+
+        public Point3D(double x, double y, double z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+    }
+    void GenerateEllipsoidObj(string filePath, List<Vertex> vertexList, double sigmaFactor)
         {
             int vertexNumber = 0;
             int indexer = 0;
             using (StreamWriter writer = new StreamWriter(filePath))
             {
-                foreach (var item in vertexList) {
+                foreach (var item in vertexList)
+                {
                     writer.WriteLine($"o Vertex_{vertexNumber}");
                     double[] pos = item.pos;
-                    double xDiameter = sigmaFactor*item.xError;double yDiameter = sigmaFactor * item.yError;double zDiameter = sigmaFactor * item.zError;
-                
+                    double xDiameter = sigmaFactor * item.xError; double yDiameter = sigmaFactor * item.yError; double zDiameter = sigmaFactor * item.zError;
+
                     int index = 0;
                     // Generate vertices
                     int numVertices = 100;
@@ -784,14 +865,14 @@ namespace IGtoOBJGen
                     for (int i = 0; i < numVertices; i++)
                     {
                         for (int j = 0; j < numVertices / 2 - 1; j++)
-                        {                   
+                        {
                             int v1 = vIndex + j;
                             int v2 = vIndex + (j + 1) % (numVertices / 2);
                             int v3 = vIndex + (j + 1) % (numVertices / 2) + numVertices / 2;
                             int v4 = vIndex + j + numVertices / 2;
 
-                            writer.WriteLine($"f {indexer+v1} {indexer + v2} {indexer + v3}");
-                            writer.WriteLine($"f {indexer + v1} {indexer + v3} {indexer + v4}");
+                            writer.WriteLine($"f {indexer + v1} {indexer + v2} {indexer + v3} {indexer + v4}");
+                            //writer.WriteLine($"f {indexer + v1} {indexer + v3} {indexer + v4}");
                             index = v4;
                         }
                         vIndex += numVertices / 2;
