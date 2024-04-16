@@ -251,7 +251,6 @@ namespace IGtoOBJGen
 
             if (assocs == null||assocs.HasValues == false)
             {
-                Console.WriteLine("No Global Muons!");
                 return dataList;
             }
 
@@ -278,7 +277,7 @@ namespace IGtoOBJGen
         }
         public void makeGlobalMuons() 
         {
-            if (globalMuonPoints == null) { Console.WriteLine("NoGlobal"); return; }
+            if (globalMuonPoints == null) { return; }
             makeGeometryFromPoints(globalMuonPoints,"2_globalMuons","globalMuons");
         }
         public List<TrackerMuonData> trackerMuonParse()
@@ -290,7 +289,6 @@ namespace IGtoOBJGen
             var assocsPoints = data["Associations"]["MuonTrackerPoints_V1"];
             if ((assocsExtras == null || assocsExtras.HasValues == false)&&(assocsPoints==null||assocsPoints.HasValues == false))
             {
-                Console.WriteLine("No Tracker Muons!");
                 trackerMuonExtras = new List<TrackExtrasData>();
                 return dataList;
             }
@@ -350,9 +348,7 @@ namespace IGtoOBJGen
             var assocs = data["Associations"]["MuonTrackExtras_V1"];
             var assocsPoints = data["Associations"]["MuonStandalonePoints_V1"];
             if ((assocs == null || assocs.HasValues == false)&&(assocsPoints==null||assocsPoints.HasValues ==false))
-            {
-                Console.WriteLine("No Standalone Muons!");
-                
+            {                
                 return dataList;
             }
             foreach (var item in data["Collections"]["Tracks_V3"])
