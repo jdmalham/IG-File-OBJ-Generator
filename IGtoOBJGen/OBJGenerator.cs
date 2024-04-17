@@ -51,19 +51,7 @@ class OBJGenerator
             targetPath = tempFolder;
             Console.CancelKeyPress += delegate { Directory.Delete(tempFolder, true); };
         }
-        Console.WriteLine(adbState);
-        /*
-        if (adbState == false) {
-            var stater = ADBRead();
-            if (stater != null)
-            {
-                appdata = stater;
-            }
-            else
-            {
-                appdata = GetADBPathFromUser();
-            }
-        }*/
+        
         Console.WriteLine(Directory.GetCurrentDirectory());
         if (adbState == false)
         {
@@ -77,11 +65,7 @@ class OBJGenerator
                 appdata = GetADBPathFromUser();
             }
         }
-            //ConfigHandler.ParseCSV(@"C:\Users\uclav\Source\Repos\jdmalham\IG-File-OBJ-Generator\ConsoleApp1\config.csv");
-
-
-            if (inputState)
-
+        
         if (inputState)
         {
             zipper = new Unzip(@"/IGdata/Hto4l_120-130GeV (1).ig");
@@ -156,7 +140,6 @@ class OBJGenerator
         try
         {
             Console.WriteLine(targetPath);
-            Console.ReadLine();
             Communicate bridge = new Communicate(adbPath);
             bridge.UploadFiles(targetPath);
         }
