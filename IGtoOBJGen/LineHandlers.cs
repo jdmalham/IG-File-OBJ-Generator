@@ -287,12 +287,17 @@ namespace IGtoOBJGen
 
             var assocsExtras = data["Associations"]["MuonTrackerExtras_V1"];
             var assocsPoints = data["Associations"]["MuonTrackerPoints_V1"];
+            var datapoints = data["Collections"]["TrackerMuons_V1"];
             if ((assocsExtras == null || assocsExtras.HasValues == false)&&(assocsPoints==null||assocsPoints.HasValues == false))
             {
                 trackerMuonExtras = new List<TrackExtrasData>();
                 return dataList;
             }
-
+            if(datapoints == null)
+            {
+                trackerMuonExtras = new List<TrackExtrasData>();
+                return dataList;
+            }
             foreach (var item in data["Collections"]["TrackerMuons_V1"])
             {
                 TrackerMuonData muonData = new TrackerMuonData();

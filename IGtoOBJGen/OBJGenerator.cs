@@ -21,7 +21,7 @@ class OBJGenerator
         JsonTextReader reader;
         JObject o2;
         List<string> fileNames = new List<string>();
-        string adbPath = Directory.GetCurrentDirectory() + "/platform-tools/adb";
+        string adbPath = Directory.GetCurrentDirectory() + "\\platform-tools\\adb.exe";
         inputState = args.Length == 0;
         
         if (args.Count() > 1)
@@ -53,7 +53,7 @@ class OBJGenerator
         }
         
         Console.WriteLine(Directory.GetCurrentDirectory());
-        if (adbState == false)
+        /*if (adbState == false)
         {
             string path = Directory.GetCurrentDirectory() + "/platform-tools/adb";
             if (path != null)
@@ -64,7 +64,7 @@ class OBJGenerator
             {
                 appdata = GetADBPathFromUser();
             }
-        }
+        }*/
         
         if (inputState)
         {
@@ -140,7 +140,9 @@ class OBJGenerator
         try
         {
             Console.WriteLine(targetPath);
+            Console.WriteLine(Directory.GetCurrentDirectory());
             Communicate bridge = new Communicate(adbPath);
+            Console.WriteLine("Hello");
             bridge.UploadFiles(targetPath);
         }
         catch (Exception e)
@@ -153,6 +155,10 @@ class OBJGenerator
             else if (e is SharpAdbClient.Exceptions.AdbException)
             {
                 Console.WriteLine("An ADB exception has been thrown.\nPlease check that the Oculus is connected to the computer.");
+            }
+            else
+            {
+                throw e;
             }
             Environment.Exit(1);
         }

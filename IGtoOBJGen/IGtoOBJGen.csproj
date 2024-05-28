@@ -5,7 +5,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <BaseOutputPath>C:\Users\uclav\Desktop\buildBin</BaseOutputPath>
+    <BaseOutputPath>C:\Users\uclav\Desktop\build</BaseOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,13 +15,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="config.txt" />
-    <None Remove="IGdata\Event_1096322990" />
+
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="config.txt" />
-    <EmbeddedResource Include="IGdata\Event_1096322990" />
+  
   </ItemGroup>
 
   <ItemGroup>

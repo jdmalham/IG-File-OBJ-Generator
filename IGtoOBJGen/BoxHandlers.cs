@@ -4,6 +4,8 @@ using MathNet.Spatial.Euclidean;
 using Newtonsoft.Json;
 using System.Xml.Linq;
 using System.Globalization;
+using CsvHelper.Configuration.Attributes;
+using System.Text;
 
 namespace IGtoOBJGen
 {
@@ -75,9 +77,29 @@ namespace IGtoOBJGen
             int i = 0;
             foreach(Vertex v in vertexDatas)
             {
-                GenerateEllipsoidObj($@"{eventTitle}\vertices.obj",vertexDatas, 3.0);
-                i += 1;
+                File.WriteAllText($@"{eventTitle}\vertices.obj", GenerateEllipsoidsObj(vertexDatas, 3.0));
+                break;
             }
+            try
+            {
+                
+                var primaryData = primaryVertexParse();
+                foreach (Vertex v in primaryData)
+                {
+                    File.WriteAllText($@"{eventTitle}\PrimaryVertices_V1.obj", GenerateEllipsoidsObj(primaryData, 3.0));
+                    break;
+                }
+                var secondDatas = secondaryVertexParse();
+                foreach (Vertex v in secondDatas)
+                {
+                    File.WriteAllText($@"{eventTitle}\SecondaryVertices_V1.obj", GenerateEllipsoidsObj(secondDatas, 3.0));
+                    break;
+                }
+            }catch (Exception e)
+            {
+                
+            }
+            
             
         }
         public List<MuonChamberData> muonChamberParse()
@@ -302,6 +324,10 @@ namespace IGtoOBJGen
         {
             int idNumber = 0;
             List<JetData> datalist = new List<JetData>();
+            if (data["Collections"]["PFJets_V1"] == null)
+            {
+                return datalist;
+            }
             foreach (var item in data["Collections"]["PFJets_V1"])
             {
 
@@ -631,6 +657,10 @@ namespace IGtoOBJGen
         public List<RecHitFraction> recHitFractionsParse()
         {
             List<RecHitFraction> dataList = new List<RecHitFraction>();
+            if(data["Collections"]["RecHitFractions_V1"] == null)
+            {
+                return dataList;
+            }
             foreach (var item in data["Collections"]["RecHitFractions_V1"])
             {
                 RecHitFraction thing = new RecHitFraction();
@@ -653,6 +683,10 @@ namespace IGtoOBJGen
         {
             List<List<RecHitFraction>> dataList = new List<List<RecHitFraction>>();
             int indexer = 0;
+            if (data["Associations"]["SuperClusterRecHitFractions_V1"]==null)
+            {
+                return dataList;
+            }
             foreach (var item in data["Associations"]["SuperClusterRecHitFractions_V1"])
             {
                 int index = item[0][1].Value<int>();
@@ -670,7 +704,10 @@ namespace IGtoOBJGen
         {
             List<SuperCluster> dataList = new List<SuperCluster>();
             int idNumber = 0;
-
+            if(data["Collections"]["SuperClusters_V1"] == null)
+            {
+                return dataList;
+            }
             foreach (var item in data["Collections"]["SuperClusters_V1"])
             {
                 SuperCluster cluster = new SuperCluster();
@@ -730,7 +767,10 @@ namespace IGtoOBJGen
         List<Vertex> vertexParse()
         {
             List<Vertex> dataList = new List<Vertex>();
-
+            if (data["Collections"]["Vertices_V1"] == null)
+            {
+                return dataList;
+            }
             foreach (var item in data["Collections"]["Vertices_V1"])
             {
                 var children = item.Children().Values<double>().ToList();
@@ -750,7 +790,58 @@ namespace IGtoOBJGen
             
             return dataList;
         }
+        List<Vertex> primaryVertexParse()
+        {
+            List<Vertex> dataList = new List<Vertex>();
+            if (data["Collections"]["PrimaryVertices_V1"] == null)
+            {
+                return dataList;
+            }
+            foreach (var item in data["Collections"]["PrimaryVertices_V1"])
+            {
+                var children = item.Children().Values<double>().ToList();
+                Vertex vertex = new Vertex();
 
+                vertex.isValid = (int)children[0];
+                vertex.isFake = (int)children[1];
+                vertex.pos = new double[] { children[2], children[3], children[4] };
+                vertex.xError = children[5];
+                vertex.yError = children[6];
+                vertex.zError = children[7];
+                vertex.chi2 = children[8];
+                vertex.ndof = children[9];
+
+                dataList.Add(vertex);
+            }
+
+            return dataList;
+        }
+        List<Vertex> secondaryVertexParse()
+        {
+            List<Vertex> dataList = new List<Vertex>();
+            if (data["Collections"]["SecondaryVertices_V1"] == null)
+            {
+                return dataList;
+            }
+            foreach (var item in data["Collections"]["SecondaryVertices_V1"])
+            {
+                var children = item.Children().Values<double>().ToList();
+                Vertex vertex = new Vertex();
+
+                vertex.isValid = (int)children[0];
+                vertex.isFake = (int)children[1];
+                vertex.pos = new double[] { children[2], children[3], children[4] };
+                vertex.xError = children[5];
+                vertex.yError = children[6];
+                vertex.zError = children[7];
+                vertex.chi2 = children[8];
+                vertex.ndof = children[9];
+
+                dataList.Add(vertex);
+            }
+
+            return dataList;
+        }
         public static void GenerateOBJ(List<(Point3D center, Point3D width)> ellipsoids, string filePath)
         {
             using (StreamWriter writer = new StreamWriter(filePath))
@@ -817,22 +908,66 @@ namespace IGtoOBJGen
 
             return vertices;
         }
-    }
-
-    struct Point3D
-    {
-        public double X;
-        public double Y;
-        public double Z;
-
-        public Point3D(double x, double y, double z)
+        static string GenerateEllipsoidsObj(List<Vertex> vertices, double sigmaFactor)
         {
-            X = x;
-            Y = y;
-            Z = z;
+            StringBuilder objBuilder = new StringBuilder();
+            int vertexOffset = 1;
+
+            foreach (var vertex in vertices)
+            {
+                var ellipsoidData = GenerateEllipsoid(vertex.pos, sigmaFactor*vertex.xError, sigmaFactor * vertex.yError, sigmaFactor * vertex.zError);
+                objBuilder.Append(ellipsoidData.obj);
+                vertexOffset += ellipsoidData.vertexCount;
+            }
+
+            return objBuilder.ToString();
         }
-    }
-    void GenerateEllipsoidObj(string filePath, List<Vertex> vertexList, double sigmaFactor)
+
+        static (string obj, int vertexCount) GenerateEllipsoid(double[] center, double radiusX, double radiusY, double radiusZ)
+        {
+            const int latitudeSegments = 18;
+            const int longitudeSegments = 36;
+            StringBuilder objBuilder = new StringBuilder();
+            int vertexCount = 0;
+
+            // Generate vertices
+            for (int lat = 0; lat <= latitudeSegments; lat++)
+            {
+                double theta = lat * Math.PI / latitudeSegments;
+                double sinTheta = Math.Sin(theta);
+                double cosTheta = Math.Cos(theta);
+
+                for (int lon = 0; lon <= longitudeSegments; lon++)
+                {
+                    double phi = lon * 2 * Math.PI / longitudeSegments;
+                    double sinPhi = Math.Sin(phi);
+                    double cosPhi = Math.Cos(phi);
+
+                    double x = center[0] + radiusX * sinTheta * cosPhi;
+                    double y = center[1] + radiusY * sinTheta * sinPhi;
+                    double z = center[2] + radiusZ * cosTheta;
+
+                    objBuilder.AppendLine($"v {x} {y} {z}");
+                    vertexCount++;
+                }
+            }
+
+            // Generate faces
+            for (int lat = 0; lat < latitudeSegments; lat++)
+            {
+                for (int lon = 0; lon < longitudeSegments; lon++)
+                {
+                    int first = (lat * (longitudeSegments + 1)) + lon + 1;
+                    int second = first + longitudeSegments + 1;
+
+                    objBuilder.AppendLine($"f {first} {second} {second + 1}");
+                    objBuilder.AppendLine($"f {first} {second + 1} {first + 1}");
+                }
+            }
+
+            return (objBuilder.ToString(), vertexCount);
+        }
+        void GenerateEllipsoidObj(string filePath, List<Vertex> vertexList, double sigmaFactor)
         {
             int vertexNumber = 0;
             int indexer = 0;
@@ -846,7 +981,7 @@ namespace IGtoOBJGen
 
                     int index = 0;
                     // Generate vertices
-                    int numVertices = 100;
+                    int numVertices = 25;
                     for (int i = 0; i < numVertices; i++)
                     {
                         double theta = 2.0 * Math.PI * i / numVertices;
